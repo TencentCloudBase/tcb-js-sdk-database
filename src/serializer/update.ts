@@ -42,7 +42,7 @@ export class UpdateSerializer {
   encodeUpdateCommand(query: UpdateCommand): IQueryCondition {
 
     if (query.fieldName === SYMBOL_UNSET_FIELD_NAME) {
-      throw new Error(`Cannot encode a comparison command with unset field name`)
+      throw new Error('Cannot encode a comparison command with unset field name')
     }
 
     switch (query.operator) {

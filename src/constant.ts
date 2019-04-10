@@ -26,10 +26,15 @@ const FieldType = {
   Boolean: 'Boolean',
   Null: 'Null',
   GeoPoint: 'GeoPoint',
+  GeoLineString: 'GeoLineString',
+  GeoPolygon: 'GeoPolygon',
+  GeoMultiPoint: 'GeoMultiPoint',
+  GeoMultiLineString: 'GeoMultiLineString',
+  GeoMultiPolygon: 'GeoMultiPolygon',
   Timestamp: 'Date',
   Command: 'Command',
   ServerDate: 'ServerDate'
-};
+}
 
 /**
  * 排序方向
@@ -39,7 +44,7 @@ type OrderByDirection = 'desc' | 'asc';
 /**
  * 排序方向列表
  */
-const OrderDirectionList = ['desc', 'asc'];
+const OrderDirectionList = ['desc', 'asc']
 
 /**
  * 查询条件操作符
@@ -49,7 +54,7 @@ type WhereFilterOp = '<' | '<=' | '==' | '>=' | '>';
 /**
  * 操作符列表
  */
-const WhereFilterOpList = ['<', '<=', '==', '>=', '>'];
+const WhereFilterOpList = ['<', '<=', '==', '>=', '>']
 
 /**
  * 操作符别名
@@ -72,7 +77,7 @@ const OperatorMap = {
   [Opeartor.lte]: '$lte',
   [Opeartor.gt]: '$gt',
   [Opeartor.gte]: '$gte'
-};
+}
 
 const UpdateOperatorList = [
   '$set',
@@ -86,7 +91,7 @@ const UpdateOperatorList = [
   '$currentDate',
   '$each',
   '$position'
-];
+]
 
 export {
   ErrorCode,
@@ -98,4 +103,4 @@ export {
   OrderByDirection,
   OrderDirectionList,
   UpdateOperatorList
-};
+}

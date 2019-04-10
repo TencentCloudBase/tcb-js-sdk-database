@@ -1,5 +1,5 @@
-const _symbols: { target: any, instance: InternalSymbol }[] = [];
-const __internalMark__ = {};
+const _symbols: { target: any, instance: InternalSymbol }[] = []
+const __internalMark__ = {}
 
 class HiddenSymbol {
 
@@ -11,7 +11,7 @@ class HiddenSymbol {
         configurable: false,
         value: target,
       },
-    });
+    })
   }
 }
 
@@ -19,30 +19,30 @@ export class InternalSymbol extends HiddenSymbol {
 
   constructor(target: any, __mark__: any) {
     if (__mark__ !== __internalMark__) {
-      throw new TypeError('InternalSymbol cannot be constructed with new operator');
+      throw new TypeError('InternalSymbol cannot be constructed with new operator')
     }
 
-    super(target);
+    super(target)
   }
 
   static for(target: any) {
 
     for (let i = 0, len = _symbols.length; i < len; i++) {
       if (_symbols[i].target === target) {
-        return _symbols[i].instance;
+        return _symbols[i].instance
       }
     }
 
-    const symbol = new InternalSymbol(target, __internalMark__);
+    const symbol = new InternalSymbol(target, __internalMark__)
 
     _symbols.push({
       target,
       instance: symbol,
-    });
+    })
 
-    return symbol;
+    return symbol
   }
 }
 
-export default InternalSymbol;
+export default InternalSymbol
 

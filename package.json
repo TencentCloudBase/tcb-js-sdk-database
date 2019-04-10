@@ -4,6 +4,8 @@
   "description": "database for (node.)js sdk ",
   "main": "dist/index.js",
   "scripts": {
+    "eslint": "eslint \"./**/*.ts\"",
+    "eslint-fix": "eslint --fix \"./**/*.ts\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

@@ -5,8 +5,8 @@ import {
   OrderByDirection,
   OrderDirectionList,
   FieldType
-} from './constant';
-import { Util } from './util';
+} from './constant'
+import { Util } from './util'
 
 /**
  * 校验模块
@@ -22,20 +22,20 @@ export class Validate {
    * @param point   - 经纬度
    * @param degree  - 数值
    */
-  static isGeopoint(point: "latitude" | "longitude", degree: number) {
+  static isGeopoint(point: 'latitude' | 'longitude', degree: number) {
     if (Util.whichType(degree) !== FieldType.Number) {
-      throw new Error('Geo Point must be number type');
+      throw new Error('Geo Point must be number type')
     }
 
     // 位置的绝对值
-    const degreeAbs = Math.abs(degree);
+    const degreeAbs = Math.abs(degree)
 
     if (point === 'latitude' && degreeAbs > 90) {
-      throw new Error('latitude should be a number ranges from -90 to 90');
+      throw new Error('latitude should be a number ranges from -90 to 90')
     } else if (point === 'longitude' && degreeAbs > 180) {
-      throw new Error('longitude should be a number ranges from -180 to 180');
+      throw new Error('longitude should be a number ranges from -180 to 180')
     }
-    return true;
+    return true
   }
 
   /**
@@ -46,9 +46,9 @@ export class Validate {
    */
   static isInteger(param: string, num: number): Boolean {
     if (!Number.isInteger(num)) {
-      throw new Error(param + ErrorCode.IntergerError);
+      throw new Error(param + ErrorCode.IntergerError)
     }
-    return true;
+    return true
   }
 
   /**
@@ -58,9 +58,9 @@ export class Validate {
    */
   static isFieldOrder(direction: OrderByDirection): Boolean {
     if (OrderDirectionList.indexOf(direction) === -1) {
-      throw new Error(ErrorCode.DirectionError);
+      throw new Error(ErrorCode.DirectionError)
     }
-    return true;
+    return true
   }
 
   /**
@@ -72,9 +72,9 @@ export class Validate {
    */
   static isFieldPath(path: string): Boolean {
     if (!/^[a-zA-Z0-9-_\.]/.test(path)) {
-      throw new Error();
+      throw new Error()
     }
-    return true;
+    return true
   }
 
   /**
@@ -84,9 +84,9 @@ export class Validate {
    */
   static isOperator(op: WhereFilterOp): Boolean {
     if (WhereFilterOpList.indexOf(op) === -1) {
-      throw new Error(ErrorCode.OpStrError);
+      throw new Error(ErrorCode.OpStrError)
     }
-    return true;
+    return true
   }
 
   /**
@@ -100,9 +100,9 @@ export class Validate {
    */
   static isCollName(name: string): Boolean {
     if (!/^[a-zA-Z0-9]([a-zA-Z0-9-_]){1,32}$/.test(name)) {
-      throw new Error(ErrorCode.CollNameError);
+      throw new Error(ErrorCode.CollNameError)
     }
-    return true;
+    return true
   }
 
   /**
@@ -112,8 +112,8 @@ export class Validate {
    */
   static isDocID(docId: string): Boolean {
     if (!/^([a-fA-F0-9]){24}$/.test(docId)) {
-      throw new Error(ErrorCode.DocIDError);
+      throw new Error(ErrorCode.DocIDError)
     }
-    return true;
+    return true
   }
 }

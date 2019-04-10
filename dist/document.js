@@ -174,11 +174,11 @@ var DocumentReference = (function () {
         };
         this.request.send('database.queryDocument', param).then(function (res) {
             if (res.code) {
-                callback(res);
+                callback(0, res);
             }
             else {
                 var documents = util_2.Util.formatResDocumentData(res.data.list);
-                callback({
+                callback(0, {
                     data: documents,
                     requestId: res.requestId,
                     total: res.TotalCount,

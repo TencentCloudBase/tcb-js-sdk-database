@@ -4,22 +4,22 @@ export class ServerDate {
     readonly offset: number;
 
     constructor({ offset = 0 } = {}) {
-        this.offset = offset
+      this.offset = offset
     }
 
     get _internalType() {
-        return SYMBOL_SERVER_DATE
+      return SYMBOL_SERVER_DATE
     }
 
     parse() {
-        return {
-            $date: {
-                offset: this.offset
-            }
+      return {
+        $date: {
+          offset: this.offset
         }
+      }
     }
 }
 
 export function ServerDateConstructor(opt) {
-    return new ServerDate(opt)
+  return new ServerDate(opt)
 }

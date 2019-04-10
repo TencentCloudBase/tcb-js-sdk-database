@@ -1,11 +1,10 @@
-import { FieldType } from "./constant";
-import { Point } from "./geo/point";
-import { ServerDate } from "./serverDate";
+import { FieldType } from './constant'
+import { Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon } from './geo'
+import { ServerDate } from './serverDate'
 
 interface DocumentModel {
   _id: string;
 }
-
 
 /**
  * 工具模块
@@ -13,7 +12,6 @@ interface DocumentModel {
  * @author haroldhu
  */
 export class Util {
-
   /**
    * 格式化后端返回的文档数据
    *
@@ -21,8 +19,8 @@ export class Util {
    */
   public static formatResDocumentData = (documents: DocumentModel[]) => {
     return documents.map(document => {
-      return Util.formatField(document);
-    });
+      return Util.formatField(document)
+    })
   };
 
   /**
@@ -34,46 +32,75 @@ export class Util {
    * @internal
    */
   private static formatField = document => {
-    const keys = Object.keys(document);
-    let protoField = {};
+    const keys = Object.keys(document)
+    let protoField = {}
 
     // 数组递归的情况
     if (Array.isArray(document)) {
-      protoField = [];
+      protoField = []
     }
 
     keys.forEach(key => {
-      const item = document[key];
-      const type = Util.whichType(item);
+      const item = document[key]
+      const type = Util.whichType(item)
       // console.log(type, item)
-      let realValue;
+      let realValue
       switch (type) {
         case FieldType.GeoPoint:
-          realValue = new Point(item.coordinates[0], item.coordinates[1]);
-          break;
+          realValue = new Point(item.coordinates[0], item.coordinates[1])
+          break
+        case FieldType.GeoLineString:
+          realValue = new LineString(item.coordinates.map(point => new Point(point[0], point[1])))
+          break
+        case FieldType.GeoPolygon:
+          realValue = new Polygon(
+            item.coordinates.map(
+              line => new LineString(line.map(([lng, lat]) => new Point(lng, lat)))
+            )
+          )
+          break
+        case FieldType.GeoMultiPoint:
+          realValue = new MultiPoint(item.coordinates.map(point => new Point(point[0], point[1])))
+          break
+        case FieldType.GeoMultiLineString:
+          realValue = new MultiLineString(
+            item.coordinates.map(
+              line => new LineString(line.map(([lng, lat]) => new Point(lng, lat)))
+            )
+          )
+          break
+        case FieldType.GeoMultiPolygon:
+          realValue = new MultiPolygon(
+            item.coordinates.map(
+              polygon =>
+                new Polygon(
+                  polygon.map(line => new LineString(line.map(([lng, lat]) => new Point(lng, lat))))
+                )
+            )
+          )
+          break
         case FieldType.Timestamp:
-          realValue = new Date(item.$timestamp * 1000);
-          break;
+          realValue = new Date(item.$timestamp * 1000)
+          break
         case FieldType.Object:
         case FieldType.Array:
-          realValue = Util.formatField(item);
-          break;
+          realValue = Util.formatField(item)
+          break
         case FieldType.ServerDate:
-          realValue = new Date(item.$date);
-          break;
+          realValue = new Date(item.$date)
+          break
 
         default:
-          realValue = item;
-
+          realValue = item
       }
 
       if (Array.isArray(protoField)) {
-        protoField.push(realValue);
+        protoField.push(realValue)
       } else {
-        protoField[key] = realValue;
+        protoField[key] = realValue
       }
-    });
-    return protoField;
+    })
+    return protoField
   };
 
   /**
@@ -82,29 +109,41 @@ export class Util {
    * @param obj
    */
   public static whichType = (obj: any): String => {
-    let type = Object.prototype.toString.call(obj).slice(8, -1);
+    let type = Object.prototype.toString.call(obj).slice(8, -1)
 
     if (type === FieldType.Object) {
       // console.log(obj)
       if (obj instanceof Point) {
-        return FieldType.GeoPoint;
+        return FieldType.GeoPoint
       } else if (obj instanceof Date) {
-        return FieldType.Timestamp;
-      }/* else if (obj instanceof Command) {
+        return FieldType.Timestamp
+      } /* else if (obj instanceof Command) {
         return FieldType.Command;
-      } */else if (obj instanceof ServerDate) {
+      } */ else if (
+        obj instanceof ServerDate
+      ) {
         return FieldType.ServerDate
       }
 
       if (obj.$timestamp) {
-        type = FieldType.Timestamp;
+        type = FieldType.Timestamp
       } else if (obj.$date) {
-        type = FieldType.ServerDate;
-      } else if (Array.isArray(obj.coordinates) && obj.type === "Point") {
-        type = FieldType.GeoPoint;
+        type = FieldType.ServerDate
+      } else if (Point.validate(obj)) {
+        type = FieldType.GeoPoint
+      } else if (LineString.validate(obj)) {
+        type = FieldType.GeoLineString
+      } else if (Polygon.validate(obj)) {
+        type = FieldType.GeoPolygon
+      } else if (MultiPoint.validate(obj)) {
+        type = FieldType.GeoMultiPoint
+      } else if (MultiLineString.validate(obj)) {
+        type = FieldType.GeoMultiLineString
+      } else if (MultiPolygon.validate(obj)) {
+        type = FieldType.GeoMultiPolygon
       }
     }
-    return type;
+    return type
   };
 
   /**
@@ -113,11 +152,11 @@ export class Util {
    * 为创建新文档使用
    */
   public static generateDocId = () => {
-    let chars = "ABCDEFabcdef0123456789";
-    let autoId = "";
+    let chars = 'ABCDEFabcdef0123456789'
+    let autoId = ''
     for (let i = 0; i < 24; i++) {
-      autoId += chars.charAt(Math.floor(Math.random() * chars.length));
+      autoId += chars.charAt(Math.floor(Math.random() * chars.length))
     }
-    return autoId;
+    return autoId
   };
 }
