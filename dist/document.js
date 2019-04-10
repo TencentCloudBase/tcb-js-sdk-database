@@ -98,6 +98,7 @@ var DocumentReference = (function () {
         }).catch(function (err) {
             callback(err);
         });
+        return callback.promise;
     };
     DocumentReference.prototype.update = function (data, callback) {
         callback = callback || util_1.createPromiseCallback();

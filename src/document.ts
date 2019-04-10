@@ -171,6 +171,8 @@ export class DocumentReference {
     }).catch((err) => {
       callback(err);
     });
+
+    return callback.promise;
   }
 
   /**
@@ -281,6 +283,7 @@ export class DocumentReference {
     }).catch((err) => {
       callback(err);
     });
+
     return callback.promise;
   }
 
