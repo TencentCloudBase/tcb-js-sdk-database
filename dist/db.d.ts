@@ -5,13 +5,14 @@ interface GeoTeyp {
     Point: typeof Point;
 }
 export declare class Db {
-    static reqClass: any;
     Geo: GeoTeyp;
     command: typeof Command;
     RegExp: any;
     serverDate: any;
     config: any;
+    static reqClass: any;
     constructor(config?: any);
     collection(collName: string): CollectionReference;
+    createCollection(collName: string): any;
 }
 export {};

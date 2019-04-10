@@ -79,9 +79,9 @@ var QueryEncoder = (function () {
         }
     };
     QueryEncoder.prototype.encodeComparisonCommand = function (query) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         if (query.fieldName === symbol_1.SYMBOL_UNSET_FIELD_NAME) {
-            throw new Error("Cannot encode a comparison command with unset field name");
+            throw new Error('Cannot encode a comparison command with unset field name');
         }
         var $op = operator_map_1.operatorToString(query.operator);
         switch (query.operator) {
@@ -105,12 +105,44 @@ var QueryEncoder = (function () {
                         _d),
                     _c;
             }
-            default: {
+            case query_1.QUERY_COMMANDS_LITERAL.GEO_NEAR: {
+                var options = query.operands[0];
                 return _e = {},
-                    _e[query.fieldName] = (_f = {},
-                        _f[$op] = common_1.encodeInternalDataType(query.operands[0]),
-                        _f),
+                    _e[query.fieldName] = {
+                        $nearSphere: {
+                            $geometry: options.geometry.toJSON(),
+                            $maxDistance: options.maxDistance,
+                            $minDistance: options.minDistance
+                        }
+                    },
                     _e;
+            }
+            case query_1.QUERY_COMMANDS_LITERAL.GEO_WITHIN: {
+                var options = query.operands[0];
+                return _f = {},
+                    _f[query.fieldName] = {
+                        $geoWithin: {
+                            $geometry: options.geometry.toJSON()
+                        }
+                    },
+                    _f;
+            }
+            case query_1.QUERY_COMMANDS_LITERAL.GEO_INTERSECTS: {
+                var options = query.operands[0];
+                return _g = {},
+                    _g[query.fieldName] = {
+                        $geoIntersects: {
+                            $geometry: options.geometry.toJSON()
+                        }
+                    },
+                    _g;
+            }
+            default: {
+                return _h = {},
+                    _h[query.fieldName] = (_j = {},
+                        _j[$op] = common_1.encodeInternalDataType(query.operands[0]),
+                        _j),
+                    _h;
             }
         }
     };

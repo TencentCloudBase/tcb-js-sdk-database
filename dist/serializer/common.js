@@ -23,7 +23,7 @@ function flatten(query, shouldPreserverObject, parents, visited) {
             continue;
         if (type_1.isObject(value) && !shouldPreserverObject(value)) {
             if (visited.indexOf(value) > -1) {
-                throw new Error("Cannot convert circular structure to JSON");
+                throw new Error('Cannot convert circular structure to JSON');
             }
             var newParents = parents.concat([
                 key,

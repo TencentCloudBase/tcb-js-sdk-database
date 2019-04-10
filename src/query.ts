@@ -1,13 +1,13 @@
-import { createPromiseCallback } from './lib/util';
+import { createPromiseCallback } from './lib/util'
 /* eslint-disable no-unused-vars */
-import { OrderByDirection } from './constant';
-import { Db } from './db';
-import { Validate } from './validate';
-import { Util } from './util';
+import { OrderByDirection } from './constant'
+import { Db } from './db'
+import { Validate } from './validate'
+import { Util } from './util'
 // import { Command } from './command';
 // import * as isRegExp from 'is-regex'
-import { QuerySerializer } from './serializer/query';
-import { UpdateSerializer } from './serializer/update';
+import { QuerySerializer } from './serializer/query'
+import { UpdateSerializer } from './serializer/update'
 
 interface GetRes {
   data: any[];
@@ -97,13 +97,13 @@ export class Query {
     fieldOrders?: QueryOrder[],
     queryOptions?: QueryOption
   ) {
-    this._db = db;
-    this._coll = coll;
-    this._fieldFilters = fieldFilters;
-    this._fieldOrders = fieldOrders || [];
-    this._queryOptions = queryOptions || {};
+    this._db = db
+    this._coll = coll
+    this._fieldFilters = fieldFilters
+    this._fieldOrders = fieldOrders || []
+    this._queryOptions = queryOptions || {}
     /* eslint-disable new-cap */
-    this._request = new Db.reqClass(this._db.config);
+    this._request = new Db.reqClass(this._db.config)
   }
 
   /**
@@ -114,13 +114,13 @@ export class Query {
    */
   public get(callback?: any): Promise<GetRes> {
     /* eslint-disable no-param-reassign */
-    callback = callback || createPromiseCallback();
+    callback = callback || createPromiseCallback()
 
-    let newOder = [];
+    let newOder = []
     if (this._fieldOrders) {
       this._fieldOrders.forEach(order => {
-        newOder.push(order);
-      });
+        newOder.push(order)
+      })
     }
     interface Param {
       collectionName: string;
@@ -132,53 +132,53 @@ export class Query {
     }
     let param: Param = {
       collectionName: this._coll
-    };
+    }
     if (this._fieldFilters) {
-      param.query = this._fieldFilters;
+      param.query = this._fieldFilters
     }
     if (newOder.length > 0) {
-      param.order = newOder;
+      param.order = newOder
     }
     if (this._queryOptions.offset) {
-      param.offset = this._queryOptions.offset;
+      param.offset = this._queryOptions.offset
     }
     if (this._queryOptions.limit) {
       param.limit =
-        this._queryOptions.limit < 100 ? this._queryOptions.limit : 100;
+        this._queryOptions.limit < 100 ? this._queryOptions.limit : 100
     } else {
-      param.limit = 100;
+      param.limit = 100
     }
     if (this._queryOptions.projection) {
-      param.projection = this._queryOptions.projection;
+      param.projection = this._queryOptions.projection
     }
     // console.log('this._queryOptions', this._queryOptions);
     // console.log(param);
     this._request.send('database.queryDocument', param).then(res => {
       if (res.code) {
-        callback(0, res);
+        callback(0, res)
       } else {
-        const documents = Util.formatResDocumentData(res.data.list);
+        const documents = Util.formatResDocumentData(res.data.list)
         const result: any = {
           data: documents,
           requestId: res.requestId
-        };
-        if (res.TotalCount) result.total = res.TotalCount;
-        if (res.Limit) result.limit = res.Limit;
-        if (res.Offset) result.offset = res.Offset;
-        callback(0, result);
+        }
+        if (res.TotalCount) result.total = res.TotalCount
+        if (res.Limit) result.limit = res.Limit
+        if (res.Offset) result.offset = res.Offset
+        callback(0, result)
       }
     }).catch((err) => {
-      callback(err);
-    });
+      callback(err)
+    })
 
-    return callback.promise;
+    return callback.promise
   }
 
   /**
    * 获取总数
    */
   public count(callback?: any) {
-    callback = callback || createPromiseCallback();
+    callback = callback || createPromiseCallback()
 
     interface Param {
       collectionName: string;
@@ -186,23 +186,23 @@ export class Query {
     }
     let param: Param = {
       collectionName: this._coll
-    };
+    }
     if (this._fieldFilters) {
-      param.query = this._fieldFilters;
+      param.query = this._fieldFilters
     }
     this._request.send('database.countDocument', param).then(res => {
       // console.log(res);
       if (res.code) {
-        callback(0, res);
+        callback(0, res)
       } else {
         callback(0, {
           requestId: res.requestId,
           total: res.data.total
-        });
+        })
       }
-    });
+    })
 
-    return callback.promise;
+    return callback.promise
   }
 
   /**
@@ -218,7 +218,7 @@ export class Query {
       QuerySerializer.encode(query),
       this._fieldOrders,
       this._queryOptions
-    );
+    )
   }
 
   /**
@@ -228,14 +228,14 @@ export class Query {
    * @param directionStr  - 排序方式
    */
   public orderBy(fieldPath: string, directionStr: OrderByDirection): Query {
-    Validate.isFieldPath(fieldPath);
-    Validate.isFieldOrder(directionStr);
+    Validate.isFieldPath(fieldPath)
+    Validate.isFieldOrder(directionStr)
 
     const newOrder: QueryOrder = {
       field: fieldPath,
       direction: directionStr
-    };
-    const combinedOrders = this._fieldOrders.concat(newOrder);
+    }
+    const combinedOrders = this._fieldOrders.concat(newOrder)
 
     return new Query(
       this._db,
@@ -243,7 +243,7 @@ export class Query {
       this._fieldFilters,
       combinedOrders,
       this._queryOptions
-    );
+    )
   }
 
   /**
@@ -252,10 +252,10 @@ export class Query {
    * @param limit - 限制条数
    */
   public limit(limit: number): Query {
-    Validate.isInteger('limit', limit);
+    Validate.isInteger('limit', limit)
 
-    let option = { ...this._queryOptions };
-    option.limit = limit;
+    let option = { ...this._queryOptions }
+    option.limit = limit
 
     return new Query(
       this._db,
@@ -263,7 +263,7 @@ export class Query {
       this._fieldFilters,
       this._fieldOrders,
       option
-    );
+    )
   }
 
   /**
@@ -272,10 +272,10 @@ export class Query {
    * @param offset - 偏移量
    */
   public skip(offset: number): Query {
-    Validate.isInteger('offset', offset);
+    Validate.isInteger('offset', offset)
 
-    let option = { ...this._queryOptions };
-    option.offset = offset;
+    let option = { ...this._queryOptions }
+    option.offset = offset
 
     return new Query(
       this._db,
@@ -283,7 +283,7 @@ export class Query {
       this._fieldFilters,
       this._fieldOrders,
       option
-    );
+    )
   }
 
   /**
@@ -292,20 +292,20 @@ export class Query {
    * @param data 数据
    */
   public update(data: Object, callback?: any): Promise<any> {
-    callback = callback || createPromiseCallback();
+    callback = callback || createPromiseCallback()
 
     if (!data || typeof data !== 'object') {
       return Promise.resolve({
         code: 'INVALID_PARAM',
         message: '参数必需是非空对象'
-      });
+      })
     }
 
     if (data.hasOwnProperty('_id')) {
       return Promise.resolve({
         code: 'INVALID_PARAM',
         message: '不能更新_id的值'
-      });
+      })
     }
 
     let param = {
@@ -318,21 +318,21 @@ export class Query {
       data: UpdateSerializer.encode(data)
       // data: Util.encodeDocumentDataForReq(data, true)
       // data: this.convertParams(data)
-    };
+    }
 
     this._request.send('database.updateDocument', param).then(res => {
       if (res.code) {
-        callback(0, res);
+        callback(0, res)
       } else {
         callback(0, {
           requestId: res.requestId,
           updated: res.data.updated,
           upsertId: res.data.upsert_id
-        });
+        })
       }
-    });
+    })
 
-    return callback.promise;
+    return callback.promise
   }
 
   /**
@@ -343,14 +343,14 @@ export class Query {
   public field(projection: Object): Query {
     for (let k in projection) {
       if (projection[k]) {
-        projection[k] = 1;
+        projection[k] = 1
       } else {
-        projection[k] = 0;
+        projection[k] = 0
       }
     }
 
-    let option = { ...this._queryOptions };
-    option.projection = projection;
+    let option = { ...this._queryOptions }
+    option.projection = projection
 
     return new Query(
       this._db,
@@ -358,41 +358,41 @@ export class Query {
       this._fieldFilters,
       this._fieldOrders,
       option
-    );
+    )
   }
 
   /**
    * 条件删除文档
    */
   public remove(callback?: any) {
-    callback = callback || createPromiseCallback();
+    callback = callback || createPromiseCallback()
 
     if (Object.keys(this._queryOptions).length > 0) {
-      console.warn('`offset`, `limit` and `projection` are not supported in remove() operation');
+      console.warn('`offset`, `limit` and `projection` are not supported in remove() operation')
     }
     if (this._fieldOrders.length > 0) {
-      console.warn('`orderBy` is not supported in remove() operation');
+      console.warn('`orderBy` is not supported in remove() operation')
     }
     const param = {
       collectionName: this._coll,
       query: QuerySerializer.encode(this._fieldFilters),
       multi: true
-    };
+    }
     // console.log('this._queryOptions', this._queryOptions);
     // console.log(param);
     this._request.send('database.deleteDocument', param).then(res => {
       // console.log(res)
       if (res.code) {
-        callback(0, res);
+        callback(0, res)
       } else {
         callback(0, {
           requestId: res.requestId,
           deleted: res.data.deleted
-        });
+        })
       }
-    });
+    })
 
-    return callback.promise;
+    return callback.promise
   }
   /*
   convertParams(query: object) {

@@ -1,6 +1,6 @@
-import { Db } from './db';
-import { DocumentReference } from './document';
-import { Query } from './query';
+import { Db } from './db'
+import { DocumentReference } from './document'
+import { Query } from './query'
 
 /**
  * 集合模块，继承 Query 模块
@@ -19,14 +19,14 @@ export class CollectionReference extends Query {
    */
   /* eslint-disable no-useless-constructor */
   constructor(db: Db, coll: string) {
-    super(db, coll);
+    super(db, coll)
   }
 
   /**
    * 读取集合名字
    */
   get name() {
-    return this._coll;
+    return this._coll
   }
 
   /**
@@ -35,7 +35,7 @@ export class CollectionReference extends Query {
    * @param docID - 文档ID
    */
   doc(docID?: string): DocumentReference {
-    return new DocumentReference(this._db, this._coll, docID);
+    return new DocumentReference(this._db, this._coll, docID)
   }
 
   /**
@@ -44,7 +44,7 @@ export class CollectionReference extends Query {
    * @param data - 数据
    */
   add(data: Object, callback?: any): Promise<any> {
-    let docRef = this.doc();
-    return docRef.create(data, callback);
+    let docRef = this.doc()
+    return docRef.create(data, callback)
   }
 }

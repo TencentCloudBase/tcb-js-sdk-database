@@ -50,7 +50,7 @@ function serializeHelper(val, visited) {
     else if (type_1.isArray(val)) {
         return val.map(function (item) {
             if (visited.indexOf(item) > -1) {
-                throw new Error("Cannot convert circular structure to JSON");
+                throw new Error('Cannot convert circular structure to JSON');
             }
             return serializeHelper(item, visited.concat([
                 item,
@@ -61,7 +61,7 @@ function serializeHelper(val, visited) {
         var ret = __assign({}, val);
         for (var key in ret) {
             if (visited.indexOf(ret[key]) > -1) {
-                throw new Error("Cannot convert circular structure to JSON");
+                throw new Error('Cannot convert circular structure to JSON');
             }
             ret[key] = serializeHelper(ret[key], visited.concat([
                 ret[key],

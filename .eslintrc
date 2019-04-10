@@ -6,11 +6,19 @@
     "typescript"
   ],
   "rules": {
+    "indent": [
+      "error",
+      2,
+      {
+          "SwitchCase": 1,
+          "flatTernaryExpressions": true
+      }
+    ],
     "no-unused-vars": "warn",
     "typescript/no-unused-vars": "warn",
     "semi": [
       "error",
-      "always"
+      "never"
     ],
     "quotes": [
       "error",

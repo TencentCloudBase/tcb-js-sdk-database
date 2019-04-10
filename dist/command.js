@@ -29,6 +29,15 @@ exports.Command = {
     nin: function (val) {
         return new query_1.QueryCommand(query_1.QUERY_COMMANDS_LITERAL.NIN, val);
     },
+    geoNear: function (val) {
+        return new query_1.QueryCommand(query_1.QUERY_COMMANDS_LITERAL.GEO_NEAR, [val]);
+    },
+    geoWithin: function (val) {
+        return new query_1.QueryCommand(query_1.QUERY_COMMANDS_LITERAL.GEO_WITHIN, [val]);
+    },
+    geoIntersects: function (val) {
+        return new query_1.QueryCommand(query_1.QUERY_COMMANDS_LITERAL.GEO_INTERSECTS, [val]);
+    },
     and: function () {
         var __expressions__ = [];
         for (var _i = 0; _i < arguments.length; _i++) {

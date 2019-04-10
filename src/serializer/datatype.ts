@@ -47,7 +47,7 @@ function serializeHelper(
   } else if (isArray(val)) {
     return val.map(item => {
       if (visited.indexOf(item) > -1) {
-        throw new Error(`Cannot convert circular structure to JSON`)
+        throw new Error('Cannot convert circular structure to JSON')
       }
 
       return serializeHelper(item, [
@@ -59,7 +59,7 @@ function serializeHelper(
     const ret: AnyObject = { ...val }
     for (const key in ret) {
       if (visited.indexOf(ret[key]) > -1) {
-        throw new Error(`Cannot convert circular structure to JSON`)
+        throw new Error('Cannot convert circular structure to JSON')
       }
 
       ret[key] = serializeHelper(ret[key], [

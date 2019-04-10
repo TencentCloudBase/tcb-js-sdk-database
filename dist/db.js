@@ -19,6 +19,13 @@ var Db = (function () {
         }
         return new collection_1.CollectionReference(this, collName);
     };
+    Db.prototype.createCollection = function (collName) {
+        var request = new Db.reqClass(this.config);
+        var params = {
+            collectionName: collName
+        };
+        return request.send('database.addCollection', params);
+    };
     return Db;
 }());
 exports.Db = Db;
