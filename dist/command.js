@@ -72,5 +72,19 @@ exports.Command = {
         const values = type_1.isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
         return new update_1.UpdateCommand(update_1.UPDATE_COMMANDS_LITERAL.UNSHIFT, values);
     },
+    aggregate: {}
 };
+var pipelineOperators = [
+    'add',
+    'abs',
+    'concat'
+];
+pipelineOperators.forEach(function (op) {
+    exports.Command.aggregate[op] = function (param) {
+        var _a;
+        return _a = {},
+            _a["$" + op] = param,
+            _a;
+    };
+});
 exports.default = exports.Command;

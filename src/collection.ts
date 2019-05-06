@@ -1,6 +1,7 @@
 import { Db } from './db'
 import { DocumentReference } from './document'
 import { Query } from './query'
+import Aggregation from './aggregate'
 
 /**
  * 集合模块，继承 Query 模块
@@ -46,5 +47,9 @@ export class CollectionReference extends Query {
   add(data: Object, callback?: any): Promise<any> {
     let docRef = this.doc()
     return docRef.create(data, callback)
+  }
+
+  aggregate() {
+    return new Aggregation(this._db, this._coll)
   }
 }

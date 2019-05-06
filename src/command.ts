@@ -97,7 +97,22 @@ export const Command = {
     return new UpdateCommand(UPDATE_COMMANDS_LITERAL.UNSHIFT, values)
   },
 
+  aggregate: {}
 }
+
+
+const pipelineOperators = [
+  'add',
+  'abs',
+  'concat'
+]
+pipelineOperators.forEach(op => {
+  Command.aggregate[op] = function(param) {
+    return {
+      [`$${op}`]: param
+    }
+  }
+})
 
 export default Command
 

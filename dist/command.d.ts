@@ -24,5 +24,6 @@ export declare const Command: {
     pop(): UpdateCommand;
     shift(): UpdateCommand;
     unshift(...__values__: any[]): UpdateCommand;
+    aggregate: {};
 };
 export default Command;
