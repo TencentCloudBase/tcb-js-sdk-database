@@ -54,6 +54,12 @@ var Aggregation = (function () {
                         })];
                     case 1:
                         result = _a.sent();
+                        if (result && result.data && result.data.list) {
+                            return [2, {
+                                    requestId: result.requestId,
+                                    data: JSON.parse(result.data.list)
+                                }];
+                        }
                         return [2, result];
                 }
             });
@@ -73,7 +79,6 @@ var pipelineStages = [
     'geoNear',
     'group',
     'limit',
-    'lookup',
     'match',
     'project',
     'replaceRoot',

@@ -17,6 +17,12 @@ export default class Aggregation {
       collectionName: this._collectionName,
       stages: this._stages
     })
+    if (result && result.data && result.data.list) {
+      return {
+        requestId: result.requestId,
+        data: JSON.parse(result.data.list)
+      }
+    }
     return result
   }
 
