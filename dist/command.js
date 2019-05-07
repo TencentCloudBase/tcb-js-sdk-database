@@ -166,6 +166,7 @@ var pipelineOperators = [
     'push',
     'stdDevPop',
     'stdDevSamp',
+    'sum',
     'let'
 ];
 pipelineOperators.forEach(function (op) {

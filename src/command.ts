@@ -222,6 +222,7 @@ const pipelineOperators = [
   'push',
   'stdDevPop',
   'stdDevSamp',
+  'sum',
 
   // 变量声明操作符
   'let'
