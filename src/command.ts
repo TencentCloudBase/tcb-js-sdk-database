@@ -103,7 +103,7 @@ export const Command = {
 
 const pipelineOperators = [
   // https://docs.mongodb.com/manual/reference/operator/aggregation/
-  // 算数操作符
+  // 算数操作符（15个）
   'abs',
   'add',
   'ceil',
@@ -120,7 +120,7 @@ const pipelineOperators = [
   'subtract',
   'trunc',
 
-  // 数组操作符
+  // 数组操作符（15个）
   'arrayElemAt',
   'arrayToObject',
   'concatArrays',
@@ -137,12 +137,12 @@ const pipelineOperators = [
   'slice',
   'zip',
 
-  //布尔操作符
+  //布尔操作符（3个）
   'and',
   'not',
   'or',
 
-  // 比较操作符
+  // 比较操作符（7个）
   'cmp',
   'eq',
   'gt',
@@ -151,12 +151,12 @@ const pipelineOperators = [
   'lte',
   'ne', // neq?
 
-  // 条件操作符
+  // 条件操作符（3个）
   'cond',
   'ifNull',
   'switch',
 
-  // 日期操作符
+  // 日期操作符（15个）
   'dayOfWeek',
   'dateFromParts',
   'dateFromString',
@@ -181,7 +181,7 @@ const pipelineOperators = [
   'mergeObjects',
   'objectToArray',
 
-  // 集合操作符
+  // 集合操作符（7个）
   'allElementsTrue',
   'anyElementTrue',
   'setDifference',
@@ -190,9 +190,9 @@ const pipelineOperators = [
   'setIsSubset',
   'setUnion',
 
-  // 字符串操作符
+  // 字符串操作符（13个）
   'concat',
-  'dataToString',
+  'dateToString',
   'indexOfBytes',
   'indexOfCP',
   // 'ltrim',
@@ -212,7 +212,7 @@ const pipelineOperators = [
   // 文本操作符
   'meta',
 
-  // group操作符
+  // group操作符（10个）
   'addToSet',
   'avg',
   'first',
