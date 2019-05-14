@@ -131,6 +131,7 @@ var pipelineOperators = [
     'minute',
     'month',
     'second',
+    'hour',
     'week',
     'year',
     'literal',

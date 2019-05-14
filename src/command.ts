@@ -170,6 +170,7 @@ const pipelineOperators = [
   'minute',
   'month',
   'second',
+  'hour',
   // 'toDate', 4.0才有
   'week',
   'year',
