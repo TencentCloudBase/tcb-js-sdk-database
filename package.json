@@ -18,5 +18,7 @@
     "typescript": "^3.3.4000",
     "typescript-eslint-parser": "^22.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "bson": "^4.0.2"
+  }
 }

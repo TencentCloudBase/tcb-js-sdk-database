@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var db_1 = require("./db");
+var bson_1 = require("bson");
 var Aggregation = (function () {
     function Aggregation(db, collectionName) {
         this._db = db;
@@ -57,7 +58,7 @@ var Aggregation = (function () {
                         if (result && result.data && result.data.list) {
                             return [2, {
                                     requestId: result.requestId,
-                                    data: JSON.parse(result.data.list)
+                                    data: JSON.parse(result.data.list).map(bson_1.EJSON.parse)
                                 }];
                         }
                         return [2, result];

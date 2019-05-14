@@ -144,7 +144,7 @@ var pipelineOperators = [
     'setIsSubset',
     'setUnion',
     'concat',
-    'dataToString',
+    'dateToString',
     'indexOfBytes',
     'indexOfCP',
     'split',

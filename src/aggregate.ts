@@ -1,5 +1,5 @@
 import { Db } from './db'
-
+import { EJSON } from 'bson'
 export default class Aggregation {
   _db: any
   _request: any
@@ -20,7 +20,7 @@ export default class Aggregation {
     if (result && result.data && result.data.list) {
       return {
         requestId: result.requestId,
-        data: JSON.parse(result.data.list)
+        data: JSON.parse(result.data.list).map(EJSON.parse)
       }
     }
     return result
