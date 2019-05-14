@@ -74,7 +74,7 @@ exports.Command = {
     },
     aggregate: {}
 };
-var pipelineOperators = [
+const pipelineOperators = [
     'abs',
     'add',
     'ceil',
@@ -170,12 +170,11 @@ var pipelineOperators = [
     'sum',
     'let'
 ];
-pipelineOperators.forEach(function (op) {
+pipelineOperators.forEach(op => {
     exports.Command.aggregate[op] = function (param) {
-        var _a;
-        return _a = {},
-            _a["$" + op] = param,
-            _a;
+        return {
+            [`$${op}`]: param
+        };
     };
 });
 exports.default = exports.Command;
