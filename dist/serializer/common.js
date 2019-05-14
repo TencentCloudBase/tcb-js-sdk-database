@@ -1,42 +1,33 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var type_1 = require("../utils/type");
-var datatype_1 = require("./datatype");
+const type_1 = require("../utils/type");
+const datatype_1 = require("./datatype");
 function flatten(query, shouldPreserverObject, parents, visited) {
-    var cloned = __assign({}, query);
-    for (var key in query) {
+    const cloned = Object.assign({}, query);
+    for (const key in query) {
         if (/^\$/.test(key))
             continue;
-        var value = query[key];
+        const value = query[key];
         if (!value)
             continue;
         if (type_1.isObject(value) && !shouldPreserverObject(value)) {
             if (visited.indexOf(value) > -1) {
                 throw new Error('Cannot convert circular structure to JSON');
             }
-            var newParents = parents.concat([
+            const newParents = [
+                ...parents,
                 key,
-            ]);
-            var newVisited = visited.concat([
+            ];
+            const newVisited = [
+                ...visited,
                 value,
-            ]);
-            var flattenedChild = flatten(value, shouldPreserverObject, newParents, newVisited);
+            ];
+            const flattenedChild = flatten(value, shouldPreserverObject, newParents, newVisited);
             cloned[key] = flattenedChild;
-            var hasKeyNotCombined = false;
-            for (var childKey in flattenedChild) {
+            let hasKeyNotCombined = false;
+            for (const childKey in flattenedChild) {
                 if (!/^\$/.test(childKey)) {
-                    cloned[key + "." + childKey] = flattenedChild[childKey];
+                    cloned[`${key}.${childKey}`] = flattenedChild[childKey];
                     delete cloned[key][childKey];
                 }
                 else {
@@ -55,14 +46,14 @@ function flattenQueryObject(query) {
 }
 exports.flattenQueryObject = flattenQueryObject;
 function flattenObject(object) {
-    return flatten(object, function (_) { return false; }, [], [object]);
+    return flatten(object, (_) => false, [], [object]);
 }
 exports.flattenObject = flattenObject;
 function mergeConditionAfterEncode(query, condition, key) {
     if (!condition[key]) {
         delete query[key];
     }
-    for (var conditionKey in condition) {
+    for (const conditionKey in condition) {
         if (query[conditionKey]) {
             if (type_1.isArray(query[conditionKey])) {
                 query[conditionKey].push(condition[conditionKey]);
@@ -72,12 +63,12 @@ function mergeConditionAfterEncode(query, condition, key) {
                     Object.assign(query[conditionKey], condition[conditionKey]);
                 }
                 else {
-                    console.warn("unmergable condition, query is object but condition is " + type_1.getType(condition) + ", can only overwrite", condition, key);
+                    console.warn(`unmergable condition, query is object but condition is ${type_1.getType(condition)}, can only overwrite`, condition, key);
                     query[conditionKey] = condition[conditionKey];
                 }
             }
             else {
-                console.warn("to-merge query is of type " + type_1.getType(query) + ", can only overwrite", query, condition, key);
+                console.warn(`to-merge query is of type ${type_1.getType(query)}, can only overwrite`, query, condition, key);
                 query[conditionKey] = condition[conditionKey];
             }
         }

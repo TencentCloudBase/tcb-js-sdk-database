@@ -1,26 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var query_1 = require("../commands/query");
-var logic_1 = require("../commands/logic");
-var symbol_1 = require("../helper/symbol");
-var type_1 = require("../utils/type");
-var operator_map_1 = require("../operator-map");
-var common_1 = require("./common");
-var QuerySerializer = (function () {
-    function QuerySerializer() {
+const query_1 = require("../commands/query");
+const logic_1 = require("../commands/logic");
+const symbol_1 = require("../helper/symbol");
+const type_1 = require("../utils/type");
+const operator_map_1 = require("../operator-map");
+const common_1 = require("./common");
+class QuerySerializer {
+    constructor() {
     }
-    QuerySerializer.encode = function (query) {
-        var encoder = new QueryEncoder();
+    static encode(query) {
+        const encoder = new QueryEncoder();
         return encoder.encodeQuery(query);
-    };
-    return QuerySerializer;
-}());
-exports.QuerySerializer = QuerySerializer;
-var QueryEncoder = (function () {
-    function QueryEncoder() {
     }
-    QueryEncoder.prototype.encodeQuery = function (query, key) {
-        var _a;
+}
+exports.QuerySerializer = QuerySerializer;
+class QueryEncoder {
+    encodeQuery(query, key) {
         if (common_1.isConversionRequired(query)) {
             if (logic_1.isLogicCommand(query)) {
                 return this.encodeLogicCommand(query);
@@ -29,7 +25,7 @@ var QueryEncoder = (function () {
                 return this.encodeQueryCommand(query);
             }
             else {
-                return _a = {}, _a[key] = this.encodeQueryObject(query), _a;
+                return { [key]: this.encodeQueryObject(query) };
             }
         }
         else {
@@ -40,50 +36,47 @@ var QueryEncoder = (function () {
                 return query;
             }
         }
-    };
-    QueryEncoder.prototype.encodeLogicCommand = function (query) {
-        var _this = this;
-        var _a, _b, _c;
+    }
+    encodeLogicCommand(query) {
         switch (query.operator) {
             case logic_1.LOGIC_COMMANDS_LITERAL.AND:
             case logic_1.LOGIC_COMMANDS_LITERAL.OR: {
-                var $op = operator_map_1.operatorToString(query.operator);
-                var subqueries = query.operands.map(function (oprand) { return _this.encodeQuery(oprand, query.fieldName); });
-                return _a = {},
-                    _a[$op] = subqueries,
-                    _a;
+                const $op = operator_map_1.operatorToString(query.operator);
+                const subqueries = query.operands.map((oprand) => this.encodeQuery(oprand, query.fieldName));
+                return {
+                    [$op]: subqueries,
+                };
             }
             default: {
-                var $op = operator_map_1.operatorToString(query.operator);
+                const $op = operator_map_1.operatorToString(query.operator);
                 if (query.operands.length === 1) {
-                    var subquery = this.encodeQuery(query.operands[0]);
-                    return _b = {},
-                        _b[$op] = subquery,
-                        _b;
+                    const subquery = this.encodeQuery(query.operands[0]);
+                    return {
+                        [$op]: subquery,
+                    };
                 }
                 else {
-                    var subqueries = query.operands.map(this.encodeQuery.bind(this));
-                    return _c = {},
-                        _c[$op] = subqueries,
-                        _c;
+                    const subqueries = query.operands.map(this.encodeQuery.bind(this));
+                    return {
+                        [$op]: subqueries,
+                    };
                 }
             }
         }
-    };
-    QueryEncoder.prototype.encodeQueryCommand = function (query) {
+    }
+    encodeQueryCommand(query) {
         if (query_1.isComparisonCommand(query)) {
             return this.encodeComparisonCommand(query);
         }
         else {
             return this.encodeComparisonCommand(query);
         }
-    };
-    QueryEncoder.prototype.encodeComparisonCommand = function (query) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+    }
+    encodeComparisonCommand(query) {
         if (query.fieldName === symbol_1.SYMBOL_UNSET_FIELD_NAME) {
             throw new Error('Cannot encode a comparison command with unset field name');
         }
-        var $op = operator_map_1.operatorToString(query.operator);
+        const $op = operator_map_1.operatorToString(query.operator);
         switch (query.operator) {
             case query_1.QUERY_COMMANDS_LITERAL.EQ:
             case query_1.QUERY_COMMANDS_LITERAL.NEQ:
@@ -91,73 +84,73 @@ var QueryEncoder = (function () {
             case query_1.QUERY_COMMANDS_LITERAL.LTE:
             case query_1.QUERY_COMMANDS_LITERAL.GT:
             case query_1.QUERY_COMMANDS_LITERAL.GTE: {
-                return _a = {},
-                    _a[query.fieldName] = (_b = {},
-                        _b[$op] = common_1.encodeInternalDataType(query.operands[0]),
-                        _b),
-                    _a;
+                return {
+                    [query.fieldName]: {
+                        [$op]: common_1.encodeInternalDataType(query.operands[0]),
+                    },
+                };
             }
             case query_1.QUERY_COMMANDS_LITERAL.IN:
             case query_1.QUERY_COMMANDS_LITERAL.NIN: {
-                return _c = {},
-                    _c[query.fieldName] = (_d = {},
-                        _d[$op] = common_1.encodeInternalDataType(query.operands),
-                        _d),
-                    _c;
+                return {
+                    [query.fieldName]: {
+                        [$op]: common_1.encodeInternalDataType(query.operands),
+                    },
+                };
             }
             case query_1.QUERY_COMMANDS_LITERAL.GEO_NEAR: {
-                var options = query.operands[0];
-                return _e = {},
-                    _e[query.fieldName] = {
+                const options = query.operands[0];
+                return {
+                    [query.fieldName]: {
                         $nearSphere: {
                             $geometry: options.geometry.toJSON(),
                             $maxDistance: options.maxDistance,
                             $minDistance: options.minDistance
                         }
-                    },
-                    _e;
+                    }
+                };
             }
             case query_1.QUERY_COMMANDS_LITERAL.GEO_WITHIN: {
-                var options = query.operands[0];
-                return _f = {},
-                    _f[query.fieldName] = {
+                const options = query.operands[0];
+                return {
+                    [query.fieldName]: {
                         $geoWithin: {
                             $geometry: options.geometry.toJSON()
                         }
-                    },
-                    _f;
+                    }
+                };
             }
             case query_1.QUERY_COMMANDS_LITERAL.GEO_INTERSECTS: {
-                var options = query.operands[0];
-                return _g = {},
-                    _g[query.fieldName] = {
+                const options = query.operands[0];
+                return {
+                    [query.fieldName]: {
                         $geoIntersects: {
                             $geometry: options.geometry.toJSON()
                         }
-                    },
-                    _g;
+                    }
+                };
             }
             default: {
-                return _h = {},
-                    _h[query.fieldName] = (_j = {},
-                        _j[$op] = common_1.encodeInternalDataType(query.operands[0]),
-                        _j),
-                    _h;
+                return {
+                    [query.fieldName]: {
+                        [$op]: common_1.encodeInternalDataType(query.operands[0]),
+                    },
+                };
             }
         }
-    };
-    QueryEncoder.prototype.encodeQueryObject = function (query) {
-        var flattened = common_1.flattenQueryObject(query);
-        for (var key in flattened) {
-            var val = flattened[key];
+    }
+    encodeQueryObject(query) {
+        const flattened = common_1.flattenQueryObject(query);
+        for (const key in flattened) {
+            const val = flattened[key];
             if (logic_1.isLogicCommand(val)) {
                 flattened[key] = val._setFieldName(key);
-                var condition = this.encodeLogicCommand(flattened[key]);
+                const condition = this.encodeLogicCommand(flattened[key]);
                 this.mergeConditionAfterEncode(flattened, condition, key);
             }
             else if (query_1.isComparisonCommand(val)) {
                 flattened[key] = val._setFieldName(key);
-                var condition = this.encodeComparisonCommand(flattened[key]);
+                const condition = this.encodeComparisonCommand(flattened[key]);
                 this.mergeConditionAfterEncode(flattened, condition, key);
             }
             else if (common_1.isConversionRequired(val)) {
@@ -165,12 +158,12 @@ var QueryEncoder = (function () {
             }
         }
         return flattened;
-    };
-    QueryEncoder.prototype.mergeConditionAfterEncode = function (query, condition, key) {
+    }
+    mergeConditionAfterEncode(query, condition, key) {
         if (!condition[key]) {
             delete query[key];
         }
-        for (var conditionKey in condition) {
+        for (const conditionKey in condition) {
             if (query[conditionKey]) {
                 if (type_1.isArray(query[conditionKey])) {
                     query[conditionKey].push(condition[conditionKey]);
@@ -180,12 +173,12 @@ var QueryEncoder = (function () {
                         Object.assign(query, condition);
                     }
                     else {
-                        console.warn("unmergable condition, query is object but condition is " + type_1.getType(condition) + ", can only overwrite", condition, key);
+                        console.warn(`unmergable condition, query is object but condition is ${type_1.getType(condition)}, can only overwrite`, condition, key);
                         query[conditionKey] = condition[conditionKey];
                     }
                 }
                 else {
-                    console.warn("to-merge query is of type " + type_1.getType(query) + ", can only overwrite", query, condition, key);
+                    console.warn(`to-merge query is of type ${type_1.getType(query)}, can only overwrite`, query, condition, key);
                     query[conditionKey] = condition[conditionKey];
                 }
             }
@@ -193,6 +186,5 @@ var QueryEncoder = (function () {
                 query[conditionKey] = condition[conditionKey];
             }
         }
-    };
-    return QueryEncoder;
-}());
+    }
+}

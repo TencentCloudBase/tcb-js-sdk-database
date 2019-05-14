@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var symbol_1 = require("../helper/symbol");
+const symbol_1 = require("../helper/symbol");
 exports.SET = 'set';
 exports.REMOVE = 'remove';
 exports.INC = 'inc';
@@ -20,8 +20,8 @@ var UPDATE_COMMANDS_LITERAL;
     UPDATE_COMMANDS_LITERAL["SHIFT"] = "shift";
     UPDATE_COMMANDS_LITERAL["UNSHIFT"] = "unshift";
 })(UPDATE_COMMANDS_LITERAL = exports.UPDATE_COMMANDS_LITERAL || (exports.UPDATE_COMMANDS_LITERAL = {}));
-var UpdateCommand = (function () {
-    function UpdateCommand(operator, operands, fieldName) {
+class UpdateCommand {
+    constructor(operator, operands, fieldName) {
         this._internalType = symbol_1.SYMBOL_UPDATE_COMMAND;
         Object.defineProperties(this, {
             _internalType: {
@@ -33,12 +33,11 @@ var UpdateCommand = (function () {
         this.operands = operands;
         this.fieldName = fieldName || symbol_1.SYMBOL_UNSET_FIELD_NAME;
     }
-    UpdateCommand.prototype._setFieldName = function (fieldName) {
-        var command = new UpdateCommand(this.operator, this.operands, fieldName);
+    _setFieldName(fieldName) {
+        const command = new UpdateCommand(this.operator, this.operands, fieldName);
         return command;
-    };
-    return UpdateCommand;
-}());
+    }
+}
 exports.UpdateCommand = UpdateCommand;
 function isUpdateCommand(object) {
     return object && (object instanceof UpdateCommand) && (object._internalType === symbol_1.SYMBOL_UPDATE_COMMAND);

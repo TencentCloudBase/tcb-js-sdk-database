@@ -1,20 +1,9 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var symbol_1 = require("../helper/symbol");
-var type_1 = require("../utils/type");
-var geo_1 = require("../geo");
-var serverDate_1 = require("../serverDate");
+const symbol_1 = require("../helper/symbol");
+const type_1 = require("../utils/type");
+const geo_1 = require("../geo");
+const serverDate_1 = require("../serverDate");
 function serialize(val) {
     return serializeHelper(val, [val]);
 }
@@ -48,24 +37,26 @@ function serializeHelper(val, visited) {
         };
     }
     else if (type_1.isArray(val)) {
-        return val.map(function (item) {
+        return val.map(item => {
             if (visited.indexOf(item) > -1) {
                 throw new Error('Cannot convert circular structure to JSON');
             }
-            return serializeHelper(item, visited.concat([
+            return serializeHelper(item, [
+                ...visited,
                 item,
-            ]));
+            ]);
         });
     }
     else if (type_1.isObject(val)) {
-        var ret = __assign({}, val);
-        for (var key in ret) {
+        const ret = Object.assign({}, val);
+        for (const key in ret) {
             if (visited.indexOf(ret[key]) > -1) {
                 throw new Error('Cannot convert circular structure to JSON');
             }
-            ret[key] = serializeHelper(ret[key], visited.concat([
+            ret[key] = serializeHelper(ret[key], [
+                ...visited,
                 ret[key],
-            ]));
+            ]);
         }
         return ret;
     }
@@ -74,8 +65,8 @@ function serializeHelper(val, visited) {
     }
 }
 function deserialize(object) {
-    var ret = __assign({}, object);
-    for (var key in ret) {
+    const ret = Object.assign({}, object);
+    for (const key in ret) {
         switch (key) {
             case '$date': {
                 switch (type_1.getType(ret[key])) {

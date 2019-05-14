@@ -1,30 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var util_1 = require("./lib/util");
-var db_1 = require("./db");
-var util_2 = require("./util");
-var update_1 = require("./serializer/update");
-var datatype_1 = require("./serializer/datatype");
-var update_2 = require("./commands/update");
-var DocumentReference = (function () {
-    function DocumentReference(db, coll, docID, projection) {
-        if (projection === void 0) { projection = {}; }
+const util_1 = require("./lib/util");
+const db_1 = require("./db");
+const util_2 = require("./util");
+const update_1 = require("./serializer/update");
+const datatype_1 = require("./serializer/datatype");
+const update_2 = require("./commands/update");
+class DocumentReference {
+    constructor(db, coll, docID, projection = {}) {
         this._db = db;
         this._coll = coll;
         this.id = docID;
         this.request = new db_1.Db.reqClass(this._db.config);
         this.projection = projection;
     }
-    DocumentReference.prototype.create = function (data, callback) {
+    create(data, callback) {
         callback = callback || util_1.createPromiseCallback();
-        var params = {
+        let params = {
             collectionName: this._coll,
             data: datatype_1.serialize(data)
         };
         if (this.id) {
             params['_id'] = this.id;
         }
-        this.request.send('database.addDocument', params).then(function (res) {
+        this.request.send('database.addDocument', params).then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -34,12 +33,12 @@ var DocumentReference = (function () {
                     requestId: res.requestId
                 });
             }
-        }).catch(function (err) {
+        }).catch((err) => {
             callback(err);
         });
         return callback.promise;
-    };
-    DocumentReference.prototype.set = function (data, callback) {
+    }
+    set(data, callback) {
         callback = callback || util_1.createPromiseCallback();
         if (!data || typeof data !== 'object') {
             return Promise.resolve({
@@ -53,10 +52,10 @@ var DocumentReference = (function () {
                 message: '不能更新_id的值'
             });
         }
-        var hasOperator = false;
-        var checkMixed = function (objs) {
+        let hasOperator = false;
+        const checkMixed = (objs) => {
             if (typeof objs === 'object') {
-                for (var key in objs) {
+                for (let key in objs) {
                     if (objs[key] instanceof update_2.UpdateCommand) {
                         hasOperator = true;
                     }
@@ -73,18 +72,18 @@ var DocumentReference = (function () {
                 message: 'update operator complicit'
             });
         }
-        var merge = false;
-        var param = {
+        const merge = false;
+        let param = {
             collectionName: this._coll,
             data: datatype_1.serialize(data),
             multi: false,
-            merge: merge,
+            merge,
             upsert: true
         };
         if (this.id) {
             param['query'] = { _id: this.id };
         }
-        this.request.send('database.updateDocument', param).then(function (res) {
+        this.request.send('database.updateDocument', param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -95,12 +94,12 @@ var DocumentReference = (function () {
                     requestId: res.requestId
                 });
             }
-        }).catch(function (err) {
+        }).catch((err) => {
             callback(err);
         });
         return callback.promise;
-    };
-    DocumentReference.prototype.update = function (data, callback) {
+    }
+    update(data, callback) {
         callback = callback || util_1.createPromiseCallback();
         if (!data || typeof data !== 'object') {
             return Promise.resolve({
@@ -114,17 +113,17 @@ var DocumentReference = (function () {
                 message: '不能更新_id的值'
             });
         }
-        var query = { _id: this.id };
-        var merge = true;
-        var param = {
+        const query = { _id: this.id };
+        const merge = true;
+        const param = {
             collectionName: this._coll,
             data: update_1.UpdateSerializer.encode(data),
             query: query,
             multi: false,
-            merge: merge,
+            merge,
             upsert: false
         };
-        this.request.send('database.updateDocument', param).then(function (res) {
+        this.request.send('database.updateDocument', param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -135,20 +134,20 @@ var DocumentReference = (function () {
                     requestId: res.requestId
                 });
             }
-        }).catch(function (err) {
+        }).catch((err) => {
             callback(err);
         });
         return callback.promise;
-    };
-    DocumentReference.prototype.remove = function (callback) {
+    }
+    remove(callback) {
         callback = callback || util_1.createPromiseCallback();
-        var query = { _id: this.id };
-        var param = {
+        const query = { _id: this.id };
+        const param = {
             collectionName: this._coll,
             query: query,
             multi: false
         };
-        this.request.send('database.deleteDocument', param).then(function (res) {
+        this.request.send('database.deleteDocument', param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -158,26 +157,26 @@ var DocumentReference = (function () {
                     requestId: res.requestId
                 });
             }
-        }).catch(function (err) {
+        }).catch((err) => {
             callback(err);
         });
         return callback.promise;
-    };
-    DocumentReference.prototype.get = function (callback) {
+    }
+    get(callback) {
         callback = callback || util_1.createPromiseCallback();
-        var query = { _id: this.id };
-        var param = {
+        const query = { _id: this.id };
+        const param = {
             collectionName: this._coll,
             query: query,
             multi: false,
             projection: this.projection
         };
-        this.request.send('database.queryDocument', param).then(function (res) {
+        this.request.send('database.queryDocument', param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
             else {
-                var documents = util_2.Util.formatResDocumentData(res.data.list);
+                const documents = util_2.Util.formatResDocumentData(res.data.list);
                 callback(0, {
                     data: documents,
                     requestId: res.requestId,
@@ -186,13 +185,13 @@ var DocumentReference = (function () {
                     offset: res.Offset
                 });
             }
-        }).catch(function (err) {
+        }).catch((err) => {
             callback(err);
         });
         return callback.promise;
-    };
-    DocumentReference.prototype.field = function (projection) {
-        for (var k in projection) {
+    }
+    field(projection) {
+        for (let k in projection) {
             if (projection[k]) {
                 projection[k] = 1;
             }
@@ -201,7 +200,6 @@ var DocumentReference = (function () {
             }
         }
         return new DocumentReference(this._db, this._coll, this.id, projection);
-    };
-    return DocumentReference;
-}());
+    }
+}
 exports.DocumentReference = DocumentReference;

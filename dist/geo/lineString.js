@@ -1,64 +1,57 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var symbol_1 = require("../helper/symbol");
-var point_1 = require("./point");
-var type_1 = require("../utils/type");
-var LineString = (function () {
-    function LineString(points) {
+const symbol_1 = require("../helper/symbol");
+const point_1 = require("./point");
+const type_1 = require("../utils/type");
+class LineString {
+    constructor(points) {
         if (!type_1.isArray(points)) {
-            throw new TypeError("\"points\" must be of type Point[]. Received type " + typeof points);
+            throw new TypeError(`"points" must be of type Point[]. Received type ${typeof points}`);
         }
         if (points.length < 2) {
             throw new Error('"points" must contain 2 points at least');
         }
-        points.forEach(function (point) {
+        points.forEach(point => {
             if (!(point instanceof point_1.Point)) {
-                throw new TypeError("\"points\" must be of type Point[]. Received type " + typeof point + "[]");
+                throw new TypeError(`"points" must be of type Point[]. Received type ${typeof point}[]`);
             }
         });
         this.points = points;
     }
-    LineString.prototype.parse = function (key) {
-        var _a;
-        return _a = {},
-            _a[key] = {
+    parse(key) {
+        return {
+            [key]: {
                 type: 'LineString',
-                coordinates: this.points.map(function (point) { return point.toJSON().coordinates; })
-            },
-            _a;
-    };
-    LineString.prototype.toJSON = function () {
+                coordinates: this.points.map(point => point.toJSON().coordinates)
+            }
+        };
+    }
+    toJSON() {
         return {
             type: 'LineString',
-            coordinates: this.points.map(function (point) { return point.toJSON().coordinates; })
+            coordinates: this.points.map(point => point.toJSON().coordinates)
         };
-    };
-    LineString.validate = function (lineString) {
+    }
+    static validate(lineString) {
         if (lineString.type !== 'LineString' || !type_1.isArray(lineString.coordinates)) {
             return false;
         }
-        for (var _i = 0, _a = lineString.coordinates; _i < _a.length; _i++) {
-            var point = _a[_i];
+        for (let point of lineString.coordinates) {
             if (!type_1.isNumber(point[0]) || !type_1.isNumber(point[1])) {
                 return false;
             }
         }
         return true;
-    };
-    LineString.isClosed = function (lineString) {
-        var firstPoint = lineString.points[0];
-        var lastPoint = lineString.points[lineString.points.length - 1];
+    }
+    static isClosed(lineString) {
+        const firstPoint = lineString.points[0];
+        const lastPoint = lineString.points[lineString.points.length - 1];
         if (firstPoint.latitude === lastPoint.latitude && firstPoint.longitude === lastPoint.longitude) {
             return true;
         }
-    };
-    Object.defineProperty(LineString.prototype, "_internalType", {
-        get: function () {
-            return symbol_1.SYMBOL_GEO_LINE_STRING;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return LineString;
-}());
+    }
+    get _internalType() {
+        return symbol_1.SYMBOL_GEO_LINE_STRING;
+    }
+}
 exports.LineString = LineString;

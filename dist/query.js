@@ -1,24 +1,13 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var util_1 = require("./lib/util");
-var db_1 = require("./db");
-var validate_1 = require("./validate");
-var util_2 = require("./util");
-var query_1 = require("./serializer/query");
-var update_1 = require("./serializer/update");
-var Query = (function () {
-    function Query(db, coll, fieldFilters, fieldOrders, queryOptions) {
+const util_1 = require("./lib/util");
+const db_1 = require("./db");
+const validate_1 = require("./validate");
+const util_2 = require("./util");
+const query_1 = require("./serializer/query");
+const update_1 = require("./serializer/update");
+class Query {
+    constructor(db, coll, fieldFilters, fieldOrders, queryOptions) {
         this._db = db;
         this._coll = coll;
         this._fieldFilters = fieldFilters;
@@ -26,15 +15,15 @@ var Query = (function () {
         this._queryOptions = queryOptions || {};
         this._request = new db_1.Db.reqClass(this._db.config);
     }
-    Query.prototype.get = function (callback) {
+    get(callback) {
         callback = callback || util_1.createPromiseCallback();
-        var newOder = [];
+        let newOder = [];
         if (this._fieldOrders) {
-            this._fieldOrders.forEach(function (order) {
+            this._fieldOrders.forEach(order => {
                 newOder.push(order);
             });
         }
-        var param = {
+        let param = {
             collectionName: this._coll
         };
         if (this._fieldFilters) {
@@ -56,13 +45,13 @@ var Query = (function () {
         if (this._queryOptions.projection) {
             param.projection = this._queryOptions.projection;
         }
-        this._request.send('database.queryDocument', param).then(function (res) {
+        this._request.send('database.queryDocument', param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
             else {
-                var documents = util_2.Util.formatResDocumentData(res.data.list);
-                var result = {
+                const documents = util_2.Util.formatResDocumentData(res.data.list);
+                const result = {
                     data: documents,
                     requestId: res.requestId
                 };
@@ -74,20 +63,20 @@ var Query = (function () {
                     result.offset = res.Offset;
                 callback(0, result);
             }
-        }).catch(function (err) {
+        }).catch((err) => {
             callback(err);
         });
         return callback.promise;
-    };
-    Query.prototype.count = function (callback) {
+    }
+    count(callback) {
         callback = callback || util_1.createPromiseCallback();
-        var param = {
+        let param = {
             collectionName: this._coll
         };
         if (this._fieldFilters) {
             param.query = this._fieldFilters;
         }
-        this._request.send('database.countDocument', param).then(function (res) {
+        this._request.send('database.countDocument', param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -99,33 +88,33 @@ var Query = (function () {
             }
         });
         return callback.promise;
-    };
-    Query.prototype.where = function (query) {
+    }
+    where(query) {
         return new Query(this._db, this._coll, query_1.QuerySerializer.encode(query), this._fieldOrders, this._queryOptions);
-    };
-    Query.prototype.orderBy = function (fieldPath, directionStr) {
+    }
+    orderBy(fieldPath, directionStr) {
         validate_1.Validate.isFieldPath(fieldPath);
         validate_1.Validate.isFieldOrder(directionStr);
-        var newOrder = {
+        const newOrder = {
             field: fieldPath,
             direction: directionStr
         };
-        var combinedOrders = this._fieldOrders.concat(newOrder);
+        const combinedOrders = this._fieldOrders.concat(newOrder);
         return new Query(this._db, this._coll, this._fieldFilters, combinedOrders, this._queryOptions);
-    };
-    Query.prototype.limit = function (limit) {
+    }
+    limit(limit) {
         validate_1.Validate.isInteger('limit', limit);
-        var option = __assign({}, this._queryOptions);
+        let option = Object.assign({}, this._queryOptions);
         option.limit = limit;
         return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option);
-    };
-    Query.prototype.skip = function (offset) {
+    }
+    skip(offset) {
         validate_1.Validate.isInteger('offset', offset);
-        var option = __assign({}, this._queryOptions);
+        let option = Object.assign({}, this._queryOptions);
         option.offset = offset;
         return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option);
-    };
-    Query.prototype.update = function (data, callback) {
+    }
+    update(data, callback) {
         callback = callback || util_1.createPromiseCallback();
         if (!data || typeof data !== 'object') {
             return Promise.resolve({
@@ -139,7 +128,7 @@ var Query = (function () {
                 message: '不能更新_id的值'
             });
         }
-        var param = {
+        let param = {
             collectionName: this._coll,
             query: this._fieldFilters,
             multi: true,
@@ -147,7 +136,7 @@ var Query = (function () {
             upsert: false,
             data: update_1.UpdateSerializer.encode(data)
         };
-        this._request.send('database.updateDocument', param).then(function (res) {
+        this._request.send('database.updateDocument', param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -160,9 +149,9 @@ var Query = (function () {
             }
         });
         return callback.promise;
-    };
-    Query.prototype.field = function (projection) {
-        for (var k in projection) {
+    }
+    field(projection) {
+        for (let k in projection) {
             if (projection[k]) {
                 projection[k] = 1;
             }
@@ -170,11 +159,11 @@ var Query = (function () {
                 projection[k] = 0;
             }
         }
-        var option = __assign({}, this._queryOptions);
+        let option = Object.assign({}, this._queryOptions);
         option.projection = projection;
         return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option);
-    };
-    Query.prototype.remove = function (callback) {
+    }
+    remove(callback) {
         callback = callback || util_1.createPromiseCallback();
         if (Object.keys(this._queryOptions).length > 0) {
             console.warn('`offset`, `limit` and `projection` are not supported in remove() operation');
@@ -182,12 +171,12 @@ var Query = (function () {
         if (this._fieldOrders.length > 0) {
             console.warn('`orderBy` is not supported in remove() operation');
         }
-        var param = {
+        const param = {
             collectionName: this._coll,
             query: query_1.QuerySerializer.encode(this._fieldFilters),
             multi: true
         };
-        this._request.send('database.deleteDocument', param).then(function (res) {
+        this._request.send('database.deleteDocument', param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -199,7 +188,6 @@ var Query = (function () {
             }
         });
         return callback.promise;
-    };
-    return Query;
-}());
+    }
+}
 exports.Query = Query;

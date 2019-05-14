@@ -1,30 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var symbol_1 = require("../helper/symbol");
-var RegExp = (function () {
-    function RegExp(_a) {
-        var regexp = _a.regexp, options = _a.options;
+const symbol_1 = require("../helper/symbol");
+class RegExp {
+    constructor({ regexp, options }) {
         if (!regexp) {
             throw new TypeError('regexp must be a string');
         }
         this.$regex = regexp;
         this.$options = options;
     }
-    RegExp.prototype.parse = function () {
+    parse() {
         return {
             $regex: this.$regex,
             $options: this.$options
         };
-    };
-    Object.defineProperty(RegExp.prototype, "_internalType", {
-        get: function () {
-            return symbol_1.SYMBOL_REGEXP;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return RegExp;
-}());
+    }
+    get _internalType() {
+        return symbol_1.SYMBOL_REGEXP;
+    }
+}
 exports.RegExp = RegExp;
 function RegExpConstructor(param) {
     return new RegExp(param);
