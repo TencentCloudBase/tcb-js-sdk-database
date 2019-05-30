@@ -37,6 +37,7 @@ const pipelineStages = [
     'limit',
     'match',
     'project',
+    'lookup',
     'replaceRoot',
     'sample',
     'skip',

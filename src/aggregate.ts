@@ -41,6 +41,7 @@ const pipelineStages = [
   'limit',
   'match',
   'project',
+  'lookup',
   'replaceRoot',
   'sample', // 随机提取doc
   'skip',
