@@ -5,6 +5,7 @@ export declare class Transaction {
     private _request;
     constructor(db: Db);
     init(): Promise<void>;
+    get(documentRef: any): Promise<any>;
     commit(): Promise<CommitResult>;
 }
 export declare function startTransaction(): Promise<Transaction>;

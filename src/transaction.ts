@@ -19,14 +19,15 @@ export class Transaction {
     this._id = data.TransactionId
   }
 
-  // async get(documentRef: DocumentReference): Promise<DocumentSnapshot> {
-  //   const param = {
-  //     documentRef,
-  //     TransactionId: this._id
-  //   }
-  //   const res = await this._request.send('database.getInTransaction', param)
-  //   return res
-  // }
+  async get(documentRef): Promise<any> {
+    const param = {
+      collectionName: documentRef._coll,
+      transactionId: this._id,
+      _id: documentRef.id
+    }
+    const res = await this._request.send('database.getInTransaction', param)
+    return res
+  }
 
   async commit(): Promise<CommitResult> {
     const param = {

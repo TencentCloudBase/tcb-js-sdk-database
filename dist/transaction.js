@@ -10,6 +10,15 @@ class Transaction {
         const { data } = await this._request.send('database.startTransaction');
         this._id = data.TransactionId;
     }
+    async get(documentRef) {
+        const param = {
+            collectionName: documentRef._coll,
+            transactionId: this._id,
+            _id: documentRef.id
+        };
+        const res = await this._request.send('database.getInTransaction', param);
+        return res;
+    }
     async commit() {
         const param = {
             transactionId: this._id
