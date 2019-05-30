@@ -4,6 +4,7 @@ import { CollectionReference } from './collection'
 import { Command } from './command'
 import { ServerDateConstructor } from './serverDate'
 import { RegExpConstructor } from './regexp'
+import { startTransaction, runTransaction } from './transaction'
 
 /**
  * 地理位置类型
@@ -32,6 +33,10 @@ export class Db {
 
   serverDate: any;
 
+  startTransaction: any;
+
+  runTransaction: any;
+
   /**
    * 初始化
    *
@@ -49,6 +54,8 @@ export class Db {
     this.serverDate = ServerDateConstructor
     this.command = Command
     this.RegExp = RegExpConstructor
+    this.startTransaction = startTransaction
+    this.runTransaction = runTransaction
   }
 
   /**
