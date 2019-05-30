@@ -5,6 +5,7 @@ const collection_1 = require("./collection");
 const command_1 = require("./command");
 const serverDate_1 = require("./serverDate");
 const regexp_1 = require("./regexp");
+const transaction_1 = require("./transaction");
 class Db {
     constructor(config) {
         this.config = config;
@@ -12,6 +13,8 @@ class Db {
         this.serverDate = serverDate_1.ServerDateConstructor;
         this.command = command_1.Command;
         this.RegExp = regexp_1.RegExpConstructor;
+        this.startTransaction = transaction_1.startTransaction;
+        this.runTransaction = transaction_1.runTransaction;
     }
     collection(collName) {
         if (!collName) {

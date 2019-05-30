@@ -9,6 +9,8 @@ export declare class Db {
     command: typeof Command;
     RegExp: any;
     serverDate: any;
+    startTransaction: any;
+    runTransaction: any;
     config: any;
     static reqClass: any;
     constructor(config?: any);
