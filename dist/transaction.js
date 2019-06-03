@@ -18,8 +18,9 @@ class Transaction {
         };
         const res = await this._request.send('database.getInTransaction', param);
         const mgoReturn = JSON.parse(JSON.parse(res.data.MgoReturn[0])[0]);
+        this._data = mgoReturn.cursor.firstBatch[0];
         return {
-            data: mgoReturn.cursor.firstBatch,
+            data: this._data,
             requestId: res.requestId
         };
     }

@@ -4,6 +4,7 @@ export declare class Transaction {
     private _id;
     private _db;
     private _request;
+    private _data;
     constructor(db: Db);
     init(): Promise<void>;
     get(documentRef: DocumentReference): Promise<DocumentSnapshot>;
@@ -13,7 +14,7 @@ export declare function startTransaction(): Promise<Transaction>;
 export declare function runTransaction(callback: (transaction: Transaction) => void | Promise<any>, times?: number): Promise<void>;
 interface DocumentSnapshot {
     requestId: string;
-    data: Object | Array<any> | void;
+    data: Object | void;
 }
 interface CommitResult {
     requestId: string;

@@ -9,6 +9,8 @@ export class Transaction {
 
   private _request: any;
 
+  private _data: Object;
+
   public constructor(db: Db) {
     this._db = db
     this._request = new Db.reqClass(this._db.config)
@@ -26,12 +28,26 @@ export class Transaction {
       _id: documentRef.id
     }
     const res = await this._request.send('database.getInTransaction', param)
+    // EJSON 
     const mgoReturn = JSON.parse(JSON.parse(res.data.MgoReturn[0])[0])
+    this._data = mgoReturn.cursor.firstBatch[0]
     return {
-      data: mgoReturn.cursor.firstBatch,
+      data: this._data,
       requestId: res.requestId
     }
   }
+
+  // async set(documentRef: DocumentReference, data: Object): Promise<void> {
+
+  // }
+
+  // async update(documentRef: DocumentReference, data: Object): Promise<void> {
+  // ejson
+  // }
+
+  // async delete(documentRef: DocumentReference): Promise<void> {
+
+  // }
 
   async commit(): Promise<CommitResult> {
     const param = {
@@ -74,7 +90,7 @@ export async function runTransaction(
 
 interface DocumentSnapshot {
   requestId: string,
-  data: Object | Array<any> | void
+  data: Object | void
 }
 
 interface CommitResult {
