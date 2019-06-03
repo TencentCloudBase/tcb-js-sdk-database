@@ -97,7 +97,144 @@ export const Command = {
     return new UpdateCommand(UPDATE_COMMANDS_LITERAL.UNSHIFT, values)
   },
 
+  aggregate: {}
 }
+
+
+const pipelineOperators = [
+  // https://docs.mongodb.com/manual/reference/operator/aggregation/
+  // 算数操作符（15个）
+  'abs',
+  'add',
+  'ceil',
+  'divide',
+  'exp',
+  'floor',
+  'ln',
+  'log',
+  'log10',
+  'mod',
+  'multiply',
+  'pow',
+  'sqrt',
+  'subtract',
+  'trunc',
+
+  // 数组操作符（15个）
+  'arrayElemAt',
+  'arrayToObject',
+  'concatArrays',
+  'filter',
+  'in',
+  'indexOfArray',
+  'isArray',
+  'map',
+  'objectToArray',
+  'range',
+  'reduce',
+  'reverseArray',
+  'size',
+  'slice',
+  'zip',
+
+  //布尔操作符（3个）
+  'and',
+  'not',
+  'or',
+
+  // 比较操作符（7个）
+  'cmp',
+  'eq',
+  'gt',
+  'gte',
+  'lt',
+  'lte',
+  'ne', // neq?
+
+  // 条件操作符（3个）
+  'cond',
+  'ifNull',
+  'switch',
+
+  // 日期操作符（15个）
+  'dayOfWeek',
+  'dateFromParts',
+  'dateFromString',
+  'dayOfMonth',
+  'dayOfWeek',
+  'dayOfYear',
+  'isoDayOfWeek',
+  'isoWeek',
+  'isoWeekYear',
+  'millisecond',
+  'minute',
+  'month',
+  'second',
+  'hour',
+  // 'toDate', 4.0才有
+  'week',
+  'year',
+
+  // 字面操作符
+  'literal',
+
+  // 对象操作符
+  'mergeObjects',
+  'objectToArray',
+
+  // 集合操作符（7个）
+  'allElementsTrue',
+  'anyElementTrue',
+  'setDifference',
+  'setEquals',
+  'setIntersection',
+  'setIsSubset',
+  'setUnion',
+
+  // 字符串操作符（13个）
+  'concat',
+  'dateToString',
+  'indexOfBytes',
+  'indexOfCP',
+  // 'ltrim',
+  // 'rtrim',
+  'split',
+  'strLenBytes',
+  'strLenCP',
+  'strcasecmp',
+  'substr',
+  'substrBytes',
+  'substrCP',
+  'toLower',
+  // 'toString'
+  // 'trim'
+  'toUpper',
+
+  // 文本操作符
+  'meta',
+
+  // group操作符（10个）
+  'addToSet',
+  'avg',
+  'first',
+  'last',
+  'max',
+  'min',
+  'push',
+  'stdDevPop',
+  'stdDevSamp',
+  'sum',
+
+  // 变量声明操作符
+  'let'
+]
+pipelineOperators.forEach(op => {
+  Command.aggregate[op] = function(param) {
+    return {
+      [`$${op}`]: param
+    }
+  }
+})
 
 export default Command
 
