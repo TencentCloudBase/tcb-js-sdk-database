@@ -1,4 +1,4 @@
-// import { DocumentReference } from './document'
+import { DocumentReference } from './document' 
 import { Db } from './db'
 
 export class Transaction {
@@ -19,14 +19,18 @@ export class Transaction {
     this._id = data.TransactionId
   }
 
-  async get(documentRef): Promise<any> {
+  async get(documentRef: DocumentReference): Promise<DocumentSnapshot> {
     const param = {
       collectionName: documentRef._coll,
       transactionId: this._id,
       _id: documentRef.id
     }
     const res = await this._request.send('database.getInTransaction', param)
-    return res
+    const mgoReturn = JSON.parse(JSON.parse(res.data.MgoReturn[0])[0])
+    return {
+      data: mgoReturn.cursor.firstBatch,
+      requestId: res.requestId
+    }
   }
 
   async commit(): Promise<CommitResult> {
@@ -68,9 +72,10 @@ export async function runTransaction(
   }
 }
 
-// interface DocumentSnapshot {
-//   requestId: string,
-// }
+interface DocumentSnapshot {
+  requestId: string,
+  data: Object | Array<any> | void
+}
 
 interface CommitResult {
   requestId: string,

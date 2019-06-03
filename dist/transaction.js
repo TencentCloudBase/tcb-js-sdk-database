@@ -17,7 +17,11 @@ class Transaction {
             _id: documentRef.id
         };
         const res = await this._request.send('database.getInTransaction', param);
-        return res;
+        const mgoReturn = JSON.parse(JSON.parse(res.data.MgoReturn[0])[0]);
+        return {
+            data: mgoReturn.cursor.firstBatch,
+            requestId: res.requestId
+        };
     }
     async commit() {
         const param = {
