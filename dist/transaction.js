@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const bson_1 = require("bson");
 const db_1 = require("./db");
 class Transaction {
     constructor(db) {
@@ -17,7 +18,7 @@ class Transaction {
             _id: documentRef.id
         };
         const res = await this._request.send('database.getInTransaction', param);
-        const mgoReturn = JSON.parse(JSON.parse(res.data.MgoReturn[0])[0]);
+        const mgoReturn = bson_1.EJSON.parse(JSON.parse(res.data.MgoReturn[0])[0]);
         this._data = mgoReturn.cursor.firstBatch[0];
         return {
             data: this._data,

@@ -1,3 +1,4 @@
+import { EJSON } from 'bson'
 import { DocumentReference } from './document' 
 import { Db } from './db'
 
@@ -28,8 +29,7 @@ export class Transaction {
       _id: documentRef.id
     }
     const res = await this._request.send('database.getInTransaction', param)
-    // EJSON 
-    const mgoReturn = JSON.parse(JSON.parse(res.data.MgoReturn[0])[0])
+    const mgoReturn = EJSON.parse(JSON.parse(res.data.MgoReturn[0])[0])
     this._data = mgoReturn.cursor.firstBatch[0]
     return {
       data: this._data,
