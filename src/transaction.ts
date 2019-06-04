@@ -61,7 +61,7 @@ export class Transaction {
     return {
       ...res,
       updated: EJSON.parse((res as SetResult).updated),
-      upserted: (res as SetResult) 
+      upserted: (res as SetResult).upserted
         ? JSON.parse((res as SetResult).upserted as string) 
         : null
     }

@@ -45,7 +45,7 @@ class Transaction {
         const res = await this._request.send('database.updateDocInTransaction', param);
         if (res.code)
             throw res;
-        return Object.assign({}, res, { updated: bson_1.EJSON.parse(res.updated), upserted: res
+        return Object.assign({}, res, { updated: bson_1.EJSON.parse(res.updated), upserted: res.upserted
                 ? JSON.parse(res.upserted)
                 : null });
     }
