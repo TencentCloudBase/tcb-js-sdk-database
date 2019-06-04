@@ -47,7 +47,7 @@ export class Transaction {
     return new DocumentSnapshot(EJSON.parse(res.data), res.requestId)
   }
 
-  async set(documentRef: DocumentReference, data: Object): Promise<void> {
+  async set(documentRef: DocumentReference, data: Object): Promise<SetResult> {
     const param = {
       collectionName: documentRef._coll,
       transactionId: this._id,
@@ -56,16 +56,18 @@ export class Transaction {
       upsert: true
     }
 
-    const res = await this._request.send('database.updateDocInTransaction', param)
-    if (res.code) throw res
+    const res: SetResult | TcbError = await this._request.send('database.updateDocInTransaction', param)
+    if ((res as TcbError).code) throw res
     return {
       ...res,
-      updated: EJSON.parse(res.updated),
-      upserted: res.upserted ? JSON.parse(res.upserted) : null
+      updated: EJSON.parse((res as SetResult).updated),
+      upserted: (res as SetResult) 
+        ? JSON.parse((res as SetResult).upserted as string) 
+        : null
     }
   }
 
-  async update(documentRef: DocumentReference, data: Object): Promise<void> {
+  async update(documentRef: DocumentReference, data: Object): Promise<UpdateResult> {
     const param = {
       collectionName: documentRef._coll,
       transactionId: this._id,
@@ -77,26 +79,26 @@ export class Transaction {
       })
     }
 
-    const res = await this._request.send('database.updateDocInTransaction', param)
-    if (res.code) throw res
+    const res: UpdateResult | TcbError = await this._request.send('database.updateDocInTransaction', param)
+    if ((res as TcbError).code) throw res
     return {
       ...res,
-      updated: EJSON.parse(res.updated)
+      updated: EJSON.parse((res as UpdateResult).updated as string)
     }
   }
 
-  async delete(documentRef: DocumentReference): Promise<void> {
+  async delete(documentRef: DocumentReference): Promise<DeleteResult> {
     const param = {
       collectionName: documentRef._coll,
       transactionId: this._id,
       _id: documentRef.id
     }
 
-    const res = await this._request.send('database.deleteDocInTransaction', param)
-    if (res.code) throw res
+    const res: DeleteResult | TcbError = await this._request.send('database.deleteDocInTransaction', param)
+    if ((res as TcbError).code) throw res
     return {
       ...res,
-      deleted: EJSON.parse(res.deleted)
+      deleted: EJSON.parse((res as DeleteResult).deleted)
     }
   }
 
@@ -109,12 +111,13 @@ export class Transaction {
     return (res as CommitResult)
   }
 
-  async rollback(): Promise<any> {
+  async rollback(): Promise<RollbackResult> {
     const param = {
       transactionId: this._id
     }
-    const res = await this._request.send('database.abortTransaction', param)
-    return res
+    const res: RollbackResult | TcbError = await this._request.send('database.abortTransaction', param)
+    if ((res as TcbError).code) throw res 
+    return (res as RollbackResult)
   }
 }
 
@@ -145,7 +148,27 @@ interface CommitResult {
   data: object
 }
 
+interface RollbackResult {
+  requestId: string
+}
+
 interface TcbError {
+  requestId: string
   code: string
   message: string
+  stack: string
+}
+
+interface UpdateResult {
+  requestId: string
+  updated: number | string
+}
+
+interface SetResult extends UpdateResult {
+  upserted: number | string
+}
+
+interface DeleteResult {
+  requestId: string
+  deleted: number | string
 }

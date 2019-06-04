@@ -45,7 +45,9 @@ class Transaction {
         const res = await this._request.send('database.updateDocInTransaction', param);
         if (res.code)
             throw res;
-        return Object.assign({}, res, { updated: bson_1.EJSON.parse(res.updated), upserted: res.upserted ? JSON.parse(res.upserted) : null });
+        return Object.assign({}, res, { updated: bson_1.EJSON.parse(res.updated), upserted: res
+                ? JSON.parse(res.upserted)
+                : null });
     }
     async update(documentRef, data) {
         const param = {
@@ -88,6 +90,8 @@ class Transaction {
             transactionId: this._id
         };
         const res = await this._request.send('database.abortTransaction', param);
+        if (res.code)
+            throw res;
         return res;
     }
 }
