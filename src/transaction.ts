@@ -2,6 +2,19 @@ import { EJSON } from 'bson'
 import { DocumentReference } from './document' 
 import { Db } from './db'
 
+class DocumentSnapshot {
+  private _data: any
+  requestId: string
+  constructor(data, requestId) {
+    this._data = data
+    this.requestId = requestId
+  }
+
+  data() {
+    return this._data
+  }
+}
+
 export class Transaction {
 
   private _id: string;
@@ -10,16 +23,17 @@ export class Transaction {
 
   private _request: any;
 
-  private _data: Object;
-
   public constructor(db: Db) {
     this._db = db
     this._request = new Db.reqClass(this._db.config)
   }
 
   async init(): Promise<void> {
-    const { data } = await this._request.send('database.startTransaction')
-    this._id = data.TransactionId
+    const res = await this._request.send('database.startTransaction')
+    if (res.code) {
+      throw res
+    }
+    this._id = res.transactionId
   }
 
   async get(documentRef: DocumentReference): Promise<DocumentSnapshot> {
@@ -29,41 +43,79 @@ export class Transaction {
       _id: documentRef.id
     }
     const res = await this._request.send('database.getInTransaction', param)
-    const mgoReturn = EJSON.parse(JSON.parse(res.data.MgoReturn[0])[0])
-    this._data = mgoReturn.cursor.firstBatch[0]
+    if (res.code) throw res
+    return new DocumentSnapshot(EJSON.parse(res.data), res.requestId)
+  }
+
+  async set(documentRef: DocumentReference, data: Object): Promise<void> {
+    const param = {
+      collectionName: documentRef._coll,
+      transactionId: this._id,
+      _id: documentRef.id,
+      data: EJSON.stringify(data, { relaxed: false }),
+      upsert: true
+    }
+
+    const res = await this._request.send('database.updateDocInTransaction', param)
+    if (res.code) throw res
     return {
-      data: this._data,
-      requestId: res.requestId
+      ...res,
+      updated: EJSON.parse(res.updated),
+      upserted: res.upserted ? JSON.parse(res.upserted) : null
     }
   }
 
-  // async set(documentRef: DocumentReference, data: Object): Promise<void> {
+  async update(documentRef: DocumentReference, data: Object): Promise<void> {
+    const param = {
+      collectionName: documentRef._coll,
+      transactionId: this._id,
+      _id: documentRef.id,
+      data: EJSON.stringify({
+        $set: data
+      }, {
+        relaxed: false
+      })
+    }
 
-  // }
+    const res = await this._request.send('database.updateDocInTransaction', param)
+    if (res.code) throw res
+    return {
+      ...res,
+      updated: EJSON.parse(res.updated)
+    }
+  }
 
-  // async update(documentRef: DocumentReference, data: Object): Promise<void> {
-  // ejson
-  // }
+  async delete(documentRef: DocumentReference): Promise<void> {
+    const param = {
+      collectionName: documentRef._coll,
+      transactionId: this._id,
+      _id: documentRef.id
+    }
 
-  // async delete(documentRef: DocumentReference): Promise<void> {
-
-  // }
+    const res = await this._request.send('database.deleteDocInTransaction', param)
+    if (res.code) throw res
+    return {
+      ...res,
+      deleted: EJSON.parse(res.deleted)
+    }
+  }
 
   async commit(): Promise<CommitResult> {
     const param = {
       transactionId: this._id
     }
-    const res: CommitResult = await this._request.send('database.commitTransaction', param)
-    return res
+    const res: CommitResult | TcbError = await this._request.send('database.commitTransaction', param)
+    if ((res as TcbError).code) throw res
+    return (res as CommitResult)
   }
 
-  // async rollback(): Promise<any> {
-  //   const param = {
-  //     transactionId: this._id
-  //   }
-  //   const res = await this._request.send('database.abortTransaction', param)
-  //   return res
-  // }
+  async rollback(): Promise<any> {
+    const param = {
+      transactionId: this._id
+    }
+    const res = await this._request.send('database.abortTransaction', param)
+    return res
+  }
 }
 
 export async function startTransaction(): Promise<Transaction> {
@@ -88,12 +140,12 @@ export async function runTransaction(
   }
 }
 
-interface DocumentSnapshot {
-  requestId: string,
-  data: Object | void
-}
-
 interface CommitResult {
   requestId: string,
   data: object
+}
+
+interface TcbError {
+  code: string
+  message: string
 }
