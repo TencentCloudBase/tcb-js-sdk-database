@@ -171,7 +171,11 @@ const pipelineOperators = [
     'let'
 ];
 pipelineOperators.forEach(op => {
-    exports.Command.aggregate[op] = function (param) {
+    let apiName = op;
+    if (op === 'ne') {
+        apiName = 'neq';
+    }
+    exports.Command.aggregate[apiName] = function (param) {
         return {
             [`$${op}`]: param
         };
