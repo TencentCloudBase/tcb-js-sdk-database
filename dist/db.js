@@ -18,7 +18,7 @@ class Db {
     }
     collection(collName) {
         if (!collName) {
-            throw new Error('Collection name is required');
+            throw new Error("Collection name is required");
         }
         return new collection_1.CollectionReference(this, collName);
     }
@@ -27,7 +27,7 @@ class Db {
         const params = {
             collectionName: collName
         };
-        return request.send('database.addCollection', params);
+        return request.send("database.addCollection", params);
     }
 }
 exports.Db = Db;

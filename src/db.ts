@@ -1,16 +1,16 @@
-import { Point } from './geo/point'
-import * as Geo from './geo'
-import { CollectionReference } from './collection'
-import { Command } from './command'
-import { ServerDateConstructor } from './serverDate'
-import { RegExpConstructor } from './regexp'
-import { startTransaction, runTransaction } from './transaction'
+import { Point } from "./geo/point"
+import * as Geo from "./geo"
+import { CollectionReference } from "./collection"
+import { Command } from "./command"
+import { ServerDateConstructor } from "./serverDate"
+import { RegExpConstructor } from "./regexp"
+import { startTransaction, runTransaction } from "./transaction"
 
 /**
  * 地理位置类型
  */
 interface GeoTeyp {
-  Point: typeof Point;
+  Point: typeof Point
 }
 
 /**
@@ -22,20 +22,20 @@ export class Db {
   /**
    * Geo 类型
    */
-  Geo: GeoTeyp;
+  Geo: GeoTeyp
 
   /**
    * 逻辑操作的命令
    */
-  command: typeof Command;
+  command: typeof Command
 
-  RegExp: any;
+  RegExp: any
 
-  serverDate: any;
+  serverDate: any
 
-  startTransaction: any;
+  startTransaction: any
 
-  runTransaction: any;
+  runTransaction: any
 
   /**
    * 初始化
@@ -44,9 +44,13 @@ export class Db {
    *
    * @param config
    */
-  config: any;
-  
-  static reqClass: any;
+  config: any
+
+  static ws: any
+
+  static reqClass: any
+
+  static getAccessToken: Function
 
   constructor(config?: any) {
     this.config = config
@@ -65,7 +69,7 @@ export class Db {
    */
   collection(collName: string): CollectionReference {
     if (!collName) {
-      throw new Error('Collection name is required')
+      throw new Error("Collection name is required")
     }
     return new CollectionReference(this, collName)
   }
@@ -80,6 +84,6 @@ export class Db {
       collectionName: collName
     }
 
-    return request.send('database.addCollection', params)
+    return request.send("database.addCollection", params)
   }
 }

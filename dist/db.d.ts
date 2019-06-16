@@ -1,6 +1,6 @@
-import { Point } from './geo/point';
-import { CollectionReference } from './collection';
-import { Command } from './command';
+import { Point } from "./geo/point";
+import { CollectionReference } from "./collection";
+import { Command } from "./command";
 interface GeoTeyp {
     Point: typeof Point;
 }
@@ -12,7 +12,9 @@ export declare class Db {
     startTransaction: any;
     runTransaction: any;
     config: any;
+    static ws: any;
     static reqClass: any;
+    static getAccessToken: Function;
     constructor(config?: any);
     collection(collName: string): CollectionReference;
     createCollection(collName: string): any;

@@ -1,35 +1,43 @@
-import { createPromiseCallback } from './lib/util'
+import { createPromiseCallback } from "./lib/util"
 /* eslint-disable no-unused-vars */
-import { OrderByDirection } from './constant'
-import { Db } from './db'
-import { Validate } from './validate'
-import { Util } from './util'
+import { OrderByDirection } from "./constant"
+import { Db } from "./db"
+import { Validate } from "./validate"
+import { Util } from "./util"
 // import { Command } from './command';
 // import * as isRegExp from 'is-regex'
-import { QuerySerializer } from './serializer/query'
-import { UpdateSerializer } from './serializer/update'
+import { QuerySerializer } from "./serializer/query"
+import { UpdateSerializer } from "./serializer/update"
+// import { WSClient } from "./websocket/wsclient"
+import { DB } from "./typings"
+import { RealtimeWebSocketClient } from "./realtime/websocket-client"
 
 interface GetRes {
-  data: any[];
-  requestId: string;
-  total: number;
-  limit: number;
-  offset: number;
+  data: any[]
+  requestId: string
+  total: number
+  limit: number
+  offset: number
 }
 
 interface QueryOrder {
-  field?: string;
-  direction?: 'asc' | 'desc';
+  field?: string
+  direction?: "asc" | "desc"
 }
 
 interface QueryOption {
   // 查询数量
-  limit?: number;
+  limit?: number
   // 偏移量
-  offset?: number;
+  offset?: number
   // 指定显示或者不显示哪些字段
-  projection?: Object;
+  projection?: Object
 }
+
+// interface CallbackObj {
+//   success: (event: any) => void
+//   fail: (err: any) => void
+// }
 
 /**
  * 查询模块
@@ -42,42 +50,73 @@ export class Query {
    *
    * @internal
    */
-  protected _db: Db;
+  protected _db: Db
 
   /**
    * Collection name
    *
    * @internal
    */
-  protected _coll: string;
+  protected _coll: string
 
   /**
    * 过滤条件
    *
    * @internal
    */
-  private _fieldFilters: Object;
+  private _fieldFilters: Object
 
   /**
    * 排序条件
    *
    * @internal
    */
-  private _fieldOrders: QueryOrder[];
+  private _fieldOrders: QueryOrder[]
 
   /**
    * 查询条件
    *
    * @internal
    */
-  private _queryOptions: QueryOption;
+  private _queryOptions: QueryOption
+
+  /**
+   * 原始过滤参数
+   */
+  // private _rawWhereParams: Object
 
   /**
    * 请求实例
    *
    * @internal
    */
-  private _request: any;
+  private _request: any
+
+  /**
+   * websocket 参数 pingTimeout
+   */
+  // private _pingTimeout: number
+
+  /**
+   * websocket 参数 pongTimeout
+   */
+  // private _pongTimeout: number
+
+  /**
+   * websocket 参数 reconnectTimeout
+   */
+  // private _reconnectTimeout: number
+
+  /**
+   * websocket 参数 wsURL
+   */
+  // private _wsURL: string
+
+  /**
+   * 鉴权方法
+   *
+   */
+  private _getAccessToken: Function
 
   /**
    * 初始化
@@ -96,14 +135,22 @@ export class Query {
     fieldFilters?: Object,
     fieldOrders?: QueryOrder[],
     queryOptions?: QueryOption
+    // rawWhereParams?: Object
   ) {
     this._db = db
     this._coll = coll
     this._fieldFilters = fieldFilters
     this._fieldOrders = fieldOrders || []
     this._queryOptions = queryOptions || {}
+    // this._pingTimeout = 10000
+    // this._pongTimeout = 5000
+    // this._reconnectTimeout = 15000
+    // this._rawWhereParams = rawWhereParams || {}
+    // this._wsURL = "ws://localhost:3000"
+
     /* eslint-disable new-cap */
     this._request = new Db.reqClass(this._db.config)
+    this._getAccessToken = Db.getAccessToken
   }
 
   /**
@@ -123,12 +170,12 @@ export class Query {
       })
     }
     interface Param {
-      collectionName: string;
-      query?: Object;
-      order?: string[];
-      offset?: number;
-      limit?: number;
-      projection?: Object;
+      collectionName: string
+      query?: Object
+      order?: string[]
+      offset?: number
+      limit?: number
+      projection?: Object
     }
     let param: Param = {
       collectionName: this._coll
@@ -153,23 +200,26 @@ export class Query {
     }
     // console.log('this._queryOptions', this._queryOptions);
     // console.log(param);
-    this._request.send('database.queryDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        const documents = Util.formatResDocumentData(res.data.list)
-        const result: any = {
-          data: documents,
-          requestId: res.requestId
+    this._request
+      .send("database.queryDocument", param)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          const documents = Util.formatResDocumentData(res.data.list)
+          const result: any = {
+            data: documents,
+            requestId: res.requestId
+          }
+          if (res.TotalCount) result.total = res.TotalCount
+          if (res.Limit) result.limit = res.Limit
+          if (res.Offset) result.offset = res.Offset
+          callback(0, result)
         }
-        if (res.TotalCount) result.total = res.TotalCount
-        if (res.Limit) result.limit = res.Limit
-        if (res.Offset) result.offset = res.Offset
-        callback(0, result)
-      }
-    }).catch((err) => {
-      callback(err)
-    })
+      })
+      .catch(err => {
+        callback(err)
+      })
 
     return callback.promise
   }
@@ -181,8 +231,8 @@ export class Query {
     callback = callback || createPromiseCallback()
 
     interface Param {
-      collectionName: string;
-      query?: Object;
+      collectionName: string
+      query?: Object
     }
     let param: Param = {
       collectionName: this._coll
@@ -190,7 +240,7 @@ export class Query {
     if (this._fieldFilters) {
       param.query = this._fieldFilters
     }
-    this._request.send('database.countDocument', param).then(res => {
+    this._request.send("database.countDocument", param).then(res => {
       // console.log(res);
       if (res.code) {
         callback(0, res)
@@ -211,6 +261,8 @@ export class Query {
    * @param query
    */
   public where(query: object) {
+    // 记录转换前的query
+    // this._rawWhereParams = query
     return new Query(
       this._db,
       this._coll,
@@ -218,6 +270,7 @@ export class Query {
       QuerySerializer.encode(query),
       this._fieldOrders,
       this._queryOptions
+      // this._rawWhereParams
     )
   }
 
@@ -252,7 +305,7 @@ export class Query {
    * @param limit - 限制条数
    */
   public limit(limit: number): Query {
-    Validate.isInteger('limit', limit)
+    Validate.isInteger("limit", limit)
 
     let option = { ...this._queryOptions }
     option.limit = limit
@@ -272,7 +325,7 @@ export class Query {
    * @param offset - 偏移量
    */
   public skip(offset: number): Query {
-    Validate.isInteger('offset', offset)
+    Validate.isInteger("offset", offset)
 
     let option = { ...this._queryOptions }
     option.offset = offset
@@ -294,17 +347,17 @@ export class Query {
   public update(data: Object, callback?: any): Promise<any> {
     callback = callback || createPromiseCallback()
 
-    if (!data || typeof data !== 'object') {
+    if (!data || typeof data !== "object") {
       return Promise.resolve({
-        code: 'INVALID_PARAM',
-        message: '参数必需是非空对象'
+        code: "INVALID_PARAM",
+        message: "参数必需是非空对象"
       })
     }
 
-    if (data.hasOwnProperty('_id')) {
+    if (data.hasOwnProperty("_id")) {
       return Promise.resolve({
-        code: 'INVALID_PARAM',
-        message: '不能更新_id的值'
+        code: "INVALID_PARAM",
+        message: "不能更新_id的值"
       })
     }
 
@@ -320,7 +373,7 @@ export class Query {
       // data: this.convertParams(data)
     }
 
-    this._request.send('database.updateDocument', param).then(res => {
+    this._request.send("database.updateDocument", param).then(res => {
       if (res.code) {
         callback(0, res)
       } else {
@@ -368,10 +421,12 @@ export class Query {
     callback = callback || createPromiseCallback()
 
     if (Object.keys(this._queryOptions).length > 0) {
-      console.warn('`offset`, `limit` and `projection` are not supported in remove() operation')
+      console.warn(
+        "`offset`, `limit` and `projection` are not supported in remove() operation"
+      )
     }
     if (this._fieldOrders.length > 0) {
-      console.warn('`orderBy` is not supported in remove() operation')
+      console.warn("`orderBy` is not supported in remove() operation")
     }
     const param = {
       collectionName: this._coll,
@@ -380,7 +435,7 @@ export class Query {
     }
     // console.log('this._queryOptions', this._queryOptions);
     // console.log(param);
-    this._request.send('database.deleteDocument', param).then(res => {
+    this._request.send("database.deleteDocument", param).then(res => {
       // console.log(res)
       if (res.code) {
         callback(0, res)
@@ -394,6 +449,69 @@ export class Query {
 
     return callback.promise
   }
+
+  /**
+   * 监听query对应的doc变化
+   */
+  // watch(callbackObj: CallbackObj) {
+  //   // 1. 请求qbase-service服务获取access_token
+  //   this._getAccessToken((accessToken, envId) => {
+  //     console.log("access_token******", accessToken)
+  //     // 构造ws 客户端对象 DBName  CollName  Query 公共信息(mock)
+  //     const DBName = "tnt-61yk7lv8e" // mock
+  //     const CollName = this._coll
+  //     const Query = JSON.stringify(this._rawWhereParams)
+  //     const Uin = "xxx"
+  //     const RequestId = "123456"
+
+  //     let wsClient = new WSClient({
+  //       pingTimeout: this._pingTimeout,
+  //       pongTimeout: this._pongTimeout,
+  //       reconnectTimeout: this._reconnectTimeout,
+  //       wsURL: this._wsURL,
+  //       params: {
+  //         DBName,
+  //         CollName,
+  //         Query,
+  //         Uin,
+  //         RequestId,
+  //         AccessToken: accessToken,
+  //         EnvId: envId
+  //       },
+  //       callbackObj
+  //     })
+
+  //     // 开始监听
+  //     wsClient.createWsCon(false)
+  //   })
+  // }
+
+  watch = (options: DB.IWatchOptions): DB.RealtimeListener => {
+    // this._getAccessToken((accessToken, envId) => {
+    if (!Db.ws) {
+      Db.ws = new RealtimeWebSocketClient({
+        context: {
+          appConfig: {
+            docSizeLimit: 1000,
+            realtimePingInterval: 10000,
+            realtimePongWaitTimeout: 5000,
+            getAccessToken: this._getAccessToken
+          }
+        }
+      })
+    }
+
+    console.log("test))))))))))))))))))))")
+
+    return (Db.ws as RealtimeWebSocketClient).watch({
+      ...options,
+      envId: this._db.config.env,
+      collectionName: this._coll,
+      query: JSON.stringify(this._fieldFilters)
+    })
+    // })
+  }
+
   /*
   convertParams(query: object) {
     // console.log(JSON.stringify(query));

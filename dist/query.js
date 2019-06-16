@@ -6,14 +6,32 @@ const validate_1 = require("./validate");
 const util_2 = require("./util");
 const query_1 = require("./serializer/query");
 const update_1 = require("./serializer/update");
+const websocket_client_1 = require("./realtime/websocket-client");
 class Query {
     constructor(db, coll, fieldFilters, fieldOrders, queryOptions) {
+        this.watch = (options) => {
+            if (!db_1.Db.ws) {
+                db_1.Db.ws = new websocket_client_1.RealtimeWebSocketClient({
+                    context: {
+                        appConfig: {
+                            docSizeLimit: 1000,
+                            realtimePingInterval: 10000,
+                            realtimePongWaitTimeout: 5000,
+                            getAccessToken: this._getAccessToken
+                        }
+                    }
+                });
+            }
+            console.log("test))))))))))))))))))))");
+            return db_1.Db.ws.watch(Object.assign({}, options, { envId: this._db.config.env, collectionName: this._coll, query: JSON.stringify(this._fieldFilters) }));
+        };
         this._db = db;
         this._coll = coll;
         this._fieldFilters = fieldFilters;
         this._fieldOrders = fieldOrders || [];
         this._queryOptions = queryOptions || {};
         this._request = new db_1.Db.reqClass(this._db.config);
+        this._getAccessToken = db_1.Db.getAccessToken;
     }
     get(callback) {
         callback = callback || util_1.createPromiseCallback();
@@ -45,7 +63,9 @@ class Query {
         if (this._queryOptions.projection) {
             param.projection = this._queryOptions.projection;
         }
-        this._request.send('database.queryDocument', param).then(res => {
+        this._request
+            .send("database.queryDocument", param)
+            .then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -63,7 +83,8 @@ class Query {
                     result.offset = res.Offset;
                 callback(0, result);
             }
-        }).catch((err) => {
+        })
+            .catch(err => {
             callback(err);
         });
         return callback.promise;
@@ -76,7 +97,7 @@ class Query {
         if (this._fieldFilters) {
             param.query = this._fieldFilters;
         }
-        this._request.send('database.countDocument', param).then(res => {
+        this._request.send("database.countDocument", param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -103,29 +124,29 @@ class Query {
         return new Query(this._db, this._coll, this._fieldFilters, combinedOrders, this._queryOptions);
     }
     limit(limit) {
-        validate_1.Validate.isInteger('limit', limit);
+        validate_1.Validate.isInteger("limit", limit);
         let option = Object.assign({}, this._queryOptions);
         option.limit = limit;
         return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option);
     }
     skip(offset) {
-        validate_1.Validate.isInteger('offset', offset);
+        validate_1.Validate.isInteger("offset", offset);
         let option = Object.assign({}, this._queryOptions);
         option.offset = offset;
         return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option);
     }
     update(data, callback) {
         callback = callback || util_1.createPromiseCallback();
-        if (!data || typeof data !== 'object') {
+        if (!data || typeof data !== "object") {
             return Promise.resolve({
-                code: 'INVALID_PARAM',
-                message: '参数必需是非空对象'
+                code: "INVALID_PARAM",
+                message: "参数必需是非空对象"
             });
         }
-        if (data.hasOwnProperty('_id')) {
+        if (data.hasOwnProperty("_id")) {
             return Promise.resolve({
-                code: 'INVALID_PARAM',
-                message: '不能更新_id的值'
+                code: "INVALID_PARAM",
+                message: "不能更新_id的值"
             });
         }
         let param = {
@@ -136,7 +157,7 @@ class Query {
             upsert: false,
             data: update_1.UpdateSerializer.encode(data)
         };
-        this._request.send('database.updateDocument', param).then(res => {
+        this._request.send("database.updateDocument", param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -166,17 +187,17 @@ class Query {
     remove(callback) {
         callback = callback || util_1.createPromiseCallback();
         if (Object.keys(this._queryOptions).length > 0) {
-            console.warn('`offset`, `limit` and `projection` are not supported in remove() operation');
+            console.warn("`offset`, `limit` and `projection` are not supported in remove() operation");
         }
         if (this._fieldOrders.length > 0) {
-            console.warn('`orderBy` is not supported in remove() operation');
+            console.warn("`orderBy` is not supported in remove() operation");
         }
         const param = {
             collectionName: this._coll,
             query: query_1.QuerySerializer.encode(this._fieldFilters),
             multi: true
         };
-        this._request.send('database.deleteDocument', param).then(res => {
+        this._request.send("database.deleteDocument", param).then(res => {
             if (res.code) {
                 callback(0, res);
             }
