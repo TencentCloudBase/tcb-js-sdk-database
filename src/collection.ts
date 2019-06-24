@@ -9,7 +9,6 @@ import Aggregation from './aggregate'
  * @author haroldhu
  */
 export class CollectionReference extends Query {
-
   /**
    * 初始化
    *
@@ -35,7 +34,10 @@ export class CollectionReference extends Query {
    *
    * @param docID - 文档ID
    */
-  doc(docID?: string): DocumentReference {
+  doc(docID?: string | number): DocumentReference {
+    if (typeof docID !== 'string' && typeof docID !== 'number') {
+      throw new Error('docId必须为字符串或数字')
+    }
     return new DocumentReference(this._db, this._coll, docID)
   }
 
