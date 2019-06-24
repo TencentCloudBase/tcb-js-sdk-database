@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { createPromiseCallback } from './lib/util'
 import { Db } from './index'
 import { Util } from './util'
@@ -7,14 +6,6 @@ import { serialize } from './serializer/datatype'
 import { UpdateCommand } from './commands/update'
 import { DB } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
-=======
-import { createPromiseCallback } from "./lib/util"
-import { Db } from "./db"
-import { Util } from "./util"
-import { UpdateSerializer } from "./serializer/update"
-import { serialize } from "./serializer/datatype"
-import { UpdateCommand } from "./commands/update"
->>>>>>> fix semi problem
 
 /**
  * 文档模块
@@ -44,11 +35,7 @@ export class DocumentReference {
    *
    * @internal
    */
-<<<<<<< HEAD
   readonly _coll: string
-=======
-  private _coll: string
->>>>>>> fix semi problem
 
   /**
    * Request 实例
@@ -56,11 +43,8 @@ export class DocumentReference {
    * @internal
    */
   private request: any
-<<<<<<< HEAD
 
   private _getAccessToken: Function
-=======
->>>>>>> fix semi problem
 
   /**
    * 初始化
@@ -78,10 +62,7 @@ export class DocumentReference {
     /* eslint-disable new-cap*/
     this.request = new Db.reqClass(this._db.config)
     this.projection = projection
-<<<<<<< HEAD
     this._getAccessToken = Db.getAccessToken
-=======
->>>>>>> fix semi problem
   }
 
   /**
@@ -100,11 +81,7 @@ export class DocumentReference {
     }
 
     if (this.id) {
-<<<<<<< HEAD
       params['_id'] = this.id
-=======
-      params["_id"] = this.id
->>>>>>> fix semi problem
     }
 
     this.request
@@ -136,7 +113,6 @@ export class DocumentReference {
    */
   set(data: Object, callback?: any): Promise<any> {
     callback = callback || createPromiseCallback()
-<<<<<<< HEAD
 
     if (!this.id) {
       return Promise.resolve({
@@ -144,30 +120,18 @@ export class DocumentReference {
         message: 'docId不能为空'
       })
     }
-=======
->>>>>>> fix semi problem
 
     if (!data || typeof data !== 'object') {
       return Promise.resolve({
-<<<<<<< HEAD
         code: 'INVALID_PARAM',
         message: '参数必需是非空对象'
-=======
-        code: "INVALID_PARAM",
-        message: "参数必需是非空对象"
->>>>>>> fix semi problem
       })
     }
 
     if (data.hasOwnProperty('_id')) {
       return Promise.resolve({
-<<<<<<< HEAD
         code: 'INVALID_PARAM',
         message: '不能更新_id的值'
-=======
-        code: "INVALID_PARAM",
-        message: "不能更新_id的值"
->>>>>>> fix semi problem
       })
     }
 
@@ -177,39 +141,25 @@ export class DocumentReference {
         for (let key in objs) {
           if (objs[key] instanceof UpdateCommand) {
             hasOperator = true
-<<<<<<< HEAD
           } else if (typeof objs[key] === 'object') {
-=======
-          } else if (typeof objs[key] === "object") {
->>>>>>> fix semi problem
             checkMixed(objs[key])
           }
         }
       }
     }
     checkMixed(data)
-<<<<<<< HEAD
-=======
+
     // console.log('hasOperator', hasOperator)
->>>>>>> fix semi problem
 
     if (hasOperator) {
       //不能包含操作符
       return Promise.resolve({
-<<<<<<< HEAD
         code: 'DATABASE_REQUEST_FAILED',
         message: 'update operator complicit'
       })
     }
 
-=======
-        code: "DATABASE_REQUEST_FAILED",
-        message: "update operator complicit"
-      })
-    }
-
     // console.log(data, JSON.stringify(data))
->>>>>>> fix semi problem
     const merge = false //data不能带有操作符
     let param = {
       collectionName: this._coll,
@@ -221,11 +171,7 @@ export class DocumentReference {
     }
 
     if (this.id) {
-<<<<<<< HEAD
       param['query'] = { _id: this.id }
-=======
-      param["query"] = { _id: this.id }
->>>>>>> fix semi problem
     }
 
     this.request
@@ -258,25 +204,15 @@ export class DocumentReference {
 
     if (!data || typeof data !== 'object') {
       return Promise.resolve({
-<<<<<<< HEAD
         code: 'INVALID_PARAM',
         message: '参数必需是非空对象'
-=======
-        code: "INVALID_PARAM",
-        message: "参数必需是非空对象"
->>>>>>> fix semi problem
       })
     }
 
     if (data.hasOwnProperty('_id')) {
       return Promise.resolve({
-<<<<<<< HEAD
         code: 'INVALID_PARAM',
         message: '不能更新_id的值'
-=======
-        code: "INVALID_PARAM",
-        message: "不能更新_id的值"
->>>>>>> fix semi problem
       })
     }
 
@@ -391,7 +327,6 @@ export class DocumentReference {
       }
     }
     return new DocumentReference(this._db, this._coll, this.id, projection)
-<<<<<<< HEAD
   }
 
   /**
@@ -421,7 +356,5 @@ export class DocumentReference {
       })
     })
     // })
-=======
->>>>>>> fix semi problem
   }
 }
