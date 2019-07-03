@@ -33,7 +33,7 @@ export class DocumentReference {
    *
    * @internal
    */
-  private _coll: string;
+  readonly _coll: string;
 
   /**
    * Request 实例
