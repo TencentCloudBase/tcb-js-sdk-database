@@ -21,19 +21,19 @@ export declare class Transaction {
 }
 export declare function startTransaction(): Promise<Transaction>;
 export declare function runTransaction(callback: (transaction: Transaction) => void | Promise<any>, times?: number): Promise<void>;
+declare type JsonString = string;
 interface CommitResult {
     requestId: string;
-    data: object;
 }
 interface RollbackResult {
     requestId: string;
 }
 interface UpdateResult {
     requestId: string;
-    updated: number | string;
+    updated: number;
 }
 interface SetResult extends UpdateResult {
-    upserted: number | string;
+    upserted: JsonString;
 }
 interface DeleteResult {
     requestId: string;

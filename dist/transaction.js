@@ -11,13 +11,19 @@ class DocumentSnapshot {
         return this._data;
     }
 }
+const START = 'database.startTransaction';
+const COMMIT = 'database.commitTransaction';
+const ABORT = 'database.abortTransaction';
+const GET_DOC = 'database.getInTransaction';
+const UPDATE_DOC = 'database.updateDocInTransaction';
+const DELETE_DOC = 'database.deleteDocInTransaction';
 class Transaction {
     constructor(db) {
         this._db = db;
         this._request = new db_1.Db.reqClass(this._db.config);
     }
     async init() {
-        const res = await this._request.send('database.startTransaction');
+        const res = await this._request.send(START);
         if (res.code) {
             throw res;
         }
@@ -29,7 +35,7 @@ class Transaction {
             transactionId: this._id,
             _id: documentRef.id
         };
-        const res = await this._request.send('database.getInTransaction', param);
+        const res = await this._request.send(GET_DOC, param);
         if (res.code)
             throw res;
         return new DocumentSnapshot(bson_1.EJSON.parse(res.data), res.requestId);
@@ -42,7 +48,7 @@ class Transaction {
             data: bson_1.EJSON.stringify(data, { relaxed: false }),
             upsert: true
         };
-        const res = await this._request.send('database.updateDocInTransaction', param);
+        const res = await this._request.send(UPDATE_DOC, param);
         if (res.code)
             throw res;
         return Object.assign({}, res, { updated: bson_1.EJSON.parse(res.updated), upserted: res.upserted
@@ -60,7 +66,7 @@ class Transaction {
                 relaxed: false
             })
         };
-        const res = await this._request.send('database.updateDocInTransaction', param);
+        const res = await this._request.send(UPDATE_DOC, param);
         if (res.code)
             throw res;
         return Object.assign({}, res, { updated: bson_1.EJSON.parse(res.updated) });
@@ -71,7 +77,7 @@ class Transaction {
             transactionId: this._id,
             _id: documentRef.id
         };
-        const res = await this._request.send('database.deleteDocInTransaction', param);
+        const res = await this._request.send(DELETE_DOC, param);
         if (res.code)
             throw res;
         return Object.assign({}, res, { deleted: bson_1.EJSON.parse(res.deleted) });
@@ -80,7 +86,7 @@ class Transaction {
         const param = {
             transactionId: this._id
         };
-        const res = await this._request.send('database.commitTransaction', param);
+        const res = await this._request.send(COMMIT, param);
         if (res.code)
             throw res;
         return res;
@@ -89,7 +95,7 @@ class Transaction {
         const param = {
             transactionId: this._id
         };
-        const res = await this._request.send('database.abortTransaction', param);
+        const res = await this._request.send(ABORT, param);
         if (res.code)
             throw res;
         return res;
