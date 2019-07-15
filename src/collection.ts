@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import { Db } from './index'
 import { DocumentReference } from './document'
 import { Query } from './query'
 import Aggregation from './aggregate'
+=======
+import { Db } from "./db"
+import { DocumentReference } from "./document"
+import { Query } from "./query"
+import Aggregation from "./aggregate"
+>>>>>>> fix semi problem
 
 /**
  * 集合模块，继承 Query 模块
