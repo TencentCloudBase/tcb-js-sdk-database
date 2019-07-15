@@ -148,7 +148,6 @@ export class DocumentReference {
       }
     }
     checkMixed(data)
-
     // console.log('hasOperator', hasOperator)
 
     if (hasOperator) {
