@@ -166,7 +166,7 @@ class QueryEncoder {
         for (const conditionKey in condition) {
             if (query[conditionKey]) {
                 if (type_1.isArray(query[conditionKey])) {
-                    query[conditionKey].push(condition[conditionKey]);
+                    query[conditionKey] = query[conditionKey].concat(condition[conditionKey]);
                 }
                 else if (type_1.isObject(query[conditionKey])) {
                     if (type_1.isObject(condition[conditionKey])) {
