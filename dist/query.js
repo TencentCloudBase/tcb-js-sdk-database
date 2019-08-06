@@ -6,14 +6,31 @@ const validate_1 = require("./validate");
 const util_2 = require("./util");
 const query_1 = require("./serializer/query");
 const update_1 = require("./serializer/update");
+const websocket_client_1 = require("./realtime/websocket-client");
 class Query {
     constructor(db, coll, fieldFilters, fieldOrders, queryOptions) {
+        this.watch = (options) => {
+            if (!db_1.Db.ws) {
+                db_1.Db.ws = new websocket_client_1.RealtimeWebSocketClient({
+                    context: {
+                        appConfig: {
+                            docSizeLimit: 1000,
+                            realtimePingInterval: 10000,
+                            realtimePongWaitTimeout: 5000,
+                            getAccessToken: this._getAccessToken
+                        }
+                    }
+                });
+            }
+            return db_1.Db.ws.watch(Object.assign({}, options, { envId: this._db.config.env, collectionName: this._coll, query: JSON.stringify(this._fieldFilters) }));
+        };
         this._db = db;
         this._coll = coll;
         this._fieldFilters = fieldFilters;
         this._fieldOrders = fieldOrders || [];
         this._queryOptions = queryOptions || {};
         this._request = new db_1.Db.reqClass(this._db.config);
+        this._getAccessToken = db_1.Db.getAccessToken;
     }
     get(callback) {
         callback = callback || util_1.createPromiseCallback();
@@ -45,7 +62,9 @@ class Query {
         if (this._queryOptions.projection) {
             param.projection = this._queryOptions.projection;
         }
-        this._request.send('database.queryDocument', param).then(res => {
+        this._request
+            .send('database.queryDocument', param)
+            .then(res => {
             if (res.code) {
                 callback(0, res);
             }
@@ -63,7 +82,8 @@ class Query {
                     result.offset = res.Offset;
                 callback(0, result);
             }
-        }).catch((err) => {
+        })
+            .catch(err => {
             callback(err);
         });
         return callback.promise;

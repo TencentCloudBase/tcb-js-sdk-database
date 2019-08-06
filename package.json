@@ -19,6 +19,9 @@
     "typescript-eslint-parser": "^22.0.0"
   },
   "dependencies": {
-    "bson": "^4.0.2"
+    "bson": "^4.0.2",
+    "lodash-es": "^4.17.15",
+    "node-cache": "^4.2.0",
+    "ws": "^7.0.0"
   }
 }

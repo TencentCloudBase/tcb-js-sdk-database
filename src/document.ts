@@ -4,6 +4,9 @@ import { Util } from './util'
 import { UpdateSerializer } from './serializer/update'
 import { serialize } from './serializer/datatype'
 import { UpdateCommand } from './commands/update'
+import { DB } from './typings'
+import { RealtimeWebSocketClient } from './realtime/websocket-client'
+
 
 /**
  * 文档模块
@@ -42,6 +45,9 @@ export class DocumentReference {
    */
   private request: any;
 
+  private _getAccessToken: Function
+
+
   /**
    * 初始化
    *
@@ -58,6 +64,7 @@ export class DocumentReference {
     /* eslint-disable new-cap*/
     this.request = new Db.reqClass(this._db.config)
     this.projection = projection
+    this._getAccessToken = Db.getAccessToken
   }
 
   /**
@@ -79,18 +86,21 @@ export class DocumentReference {
       params['_id'] = this.id
     }
 
-    this.request.send('database.addDocument', params).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          id: res.data._id,
-          requestId: res.requestId
-        })
-      }
-    }).catch((err) => {
-      callback(err)
-    })
+    this.request
+      .send('database.addDocument', params)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          callback(0, {
+            id: res.data._id,
+            requestId: res.requestId
+          })
+        }
+      })
+      .catch(err => {
+        callback(err)
+      })
 
     return callback.promise
   }
@@ -105,6 +115,13 @@ export class DocumentReference {
    */
   set(data: Object, callback?: any): Promise<any> {
     callback = callback || createPromiseCallback()
+
+    if (!this.id) {
+      return Promise.resolve({
+        code: 'INVALID_PARAM',
+        message: 'docId不能为空'
+      })
+    }
 
     if (!data || typeof data !== 'object') {
       return Promise.resolve({
@@ -121,8 +138,7 @@ export class DocumentReference {
     }
 
     let hasOperator = false
-    const checkMixed = (objs) => {
-      // console.log(objs)
+    const checkMixed = objs => {
       if (typeof objs === 'object') {
         for (let key in objs) {
           if (objs[key] instanceof UpdateCommand) {
@@ -134,16 +150,15 @@ export class DocumentReference {
       }
     }
     checkMixed(data)
-    // console.log('hasOperator', hasOperator)
 
-    if (hasOperator) {  //不能包含操作符
+    if (hasOperator) {
+      //不能包含操作符
       return Promise.resolve({
         code: 'DATABASE_REQUEST_FAILED',
         message: 'update operator complicit'
       })
     }
 
-    // console.log(data, JSON.stringify(data))
     const merge = false //data不能带有操作符
     let param = {
       collectionName: this._coll,
@@ -158,19 +173,22 @@ export class DocumentReference {
       param['query'] = { _id: this.id }
     }
 
-    this.request.send('database.updateDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          updated: res.data.updated,
-          upsertedId: res.data.upserted_id,
-          requestId: res.requestId
-        })
-      }
-    }).catch((err) => {
-      callback(err)
-    })
+    this.request
+      .send('database.updateDocument', param)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          callback(0, {
+            updated: res.data.updated,
+            upsertedId: res.data.upserted_id,
+            requestId: res.requestId
+          })
+        }
+      })
+      .catch(err => {
+        callback(err)
+      })
 
     return callback.promise
   }
@@ -208,19 +226,22 @@ export class DocumentReference {
       merge,
       upsert: false
     }
-    this.request.send('database.updateDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          updated: res.data.updated,
-          upsertedId: res.data.upserted_id,
-          requestId: res.requestId
-        })
-      }
-    }).catch((err) => {
-      callback(err)
-    })
+    this.request
+      .send('database.updateDocument', param)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          callback(0, {
+            updated: res.data.updated,
+            upsertedId: res.data.upserted_id,
+            requestId: res.requestId
+          })
+        }
+      })
+      .catch(err => {
+        callback(err)
+      })
 
     return callback.promise
   }
@@ -238,18 +259,21 @@ export class DocumentReference {
       multi: false
     }
 
-    this.request.send('database.deleteDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          deleted: res.data.deleted,
-          requestId: res.requestId
-        })
-      }
-    }).catch((err) => {
-      callback(err)
-    })
+    this.request
+      .send('database.deleteDocument', param)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          callback(0, {
+            deleted: res.data.deleted,
+            requestId: res.requestId
+          })
+        }
+      })
+      .catch(err => {
+        callback(err)
+      })
 
     return callback.promise
   }
@@ -267,22 +291,25 @@ export class DocumentReference {
       multi: false,
       projection: this.projection
     }
-    this.request.send('database.queryDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        const documents = Util.formatResDocumentData(res.data.list)
-        callback(0, {
-          data: documents,
-          requestId: res.requestId,
-          total: res.TotalCount,
-          limit: res.Limit,
-          offset: res.Offset
-        })
-      }
-    }).catch((err) => {
-      callback(err)
-    })
+    this.request
+      .send('database.queryDocument', param)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          const documents = Util.formatResDocumentData(res.data.list)
+          callback(0, {
+            data: documents,
+            requestId: res.requestId,
+            total: res.TotalCount,
+            limit: res.Limit,
+            offset: res.Offset
+          })
+        }
+      })
+      .catch(err => {
+        callback(err)
+      })
 
     return callback.promise
   }
@@ -300,4 +327,35 @@ export class DocumentReference {
     }
     return new DocumentReference(this._db, this._coll, this.id, projection)
   }
+
+
+  /**
+   * 监听单个文档
+   */
+  watch = (options: DB.IWatchOptions): DB.RealtimeListener => {
+    // this._getAccessToken((accessToken, envId) => {
+    if (!Db.ws) {
+      Db.ws = new RealtimeWebSocketClient({
+        context: {
+          appConfig: {
+            docSizeLimit: 1000,
+            realtimePingInterval: 10000,
+            realtimePongWaitTimeout: 5000,
+            getAccessToken: this._getAccessToken
+          }
+        }
+      })
+    }
+
+    return (Db.ws as RealtimeWebSocketClient).watch({
+      ...options,
+      envId: this._db.config.env,
+      collectionName: this._coll,
+      query: JSON.stringify({
+        _id: this.id,
+      })
+    })
+    // })
+  }
+
 }
