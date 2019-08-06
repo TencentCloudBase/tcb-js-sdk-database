@@ -1,7 +1,7 @@
-import set from "lodash-es/set"
-import unset from "lodash-es/unset"
-import cloneDeep from "lodash-es/cloneDeep"
-import { genRequestId } from "./message"
+import set from 'lodash-es/set'
+import unset from 'lodash-es/unset'
+import cloneDeep from 'lodash-es/cloneDeep'
+import { genRequestId } from './message'
 import {
   IResponseMessage,
   IRequestMessageInitWatchMsg,
@@ -15,22 +15,22 @@ import {
   // IRequestMessageCheckLastData,
   IRequestMessageCheckLastMsg
   // IResponseMessageErrorMsg
-} from "../typings/realtime"
+} from '../typings/realtime'
 import {
   CloudSDKError,
   isTimeoutError,
   TimeoutError,
   CancelledError,
   isCancelledError
-} from "../utils/error"
-import { ERR_CODE } from "../config/error.config"
-import { sleep } from "../utils/utils"
+} from '../utils/error'
+import { ERR_CODE } from '../config/error.config'
+import { sleep } from '../utils/utils'
 // import Reporter from "./externals/public-lib/reporter"
-import { RealtimeListener } from "./listener"
-import { Snapshot } from "./snapshot"
-import { IWSSendOptions, ILoginResult } from "./websocket-client"
-import { isRealtimeErrorMessageError, RealtimeErrorMessageError } from "./error"
-import { DB } from "../typings"
+import { RealtimeListener } from './listener'
+import { Snapshot } from './snapshot'
+import { IWSSendOptions, ILoginResult } from './websocket-client'
+import { isRealtimeErrorMessageError, RealtimeErrorMessageError } from './error'
+import { DB } from '../typings'
 // import { writeFile } from "fs"
 
 // function writeToFile(fileName, data) {
@@ -78,7 +78,7 @@ interface IHandleCommonErrorOptions {
 }
 
 interface IHandleWatchEstablishmentErrorOptions {
-  operationName: "INIT_WATCH" | "REBUILD_WATCH"
+  operationName: 'INIT_WATCH' | 'REBUILD_WATCH'
   resolve: (value?: void | PromiseLike<void> | undefined) => void
   reject: (e: any) => void
   // retry: (refreshLogin?: boolean) => void
@@ -86,15 +86,15 @@ interface IHandleWatchEstablishmentErrorOptions {
 }
 
 enum WATCH_STATUS {
-  LOGGINGIN = "LOGGINGIN",
-  INITING = "INITING",
-  REBUILDING = "REBUILDING",
-  ACTIVE = "ACTIVE",
-  ERRORED = "ERRORED",
-  CLOSING = "CLOSING",
-  CLOSED = "CLOSED",
-  PAUSED = "PAUSED",
-  RESUMING = "RESUMING"
+  LOGGINGIN = 'LOGGINGIN',
+  INITING = 'INITING',
+  REBUILDING = 'REBUILDING',
+  ACTIVE = 'ACTIVE',
+  ERRORED = 'ERRORED',
+  CLOSING = 'CLOSING',
+  CLOSED = 'CLOSED',
+  PAUSED = 'PAUSED',
+  RESUMING = 'RESUMING'
 }
 
 const DEFAULT_WAIT_TIME_ON_UNKNOWN_ERROR = 100
@@ -192,7 +192,7 @@ export class VirtualWebSocketClient {
         try {
           if (this.watchStatus === WATCH_STATUS.PAUSED) {
             // if (process.env.DEBUG) {
-            console.log(`[realtime] initWatch cancelled on pause`)
+            console.log('[realtime] initWatch cancelled on pause')
             // }
             return resolve()
           }
@@ -204,7 +204,7 @@ export class VirtualWebSocketClient {
           // }
 
           if ((this.watchStatus as WATCH_STATUS) === WATCH_STATUS.PAUSED) {
-            console.log(`[realtime] initWatch cancelled on pause`)
+            console.log('[realtime] initWatch cancelled on pause')
             return resolve()
           }
 
@@ -213,7 +213,7 @@ export class VirtualWebSocketClient {
           const initWatchMsg: IRequestMessageInitWatchMsg = {
             watchId: this.watchId,
             requestId: genRequestId(),
-            msgType: "INIT_WATCH",
+            msgType: 'INIT_WATCH',
             msgData: {
               envId,
               collName: this.collectionName,
@@ -248,7 +248,7 @@ export class VirtualWebSocketClient {
               id: currEvent,
               docChanges: [],
               docs: [],
-              type: "init"
+              type: 'init'
             })
             this.listener.onChange(snapshot)
             this.scheduleSendACK()
@@ -259,7 +259,7 @@ export class VirtualWebSocketClient {
           resolve()
         } catch (e) {
           this.handleWatchEstablishmentError(e, {
-            operationName: "INIT_WATCH",
+            operationName: 'INIT_WATCH',
             resolve,
             reject
           })
@@ -277,7 +277,7 @@ export class VirtualWebSocketClient {
     }
 
     // if (process.env.DEBUG) {
-    console.log(`[realtime] initWatch ${success ? "success" : "fail"}`)
+    console.log(`[realtime] initWatch ${success ? 'success' : 'fail'}`)
     // }
   }
 
@@ -291,7 +291,7 @@ export class VirtualWebSocketClient {
         try {
           if (this.watchStatus === WATCH_STATUS.PAUSED) {
             // if (process.env.DEBUG) {
-            console.log(`[realtime] rebuildWatch cancelled on pause`)
+            console.log('[realtime] rebuildWatch cancelled on pause')
             // }
             return resolve()
           }
@@ -299,12 +299,12 @@ export class VirtualWebSocketClient {
 
           if (!this.sessionInfo) {
             throw new Error(
-              `can not rebuildWatch without a successful initWatch (lack of sessionInfo)`
+              'can not rebuildWatch without a successful initWatch (lack of sessionInfo)'
             )
           }
 
           if ((this.watchStatus as WATCH_STATUS) === WATCH_STATUS.PAUSED) {
-            console.log(`[realtime] rebuildWatch cancelled on pause`)
+            console.log('[realtime] rebuildWatch cancelled on pause')
             return resolve()
           }
 
@@ -313,7 +313,7 @@ export class VirtualWebSocketClient {
           const rebuildWatchMsg: IRequestMessageRebuildWatchMsg = {
             watchId: this.watchId,
             requestId: genRequestId(),
-            msgType: "REBUILD_WATCH",
+            msgType: 'REBUILD_WATCH',
             msgData: {
               envId,
               collName: this.collectionName,
@@ -336,7 +336,7 @@ export class VirtualWebSocketClient {
           resolve()
         } catch (e) {
           this.handleWatchEstablishmentError(e, {
-            operationName: "REBUILD_WATCH",
+            operationName: 'REBUILD_WATCH',
             resolve,
             reject
           })
@@ -354,7 +354,7 @@ export class VirtualWebSocketClient {
     }
 
     // if (process.env.DEBUG) {
-    console.log(`[realtime] rebuildWatch ${success ? "success" : "fail"}`)
+    console.log(`[realtime] rebuildWatch ${success ? 'success' : 'fail'}`)
     // }
   }
 
@@ -362,7 +362,7 @@ export class VirtualWebSocketClient {
     e: any,
     options: IHandleWatchEstablishmentErrorOptions
   ) => {
-    const isInitWatch = options.operationName === "INIT_WATCH"
+    const isInitWatch = options.operationName === 'INIT_WATCH'
 
     const abortWatch = () => {
       // mock temp comment
@@ -432,7 +432,7 @@ export class VirtualWebSocketClient {
   }
 
   private closeWatch = async () => {
-    const queryId = this.sessionInfo ? this.sessionInfo.queryID : ""
+    const queryId = this.sessionInfo ? this.sessionInfo.queryID : ''
 
     if (this.watchStatus !== WATCH_STATUS.ACTIVE) {
       this.watchStatus = WATCH_STATUS.CLOSED
@@ -446,7 +446,7 @@ export class VirtualWebSocketClient {
       const closeWatchMsg: IRequestMessageCloseWatchMsg = {
         watchId: this.watchId,
         requestId: genRequestId(),
-        msgType: "CLOSE_WATCH",
+        msgType: 'CLOSE_WATCH',
         msgData: null
       }
 
@@ -496,7 +496,7 @@ export class VirtualWebSocketClient {
 
       if (!this.sessionInfo) {
         console.warn(
-          `[realtime listener] can not send ack without a successful initWatch (lack of sessionInfo)`
+          '[realtime listener] can not send ack without a successful initWatch (lack of sessionInfo)'
         )
         return
       }
@@ -504,7 +504,7 @@ export class VirtualWebSocketClient {
       const ackMsg: IRequestMessageCheckLastMsg = {
         watchId: this.watchId,
         requestId: genRequestId(),
-        msgType: "CHECK_LAST",
+        msgType: 'CHECK_LAST',
         msgData: {
           queryID: this.sessionInfo.queryID,
           eventID: this.sessionInfo.currentEventId
@@ -522,18 +522,18 @@ export class VirtualWebSocketClient {
         const msg = e.payload
         switch (msg.msgData.code) {
           // signature error -> retry with refreshed signature
-          case "CHECK_LOGIN_FAILED":
-          case "SIGN_EXPIRED_ERROR":
-          case "SIGN_INVALID_ERROR":
-          case "SIGN_PARAM_INVALID": {
+          case 'CHECK_LOGIN_FAILED':
+          case 'SIGN_EXPIRED_ERROR':
+          case 'SIGN_INVALID_ERROR':
+          case 'SIGN_PARAM_INVALID': {
             this.rebuildWatch()
             return
           }
           // other -> throw
-          case "QUERYID_INVALID_ERROR":
-          case "SYS_ERR":
-          case "INVALIID_ENV":
-          case "COLLECTION_PERMISSION_DENIED": {
+          case 'QUERYID_INVALID_ERROR':
+          case 'SYS_ERR':
+          case 'INVALIID_ENV':
+          case 'COLLECTION_PERMISSION_DENIED': {
             // must throw
             this.closeWithError(
               new CloudSDKError({
@@ -575,18 +575,18 @@ export class VirtualWebSocketClient {
       const msg = e.payload
       switch (msg.msgData.code) {
         // signature error -> retry with refreshed signature
-        case "CHECK_LOGIN_FAILED":
-        case "SIGN_EXPIRED_ERROR":
-        case "SIGN_INVALID_ERROR":
-        case "SIGN_PARAM_INVALID": {
+        case 'CHECK_LOGIN_FAILED':
+        case 'SIGN_EXPIRED_ERROR':
+        case 'SIGN_INVALID_ERROR':
+        case 'SIGN_PARAM_INVALID': {
           options.onSignError(e)
           return
         }
         // not-retryable error -> throw
-        case "QUERYID_INVALID_ERROR":
-        case "SYS_ERR":
-        case "INVALIID_ENV":
-        case "COLLECTION_PERMISSION_DENIED": {
+        case 'QUERYID_INVALID_ERROR':
+        case 'SYS_ERR':
+        case 'INVALIID_ENV':
+        case 'COLLECTION_PERMISSION_DENIED': {
           options.onNotRetryableError(e)
           return
         }
@@ -641,7 +641,7 @@ export class VirtualWebSocketClient {
       // if (process.env.DEBUG) {
       // TODO: report
       console.error(
-        `[realtime listener] internal non-fatal error: handle server events failed with error: `,
+        '[realtime listener] internal non-fatal error: handle server events failed with error: ',
         e
       )
 
@@ -731,12 +731,12 @@ export class VirtualWebSocketClient {
         // 2. queueType: we build the data snapshot
 
         switch (change.dataType) {
-          case "update": {
+          case 'update': {
             // only need to populate change.doc when it is not provided
             if (!change.doc) {
               switch (change.queueType) {
-                case "update":
-                case "dequeue": {
+                case 'update':
+                case 'dequeue': {
                   const localDoc = docs.find(doc => doc._id === change.docId)
                   if (localDoc) {
                     // a partial update
@@ -758,7 +758,7 @@ export class VirtualWebSocketClient {
                   } else {
                     // TODO report
                     console.error(
-                      `[realtime listener] internal non-fatal server error: unexpected update dataType event where no doc is associated.`
+                      '[realtime listener] internal non-fatal server error: unexpected update dataType event where no doc is associated.'
                     )
 
                     // writeToFile(
@@ -776,7 +776,7 @@ export class VirtualWebSocketClient {
                   }
                   break
                 }
-                case "enqueue": {
+                case 'enqueue': {
                   // doc is provided by server, this should never occur
                   const err = new CloudSDKError({
                     errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_UNEXPECTED_FATAL_ERROR as string,
@@ -794,7 +794,7 @@ export class VirtualWebSocketClient {
             }
             break
           }
-          case "replace": {
+          case 'replace': {
             // validation
             if (!change.doc) {
               // doc is provided by server, this should never occur
@@ -809,14 +809,14 @@ export class VirtualWebSocketClient {
             }
             break
           }
-          case "remove": {
+          case 'remove': {
             const doc = docs.find(doc => doc._id === change.docId)
             if (doc) {
               change.doc = doc
             } else {
               // TODO report
               console.error(
-                `[realtime listener] internal non-fatal server error: unexpected remove event where no doc is associated.`
+                '[realtime listener] internal non-fatal server error: unexpected remove event where no doc is associated.'
               )
 
               // writeToFile(
@@ -837,7 +837,7 @@ export class VirtualWebSocketClient {
         }
 
         switch (change.queueType) {
-          case "init": {
+          case 'init': {
             if (!initEncountered) {
               initEncountered = true
               docs = [change.doc]
@@ -846,18 +846,18 @@ export class VirtualWebSocketClient {
             }
             break
           }
-          case "enqueue": {
+          case 'enqueue': {
             docs.push(change.doc)
             break
           }
-          case "dequeue": {
+          case 'dequeue': {
             const ind = docs.findIndex(doc => doc._id === change.docId)
             if (ind > -1) {
               docs.splice(ind, 1)
             } else {
               // TODO report
               console.error(
-                `[realtime listener] internal non-fatal server error: unexpected dequeue event where no doc is associated.`
+                '[realtime listener] internal non-fatal server error: unexpected dequeue event where no doc is associated.'
               )
 
               // writeToFile(
@@ -875,7 +875,7 @@ export class VirtualWebSocketClient {
             }
             break
           }
-          case "update": {
+          case 'update': {
             // writeToFile(
             //   "wserror.txt",
             //   `[realtime listener] docs ${JSON.stringify(
@@ -888,7 +888,7 @@ export class VirtualWebSocketClient {
             } else {
               // TODO report
               console.error(
-                `[realtime listener] internal non-fatal server error: unexpected queueType update event where no doc is associated.`
+                '[realtime listener] internal non-fatal server error: unexpected queueType update event where no doc is associated.'
               )
 
               // writeToFile(
@@ -959,7 +959,7 @@ export class VirtualWebSocketClient {
   ) {
     if (!this.sessionInfo) {
       console.error(
-        `[realtime listener] internal non-fatal error: sessionInfo lost after server event handling, this should never occur`
+        '[realtime listener] internal non-fatal error: sessionInfo lost after server event handling, this should never occur'
       )
 
       // writeToFile(
@@ -986,7 +986,7 @@ export class VirtualWebSocketClient {
 
     if (this.sessionInfo.currentEventId < msg.msgData.currEvent) {
       console.warn(
-        `[realtime listener] internal non-fatal error: client eventId does not match with server event id after server event handling`
+        '[realtime listener] internal non-fatal error: client eventId does not match with server event id after server event handling'
       )
       return
     }
@@ -1004,7 +1004,7 @@ export class VirtualWebSocketClient {
     switch (this.watchStatus) {
       case WATCH_STATUS.PAUSED: {
         // ignore all but error message
-        if (msg.msgType !== "ERROR") {
+        if (msg.msgType !== 'ERROR') {
           return
         }
         break
@@ -1021,13 +1021,13 @@ export class VirtualWebSocketClient {
       }
       case WATCH_STATUS.CLOSED: {
         console.warn(
-          `[realtime listener] internal non-fatal error: unexpected message received when the watch has closed`
+          '[realtime listener] internal non-fatal error: unexpected message received when the watch has closed'
         )
         return
       }
       case WATCH_STATUS.ERRORED: {
         console.warn(
-          `[realtime listener] internal non-fatal error: unexpected message received when the watch has ended with error`
+          '[realtime listener] internal non-fatal error: unexpected message received when the watch has ended with error'
         )
         return
       }
@@ -1035,7 +1035,7 @@ export class VirtualWebSocketClient {
 
     if (!this.sessionInfo) {
       console.warn(
-        `[realtime listener] internal non-fatal error: sessionInfo not found while message is received.`
+        '[realtime listener] internal non-fatal error: sessionInfo not found while message is received.'
       )
       return
     }
@@ -1043,7 +1043,7 @@ export class VirtualWebSocketClient {
     this.scheduleSendACK()
 
     switch (msg.msgType) {
-      case "NEXT_EVENT": {
+      case 'NEXT_EVENT': {
         // if (process.env.DEBUG) {
         // @ts-ignore
         // if (wx._ignore) {
@@ -1057,7 +1057,7 @@ export class VirtualWebSocketClient {
         this.handleServerEvents(msg)
         break
       }
-      case "CHECK_EVENT": {
+      case 'CHECK_EVENT': {
         if (this.sessionInfo.currentEventId < msg.msgData.currEvent) {
           // client eventID < server eventID:
           // there might be one or more pending events not yet received but sent by the server
@@ -1076,7 +1076,7 @@ export class VirtualWebSocketClient {
         }
         break
       }
-      case "ERROR": {
+      case 'ERROR': {
         // receive server error
         this.closeWithError(
           new CloudSDKError({
@@ -1107,7 +1107,7 @@ export class VirtualWebSocketClient {
     // Reporter.surroundThirdByTryCatch(() => this.listener.onError(error))
     this.onWatchClose(
       this,
-      (this.sessionInfo && this.sessionInfo.queryID) || ""
+      (this.sessionInfo && this.sessionInfo.queryID) || ''
     )
 
     // if (process.env.DEBUG) {
@@ -1140,7 +1140,7 @@ export class VirtualWebSocketClient {
     // if (process.env.DEBUG) {
     console.log(
       `[realtime] client resuming with ${
-        this.sessionInfo ? "REBUILD_WATCH" : "INIT_WATCH"
+        this.sessionInfo ? 'REBUILD_WATCH' : 'INIT_WATCH'
       } (${this.collectionName} ${this.query}) (${this.watchId})`
     )
     // }
@@ -1174,10 +1174,10 @@ function getPublicEvent(event: IDBEvent): DB.ISingleDBEvent {
     dataType: event.DataType,
     queueType: event.QueueType,
     docId: event.DocID,
-    doc: event.Doc && event.Doc !== "{}" ? JSON.parse(event.Doc) : undefined
+    doc: event.Doc && event.Doc !== '{}' ? JSON.parse(event.Doc) : undefined
   }
 
-  if (event.DataType === "update") {
+  if (event.DataType === 'update') {
     // @ts-ignore
     if (event.UpdatedFields) {
       e.updatedFields = JSON.parse(event.UpdatedFields)

@@ -2,7 +2,7 @@ import {
   IBoundTunnelRequestOptions,
   IBoundTunnelRequest,
   ITunnelResponse
-} from "./network"
+} from './network'
 
 /**
  * Common interfaces and types
@@ -338,7 +338,7 @@ declare namespace WXNS {
     (res: { isConnected: boolean; networkType: NetworkType }): void
   }
 
-  type NetworkType = "wifi" | "4g" | "3g" | "2g" | "unknown" | "none"
+  type NetworkType = 'wifi' | '4g' | '3g' | '2g' | 'unknown' | 'none'
 }
 
 declare interface WX {
@@ -794,9 +794,9 @@ declare namespace DB {
   }
 
   export enum AGGREGATE_COMMANDS_LITERAL {
-    AVG = "avg",
-    MULTIPLY = "multiply",
-    SUM = "sum"
+    AVG = 'avg',
+    MULTIPLY = 'multiply',
+    SUM = 'sum'
   }
 
   export class DatabaseAggregateCommand {
@@ -812,10 +812,10 @@ declare namespace DB {
   }
 
   export enum LOGIC_COMMANDS_LITERAL {
-    AND = "and",
-    OR = "or",
-    NOT = "not",
-    NOR = "nor"
+    AND = 'and',
+    OR = 'or',
+    NOT = 'not',
+    NOR = 'nor'
   }
 
   export class DatabaseLogicCommand {
@@ -836,18 +836,18 @@ declare namespace DB {
 
   export enum QUERY_COMMANDS_LITERAL {
     // normal
-    EQ = "eq",
-    NEQ = "neq",
-    GT = "gt",
-    GTE = "gte",
-    LT = "lt",
-    LTE = "lte",
-    IN = "in",
-    NIN = "nin",
+    EQ = 'eq',
+    NEQ = 'neq',
+    GT = 'gt',
+    GTE = 'gte',
+    LT = 'lt',
+    LTE = 'lte',
+    IN = 'in',
+    NIN = 'nin',
     // geo
-    GEO_NEAR = "geoNear",
-    GEO_WITHIN = "geoWithin",
-    GEO_INTERSECTS = "geoIntersects"
+    GEO_NEAR = 'geoNear',
+    GEO_WITHIN = 'geoWithin',
+    GEO_INTERSECTS = 'geoIntersects'
   }
 
   export class DatabaseQueryCommand extends DatabaseLogicCommand {
@@ -871,14 +871,14 @@ declare namespace DB {
   }
 
   export enum UPDATE_COMMANDS_LITERAL {
-    SET = "set",
-    REMOVE = "remove",
-    INC = "inc",
-    MUL = "mul",
-    PUSH = "push",
-    POP = "pop",
-    SHIFT = "shift",
-    UNSHIFT = "unshift"
+    SET = 'set',
+    REMOVE = 'remove',
+    INC = 'inc',
+    MUL = 'mul',
+    PUSH = 'push',
+    POP = 'pop',
+    SHIFT = 'shift',
+    UNSHIFT = 'unshift'
   }
 
   export class DatabaseUpdateCommand {
@@ -984,32 +984,32 @@ declare namespace DB {
   }
 
   export interface IGeoJSONPoint {
-    type: "Point"
+    type: 'Point'
     coordinates: [number, number]
   }
 
   export interface IGeoJSONMultiPoint {
-    type: "MultiPoint"
+    type: 'MultiPoint'
     coordinates: [number, number][]
   }
 
   export interface IGeoJSONLineString {
-    type: "LineString"
+    type: 'LineString'
     coordinates: [number, number][]
   }
 
   export interface IGeoJSONMultiLineString {
-    type: "MultiLineString"
+    type: 'MultiLineString'
     coordinates: [number, number][][]
   }
 
   export interface IGeoJSONPolygon {
-    type: "Polygon"
+    type: 'Polygon'
     coordinates: [number, number][][]
   }
 
   export interface IGeoJSONMultiPolygon {
-    type: "MultiPolygon"
+    type: 'MultiPolygon'
     coordinates: [number, number][][][]
   }
 
@@ -1193,7 +1193,7 @@ declare namespace DB {
     type?: SnapshotType
   }
 
-  export type SnapshotType = "init"
+  export type SnapshotType = 'init'
 
   export interface ISingleDBEvent {
     id: number
@@ -1205,9 +1205,9 @@ declare namespace DB {
     removedFields?: any
   }
 
-  export type DataType = "init" | "update" | "add" | "remove" | "replace"
+  export type DataType = 'init' | 'update' | 'add' | 'remove' | 'replace'
 
-  export type QueueType = "init" | "enqueue" | "dequeue" | "update"
+  export type QueueType = 'init' | 'enqueue' | 'dequeue' | 'update'
 
   export type IQueryCondition = Record<string, any> | DatabaseLogicCommand
 

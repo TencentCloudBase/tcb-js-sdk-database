@@ -1,16 +1,16 @@
-import { createPromiseCallback } from "./lib/util"
+import { createPromiseCallback } from './lib/util'
 /* eslint-disable no-unused-vars */
-import { OrderByDirection } from "./constant"
-import { Db } from "./db"
-import { Validate } from "./validate"
-import { Util } from "./util"
+import { OrderByDirection } from './constant'
+import { Db } from './db'
+import { Validate } from './validate'
+import { Util } from './util'
 // import { Command } from './command';
 // import * as isRegExp from 'is-regex'
-import { QuerySerializer } from "./serializer/query"
-import { UpdateSerializer } from "./serializer/update"
+import { QuerySerializer } from './serializer/query'
+import { UpdateSerializer } from './serializer/update'
 // import { WSClient } from "./websocket/wsclient"
-import { DB } from "./typings"
-import { RealtimeWebSocketClient } from "./realtime/websocket-client"
+import { DB } from './typings'
+import { RealtimeWebSocketClient } from './realtime/websocket-client'
 
 interface GetRes {
   data: any[]
@@ -22,7 +22,7 @@ interface GetRes {
 
 interface QueryOrder {
   field?: string
-  direction?: "asc" | "desc"
+  direction?: 'asc' | 'desc'
 }
 
 interface QueryOption {
@@ -201,7 +201,7 @@ export class Query {
     // console.log('this._queryOptions', this._queryOptions);
     // console.log(param);
     this._request
-      .send("database.queryDocument", param)
+      .send('database.queryDocument', param)
       .then(res => {
         if (res.code) {
           callback(0, res)
@@ -240,7 +240,7 @@ export class Query {
     if (this._fieldFilters) {
       param.query = this._fieldFilters
     }
-    this._request.send("database.countDocument", param).then(res => {
+    this._request.send('database.countDocument', param).then(res => {
       // console.log(res);
       if (res.code) {
         callback(0, res)
@@ -305,7 +305,7 @@ export class Query {
    * @param limit - 限制条数
    */
   public limit(limit: number): Query {
-    Validate.isInteger("limit", limit)
+    Validate.isInteger('limit', limit)
 
     let option = { ...this._queryOptions }
     option.limit = limit
@@ -325,7 +325,7 @@ export class Query {
    * @param offset - 偏移量
    */
   public skip(offset: number): Query {
-    Validate.isInteger("offset", offset)
+    Validate.isInteger('offset', offset)
 
     let option = { ...this._queryOptions }
     option.offset = offset
@@ -347,17 +347,17 @@ export class Query {
   public update(data: Object, callback?: any): Promise<any> {
     callback = callback || createPromiseCallback()
 
-    if (!data || typeof data !== "object") {
+    if (!data || typeof data !== 'object') {
       return Promise.resolve({
-        code: "INVALID_PARAM",
-        message: "参数必需是非空对象"
+        code: 'INVALID_PARAM',
+        message: '参数必需是非空对象'
       })
     }
 
-    if (data.hasOwnProperty("_id")) {
+    if (data.hasOwnProperty('_id')) {
       return Promise.resolve({
-        code: "INVALID_PARAM",
-        message: "不能更新_id的值"
+        code: 'INVALID_PARAM',
+        message: '不能更新_id的值'
       })
     }
 
@@ -373,7 +373,7 @@ export class Query {
       // data: this.convertParams(data)
     }
 
-    this._request.send("database.updateDocument", param).then(res => {
+    this._request.send('database.updateDocument', param).then(res => {
       if (res.code) {
         callback(0, res)
       } else {
@@ -422,11 +422,11 @@ export class Query {
 
     if (Object.keys(this._queryOptions).length > 0) {
       console.warn(
-        "`offset`, `limit` and `projection` are not supported in remove() operation"
+        '`offset`, `limit` and `projection` are not supported in remove() operation'
       )
     }
     if (this._fieldOrders.length > 0) {
-      console.warn("`orderBy` is not supported in remove() operation")
+      console.warn('`orderBy` is not supported in remove() operation')
     }
     const param = {
       collectionName: this._coll,
@@ -435,7 +435,7 @@ export class Query {
     }
     // console.log('this._queryOptions', this._queryOptions);
     // console.log(param);
-    this._request.send("database.deleteDocument", param).then(res => {
+    this._request.send('database.deleteDocument', param).then(res => {
       // console.log(res)
       if (res.code) {
         callback(0, res)
@@ -501,7 +501,7 @@ export class Query {
       })
     }
 
-    console.log("test))))))))))))))))))))")
+    console.log('test))))))))))))))))))))')
 
     return (Db.ws as RealtimeWebSocketClient).watch({
       ...options,

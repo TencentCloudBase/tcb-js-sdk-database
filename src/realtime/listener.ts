@@ -1,5 +1,5 @@
-import { VirtualWebSocketClient } from "./virtual-websocket-client"
-import { DB } from "../typings"
+import { VirtualWebSocketClient } from './virtual-websocket-client'
+import { DB } from '../typings'
 
 // =============== Realtime Listener (Public) ====================
 
@@ -23,7 +23,7 @@ export class RealtimeListener implements DB.RealtimeListener {
     this.onError = options.onError
 
     if (options.debug) {
-      Object.defineProperty(this, "virtualClient", {
+      Object.defineProperty(this, 'virtualClient', {
         get: () => {
           return options.virtualClient
         }

@@ -1,6 +1,6 @@
-import { isString } from "./type"
-import { apiFailMsg } from "./msg"
-import { ERR_CODE } from "../config/error.config"
+import { isString } from './type'
+// import { apiFailMsg } from "./msg"
+import { ERR_CODE } from '../config/error.config'
 
 export interface ICloudSDKError extends Error {
   errCode: number
@@ -8,7 +8,7 @@ export interface ICloudSDKError extends Error {
 }
 
 export class CloudSDKError extends Error {
-  public errCode: string = "UNKNOWN_ERROR"
+  public errCode: string = 'UNKNOWN_ERROR'
   public errMsg: string
 
   public requestID?: string
@@ -21,7 +21,7 @@ export class CloudSDKError extends Error {
         get() {
           return (
             `errCode: ${this.errCode} ${ERR_CODE[this.errCode] ||
-              ""} | errMsg: ` + this.errMsg
+              ''} | errMsg: ` + this.errMsg
           )
         },
         set(msg: string) {
@@ -30,7 +30,7 @@ export class CloudSDKError extends Error {
       }
     })
 
-    this.errCode = options.errCode || "UNKNOWN_ERROR"
+    this.errCode = options.errCode || 'UNKNOWN_ERROR'
     this.errMsg = options.errMsg
   }
 
@@ -54,43 +54,43 @@ export function isSDKError(error: any): error is CloudSDKError {
   )
 }
 
-export function returnAsCloudSDKError(err: any, appendMsg = ""): CloudSDKError {
-  if (err) {
-    if (isSDKError(err)) {
-      if (appendMsg) {
-        err.errMsg += "; " + appendMsg
-      }
-      return err
-    }
+// export function returnAsCloudSDKError(err: any, appendMsg = ""): CloudSDKError {
+//   if (err) {
+//     if (isSDKError(err)) {
+//       if (appendMsg) {
+//         err.errMsg += "; " + appendMsg
+//       }
+//       return err
+//     }
 
-    const errCode = err ? err.errCode : undefined
-    const errMsg =
-      ((err && err.errMsg) || err.toString() || "unknown error") +
-      "; " +
-      appendMsg
-    return new CloudSDKError({
-      errCode,
-      errMsg
-    })
-  }
+//     const errCode = err ? err.errCode : undefined
+//     const errMsg =
+//       ((err && err.errMsg) || err.toString() || "unknown error") +
+//       "; " +
+//       appendMsg
+//     return new CloudSDKError({
+//       errCode,
+//       errMsg
+//     })
+//   }
 
-  return new CloudSDKError({
-    errMsg: appendMsg
-  })
-}
+//   return new CloudSDKError({
+//     errMsg: appendMsg
+//   })
+// }
 
-export function returnAsFinalCloudSDKError(
-  err: any,
-  apiName: string
-): CloudSDKError {
-  if (err && isSDKError(err)) {
-    return err
-  }
+// export function returnAsFinalCloudSDKError(
+//   err: any,
+//   apiName: string
+// ): CloudSDKError {
+//   if (err && isSDKError(err)) {
+//     return err
+//   }
 
-  const e = returnAsCloudSDKError(err, `at ${apiName} api; `)
-  e.errMsg = apiFailMsg(apiName, e.errMsg)
-  return e
-}
+//   const e = returnAsCloudSDKError(err, `at ${apiName} api; `)
+//   e.errMsg = apiFailMsg(apiName, e.errMsg)
+//   return e
+// }
 
 // ============= internal used error ================
 
@@ -119,8 +119,8 @@ export const isGenericError = <T extends string, P>(
 ): e is IGenericError<T, P> => e.generic
 
 export class TimeoutError extends Error
-  implements IGenericError<"timeout", null> {
-  type = "timeout" as const
+  implements IGenericError<'timeout', null> {
+  type = 'timeout' as const
   payload = null
   generic = true
 
@@ -130,11 +130,11 @@ export class TimeoutError extends Error
 }
 
 export const isTimeoutError = (e: any): e is TimeoutError =>
-  e.type === "timeout"
+  e.type === 'timeout'
 
 export class CancelledError extends Error
-  implements IGenericError<"cancelled", null> {
-  type = "cancelled" as const
+  implements IGenericError<'cancelled', null> {
+  type = 'cancelled' as const
   payload = null
   generic = true
 
@@ -144,4 +144,4 @@ export class CancelledError extends Error
 }
 
 export const isCancelledError = (e: any): e is CancelledError =>
-  e.type === "cancelled"
+  e.type === 'cancelled'

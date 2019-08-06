@@ -1,6 +1,6 @@
 // import WX from '@/externals/public-lib/wx'
 // import { getSDK } from "../externals/public-lib/appserviceSdk"
-import { WXNS } from "../typings"
+import { WXNS } from '../typings'
 // declare const wx: WX
 
 export const sleep = (ms: number = 0) => new Promise(r => setTimeout(r, ms))
@@ -9,7 +9,7 @@ export const sleep = (ms: number = 0) => new Promise(r => setTimeout(r, ms))
 
 const counters: Record<string, number> = {}
 
-export const autoCount = (domain: string = "any"): number => {
+export const autoCount = (domain: string = 'any'): number => {
   if (!counters[domain]) {
     counters[domain] = 0
   }

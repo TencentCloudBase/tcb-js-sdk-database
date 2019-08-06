@@ -1,4 +1,4 @@
-import { DB } from "../typings"
+import { DB } from '../typings'
 
 // =============== Realtime Snapshot / Change Event (Public) ====================
 
@@ -15,7 +15,7 @@ export class Snapshot implements DB.ISnapshot {
   id!: number
   docChanges!: DB.ISingleDBEvent[]
   docs!: Record<string, any>[]
-  type?: "init"
+  type?: 'init'
   // EJSON: any
 
   constructor(options: ISnapshotConstructorOptions) {

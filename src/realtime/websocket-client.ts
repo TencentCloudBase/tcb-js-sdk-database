@@ -1,32 +1,32 @@
 // import { getSDK } from "./externals/public-lib/appserviceSdk"
-import { VirtualWebSocketClient } from "./virtual-websocket-client"
+import { VirtualWebSocketClient } from './virtual-websocket-client'
 import {
   // throwErrorIfNetworkOffline,
   sleep
   // onceNetworkOnline
   // getWXVersion,
   // getNetworkStatus
-} from "../utils/utils"
+} from '../utils/utils'
 // import { getRealtimeConnectionSignature } from "../../../internal/backend-api/backend-api"
-import { genRequestId } from "./message"
+import { genRequestId } from './message'
 // import { DB, WXNS } from "../typings"
-import { DB } from "../typings"
+import { DB } from '../typings'
 import {
   IRequestMessage,
   IResponseMessage,
   IRequestMessagePingMsg,
   IRequestMessageLoginMsg,
   IResponseMessageLoginResMsg
-} from "../typings/realtime"
+} from '../typings/realtime'
 import {
   CLOSE_EVENT_CODE,
   CLOSE_EVENT_CODE_INFO,
   getWSCloseError
-} from "./ws-event"
-import { CloudSDKError, TimeoutError } from "../utils/error"
+} from './ws-event'
+import { CloudSDKError, TimeoutError } from '../utils/error'
 // import { CloudSDKError } from "./utils/error"
-import { RealtimeErrorMessageError } from "./error"
-import { ERR_CODE } from "../config/error.config"
+import { RealtimeErrorMessageError } from './error'
+import { ERR_CODE } from '../config/error.config'
 
 // =============== Realtime WebSocket Client (Internal) ====================
 
@@ -167,7 +167,7 @@ export class RealtimeWebSocketClient {
       try {
         // if (process.env.DEBUG) {
         console.log(
-          `[realtime] initWebSocketConnection start throwErrorIfNetworkOffline`
+          '[realtime] initWebSocketConnection start throwErrorIfNetworkOffline'
         )
         // }
 
@@ -175,7 +175,7 @@ export class RealtimeWebSocketClient {
         // await throwErrorIfNetworkOffline()
 
         // if (process.env.DEBUG) {
-        console.log(`[realtime] initWebSocketConnection start getSignature`)
+        console.log('[realtime] initWebSocketConnection start getSignature')
         // }
 
         // const signature = await this.getSignature()
@@ -183,8 +183,8 @@ export class RealtimeWebSocketClient {
         await this.getAccessToken()
 
         // if (process.env.DEBUG) {
-        console.log(`[realtime] initWebSocketConnection getSignature success`)
-        console.log(`[realtime] initWebSocketConnection start connectSocket`)
+        console.log('[realtime] initWebSocketConnection getSignature success')
+        console.log('[realtime] initWebSocketConnection start connectSocket')
         // }
 
         await new Promise(success => {
@@ -201,14 +201,14 @@ export class RealtimeWebSocketClient {
 
           // this._ws = new WebSocket("ws://212.129.231.116:80")
           // this._ws = new WebSocket("ws://212.64.45.4:8080")
-          this._ws = new WebSocket("wss://tcb-ws.tencentcloudapi.com")
-          console.log("(((((((((((((((((((((((((((((((")
+          this._ws = new WebSocket('wss://tcb-ws.tencentcloudapi.com')
+          console.log('(((((((((((((((((((((((((((((((')
           success()
         })
 
         // if (process.env.DEBUG) {
         console.log(
-          `[realtime] initWebSocketConnection connectSocket successfully fired`
+          '[realtime] initWebSocketConnection connectSocket successfully fired'
         )
         // }
 
@@ -221,7 +221,7 @@ export class RealtimeWebSocketClient {
         }
       } catch (e) {
         // if (process.env.DEBUG) {
-        console.error(`[realtime] initWebSocketConnection connect fail`, e)
+        console.error('[realtime] initWebSocketConnection connect fail', e)
         // }
 
         if (availableRetries > 0) {
@@ -232,7 +232,7 @@ export class RealtimeWebSocketClient {
 
           // if (process.env.DEBUG) {
           console.log(
-            `[realtime] initWebSocketConnection waiting for network online`
+            '[realtime] initWebSocketConnection waiting for network online'
           )
           // }
 
@@ -246,7 +246,7 @@ export class RealtimeWebSocketClient {
           // }
 
           // if (process.env.DEBUG) {
-          console.log(`[realtime] initWebSocketConnection network online`)
+          console.log('[realtime] initWebSocketConnection network online')
           // }
 
           this._wsInitPromise = undefined
@@ -296,7 +296,7 @@ export class RealtimeWebSocketClient {
 
     // if (process.env.DEBUG) {
     console.log(
-      `[realtime] initWebSocketConnection ${success ? "success" : "fail"}`
+      `[realtime] initWebSocketConnection ${success ? 'success' : 'fail'}`
     )
     // }
   }
@@ -304,7 +304,7 @@ export class RealtimeWebSocketClient {
   private initWebSocketEvent = () =>
     new Promise<void>((resolve, reject) => {
       if (!this._ws) {
-        throw new Error(`can not initWebSocketEvent, ws not exists`)
+        throw new Error('can not initWebSocketEvent, ws not exists')
       }
 
       let wsOpened = false
@@ -313,7 +313,7 @@ export class RealtimeWebSocketClient {
         // this._ws.onOpen(() => {
         // this._ws.on("open", () => {
         // this._context.debug &&
-        console.warn(`[realtime] ws event: open`, event)
+        console.warn('[realtime] ws event: open', event)
         wsOpened = true
         resolve()
       }
@@ -328,7 +328,7 @@ export class RealtimeWebSocketClient {
 
         if (!wsOpened) {
           // this._context.debug &&
-          console.error(`[realtime] ws open failed with ws event: error`, event)
+          console.error('[realtime] ws open failed with ws event: error', event)
           // writeToFile(
           //   "wserror.txt",
           //   `${
@@ -339,7 +339,7 @@ export class RealtimeWebSocketClient {
           reject(event)
         } else {
           // this._context.debug &&
-          console.error(`[realtime] ws event: error`, event)
+          console.error('[realtime] ws event: error', event)
 
           // writeToFile(
           //   "wserror.txt",
@@ -363,7 +363,7 @@ export class RealtimeWebSocketClient {
         // this._ws.on("close", (closeEvent, closereason) => {
         // this._ws.onClose(closeEvent => {
         // if (process.env.DEBUG) {
-        console.warn(`[realtime] ws event: close`, closeEvent)
+        console.warn('[realtime] ws event: close', closeEvent)
         // }
 
         // writeToFile(
@@ -449,7 +449,7 @@ export class RealtimeWebSocketClient {
           msg
         )
 
-        if (msg.msgType === "ERROR") {
+        if (msg.msgType === 'ERROR') {
           // 找到当前监听，并将error返回
           let virtualWatch = null
           this._virtualWSClient.forEach(item => {
@@ -466,7 +466,7 @@ export class RealtimeWebSocketClient {
         const responseWaitSpec = this._wsResponseWait.get(msg.requestId)
         if (responseWaitSpec) {
           try {
-            if (msg.msgType === "ERROR") {
+            if (msg.msgType === 'ERROR') {
               responseWaitSpec.reject(new RealtimeErrorMessageError(msg))
             } else {
               responseWaitSpec.resolve(msg)
@@ -474,7 +474,7 @@ export class RealtimeWebSocketClient {
           } catch (e) {
             // this._context.debug &&
             console.error(
-              `ws onMessage responseWaitSpec.resolve(msg) errored:`,
+              'ws onMessage responseWaitSpec.resolve(msg) errored:',
               e
             )
           } finally {
@@ -485,7 +485,7 @@ export class RealtimeWebSocketClient {
           }
         }
 
-        if (msg.msgType === "PONG") {
+        if (msg.msgType === 'PONG') {
           if (this._lastPingSendTS) {
             const rtt = Date.now() - this._lastPingSendTS
             if (rtt > DEFAULT_UNTRUSTED_RTT_THRESHOLD) {
@@ -518,9 +518,9 @@ export class RealtimeWebSocketClient {
           )
           // }
           switch (msg.msgType) {
-            case "INIT_EVENT":
-            case "NEXT_EVENT":
-            case "CHECK_EVENT": {
+            case 'INIT_EVENT':
+            case 'NEXT_EVENT':
+            case 'CHECK_EVENT': {
               client = this._queryIdClientMap.get(msg.msgData.queryID)
               if (client) {
                 client.onMessage(msg)
@@ -529,7 +529,7 @@ export class RealtimeWebSocketClient {
             }
             default: {
               for (const [watchId, client] of this._watchIdClientMap) {
-                console.log("watchid*****", watchId)
+                console.log('watchid*****', watchId)
                 client.onMessage(msg)
                 break
               }
@@ -573,7 +573,7 @@ export class RealtimeWebSocketClient {
         if (loginInfo) {
           if (loginInfo.loggedIn && loginInfo.loginResult) {
             // if (process.env.DEBUG) {
-            console.log(`[realtime] login: already logged in`)
+            console.log('[realtime] login: already logged in')
             // }
             return loginInfo.loginResult
           } else if (loginInfo.loggingInPromise) {
@@ -581,13 +581,13 @@ export class RealtimeWebSocketClient {
           }
         }
       } else {
-        const emptyEnvLoginInfo = this._logins.get("")
+        const emptyEnvLoginInfo = this._logins.get('')
         if (emptyEnvLoginInfo && emptyEnvLoginInfo.loggingInPromise) {
           return emptyEnvLoginInfo.loggingInPromise
         }
       }
     }
-    console.log(`[realtime] login: logging in`)
+    console.log('[realtime] login: logging in')
 
     const promise = new Promise<ILoginResult>(async (resolve, reject) => {
       try {
@@ -600,18 +600,18 @@ export class RealtimeWebSocketClient {
         const loginMsg: IRequestMessageLoginMsg = {
           watchId: undefined,
           requestId: genRequestId(),
-          msgType: "LOGIN",
+          msgType: 'LOGIN',
           msgData: {
             envId: accessTokenRes.env || '',
             accessToken: accessTokenRes.accessToken,
             // signStr: signature.signStr,
             // secretVersion: signature.secretVersion,
-            referrer: "web",
-            sdkVersion: "",
-            dataVersion: ""
+            referrer: 'web',
+            sdkVersion: '',
+            dataVersion: ''
           }
         }
-        console.log("login requestid************", loginMsg.requestId)
+        console.log('login requestid************', loginMsg.requestId)
 
         const loginResMsg = await this.send<IResponseMessageLoginResMsg>({
           msg: loginMsg,
@@ -654,7 +654,7 @@ export class RealtimeWebSocketClient {
         loginStartTS
       }
       // this._loginInfo = loginInfo
-      this._logins.set(envId || "", loginInfo)
+      this._logins.set(envId || '', loginInfo)
     }
 
     // try {
@@ -691,10 +691,10 @@ export class RealtimeWebSocketClient {
         } else if (curLoginInfo.loggingInPromise) {
           return curLoginInfo.loggingInPromise
         } else {
-          throw new Error(`ws unexpected login info`)
+          throw new Error('ws unexpected login info')
         }
       } else {
-        throw new Error(`ws login info reset`)
+        throw new Error('ws login info reset')
       }
     } catch (e) {
       loginInfo.loggedIn = false
@@ -929,7 +929,7 @@ export class RealtimeWebSocketClient {
           this._pingFailed = 0
 
           this._pongTimeoutId = setTimeout(() => {
-            console.error(`pong timed out`)
+            console.error('pong timed out')
             if (this._pongMissed < DEFAULT_PONG_MISS_TOLERANCE) {
               this._pongMissed++
               this.heartbeat(true)
@@ -960,13 +960,13 @@ export class RealtimeWebSocketClient {
     const msg: IRequestMessagePingMsg = {
       watchId: undefined,
       requestId: genRequestId(),
-      msgType: "PING",
+      msgType: 'PING',
       msgData: null
     }
     await this.send({
       msg
     })
-    console.log("ping sent")
+    console.log('ping sent')
   }
 
   send = <T = any>(opts: IWSSendOptions): Promise<T> =>
@@ -996,7 +996,7 @@ export class RealtimeWebSocketClient {
             // this is because the timer is registered before ws.send
             await sleep(0)
             if (!_hasResolved || !_hasRejected) {
-              reject(new TimeoutError(`wsclient.send timedout`))
+              reject(new TimeoutError('wsclient.send timedout'))
             }
           }
         }, opts.timeout)
@@ -1020,7 +1020,7 @@ export class RealtimeWebSocketClient {
         if (!this._ws) {
           reject(
             new Error(
-              `invalid state: ws connection not exists, can not send message`
+              'invalid state: ws connection not exists, can not send message'
             )
           )
           return
@@ -1045,7 +1045,7 @@ export class RealtimeWebSocketClient {
           } as IResponseWaitSpec)
         }
 
-        console.log("send msg:", opts.msg)
+        console.log('send msg:', opts.msg)
         try {
           this._ws.send(JSON.stringify(opts.msg))
           if (!opts.waitResponse) {

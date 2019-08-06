@@ -1,10 +1,10 @@
-import { Point } from "./geo/point"
-import * as Geo from "./geo"
-import { CollectionReference } from "./collection"
-import { Command } from "./command"
-import { ServerDateConstructor } from "./serverDate"
-import { RegExpConstructor } from "./regexp"
-import { startTransaction, runTransaction } from "./transaction"
+import { Point } from './geo/point'
+import * as Geo from './geo'
+import { CollectionReference } from './collection'
+import { Command } from './command'
+import { ServerDateConstructor } from './serverDate'
+import { RegExpConstructor } from './regexp'
+import { startTransaction, runTransaction } from './transaction'
 
 /**
  * 地理位置类型
@@ -69,7 +69,7 @@ export class Db {
    */
   collection(collName: string): CollectionReference {
     if (!collName) {
-      throw new Error("Collection name is required")
+      throw new Error('Collection name is required')
     }
     return new CollectionReference(this, collName)
   }
@@ -84,6 +84,6 @@ export class Db {
       collectionName: collName
     }
 
-    return request.send("database.addCollection", params)
+    return request.send('database.addCollection', params)
   }
 }

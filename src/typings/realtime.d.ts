@@ -1,20 +1,20 @@
-import { DB } from "."
+import { DB } from '.'
 
 export type IRequestMsgType =
-  | "LOGIN" // 鉴权（环境维度）
-  | "INIT_WATCH" // 初始化监听
-  | "REBUILD_WATCH" // 重建监听，1）数据失序时 2）checkLast 不一致时
-  | "CHECK_LAST" // 检查是否有未收到的消息
-  | "CLOSE_WATCH" // 取消监听
-  | "PING" // 心跳 ping
+  | 'LOGIN' // 鉴权（环境维度）
+  | 'INIT_WATCH' // 初始化监听
+  | 'REBUILD_WATCH' // 重建监听，1）数据失序时 2）checkLast 不一致时
+  | 'CHECK_LAST' // 检查是否有未收到的消息
+  | 'CLOSE_WATCH' // 取消监听
+  | 'PING' // 心跳 ping
 
 export type IResponseMsgType =
-  | "LOGIN_RES" // LOGIN 回包
-  | "INIT_EVENT" // INIT_WATCH 回包
-  | "NEXT_EVENT" // 服务端主动推变更事件
-  | "CHECK_EVENT" // CHECK_LAST 回包
-  | "PONG" // 心跳 PING 回包
-  | "ERROR" // 错误异常
+  | 'LOGIN_RES' // LOGIN 回包
+  | 'INIT_EVENT' // INIT_WATCH 回包
+  | 'NEXT_EVENT' // 服务端主动推变更事件
+  | 'CHECK_EVENT' // CHECK_LAST 回包
+  | 'PONG' // 心跳 PING 回包
+  | 'ERROR' // 错误异常
 
 export interface IRequestMessageBase<W extends boolean = true> {
   watchId: W extends true ? string : undefined
@@ -44,13 +44,13 @@ export interface IRequestMessageLoginData {
   // signStr: string
   // secretVersion: number
   accessToken: string
-  referrer: "web"
+  referrer: 'web'
   sdkVersion: string
   dataVersion: string
 }
 
 export interface IRequestMessageLoginMsg extends IRequestMessageBase<false> {
-  msgType: "LOGIN"
+  msgType: 'LOGIN'
   msgData: IRequestMessageLoginData
 }
 
@@ -61,7 +61,7 @@ export interface IRequestMessageInitWatchData {
 }
 
 export interface IRequestMessageInitWatchMsg extends IRequestMessageBase {
-  msgType: "INIT_WATCH"
+  msgType: 'INIT_WATCH'
   msgData: IRequestMessageInitWatchData
 }
 
@@ -73,7 +73,7 @@ export interface IRequestMessageRebuildWatchData {
 }
 
 export interface IRequestMessageRebuildWatchMsg extends IRequestMessageBase {
-  msgType: "REBUILD_WATCH"
+  msgType: 'REBUILD_WATCH'
   msgData: IRequestMessageRebuildWatchData
 }
 
@@ -83,21 +83,21 @@ export interface IRequestMessageCheckLastData {
 }
 
 export interface IRequestMessageCheckLastMsg extends IRequestMessageBase {
-  msgType: "CHECK_LAST"
+  msgType: 'CHECK_LAST'
   msgData: IRequestMessageCheckLastData
 }
 
 export type IRequestMessageCloseWatchData = null
 
 export interface IRequestMessageCloseWatchMsg extends IRequestMessageBase {
-  msgType: "CLOSE_WATCH"
+  msgType: 'CLOSE_WATCH'
   msgData: IRequestMessageCloseWatchData
 }
 
 export type IRequestMessagePingData = null
 
 export interface IRequestMessagePingMsg extends IRequestMessageBase<false> {
-  msgType: "PING"
+  msgType: 'PING'
   msgData: IRequestMessagePingData
 }
 
@@ -132,7 +132,7 @@ export type IResponseMessageLoginResData = {
 
 export interface IResponseMessageLoginResMsg
   extends IResponseMessageBase<false> {
-  msgType: "LOGIN_RES"
+  msgType: 'LOGIN_RES'
   msgData: IResponseMessageLoginResData
 }
 
@@ -143,7 +143,7 @@ export interface IResponseMessageInitEventData {
 }
 
 export interface IResponseMessageInitEventMsg extends IResponseMessageBase {
-  msgType: "INIT_EVENT"
+  msgType: 'INIT_EVENT'
   msgData: IResponseMessageInitEventData
 }
 
@@ -154,7 +154,7 @@ export interface IResponseMessageNextEventData {
 }
 
 export interface IResponseMessageNextEventMsg extends IResponseMessageBase {
-  msgType: "NEXT_EVENT"
+  msgType: 'NEXT_EVENT'
   msgData: IResponseMessageNextEventData
 }
 
@@ -164,31 +164,31 @@ export interface IResponseMessageCheckEventData {
 }
 
 export interface IResponseMessageCheckEventMsg extends IResponseMessageBase {
-  msgType: "CHECK_EVENT"
+  msgType: 'CHECK_EVENT'
   msgData: IResponseMessageCheckEventData
 }
 
 export type IResponseMessagePongData = null
 
 export interface IResponseMessagePongMsg extends IResponseMessageBase {
-  msgType: "PONG"
+  msgType: 'PONG'
   msgData: IResponseMessagePongData
 }
 
 export type IResponseMessageErrorData = {
   message: string
 } & (
-  | { code: "SYS_ERR" } // 服务器系统错误
-  | { code: "CHECK_LOGIN_FAILED" } // 登陆校验失败
-  | { code: "SIGN_INVALID_ERROR" } // ws签名无效
-  | { code: "SIGN_EXPIRED_ERROR" } // 签名过期
-  | { code: "INVALIID_ENV" } // 环境无效
-  | { code: "SIGN_PARAM_INVALID" } // cam签名无效
-  | { code: "COLLECTION_PERMISSION_DENIED" } // 没有集合操作权限
-  | { code: "QUERYID_INVALID_ERROR" }) // queryID 无效
+  | { code: 'SYS_ERR' } // 服务器系统错误
+  | { code: 'CHECK_LOGIN_FAILED' } // 登陆校验失败
+  | { code: 'SIGN_INVALID_ERROR' } // ws签名无效
+  | { code: 'SIGN_EXPIRED_ERROR' } // 签名过期
+  | { code: 'INVALIID_ENV' } // 环境无效
+  | { code: 'SIGN_PARAM_INVALID' } // cam签名无效
+  | { code: 'COLLECTION_PERMISSION_DENIED' } // 没有集合操作权限
+  | { code: 'QUERYID_INVALID_ERROR' }) // queryID 无效
 
 export interface IResponseMessageErrorMsg extends IResponseMessageBase {
-  msgType: "ERROR"
+  msgType: 'ERROR'
   msgData: IResponseMessageErrorData
 }
 
@@ -203,8 +203,8 @@ export interface IDBEventBase {
 }
 
 export interface IDBInitEvent extends IDBEventBase {
-  DataType: "init"
-  QueueType: "init"
+  DataType: 'init'
+  QueueType: 'init'
   UpdatedFields?: any
   removedFields?: any
 }
@@ -240,60 +240,60 @@ export type IDBNextEventDataReplace =
   | IDBNextEventDataReplaceQueueDequeue
 
 export interface IDBNextEventDataUpdateQueueUpdate extends IDBEventBase {
-  DataType: "update"
-  QueueType: "update"
-  Doc: ""
+  DataType: 'update'
+  QueueType: 'update'
+  Doc: ''
   UpdatedFields: string
   RemovedFields: string
 }
 
 export interface IDBNextEventDataUpdateQueueEnqueue extends IDBEventBase {
-  DataType: "update"
-  QueueType: "enqueue"
+  DataType: 'update'
+  QueueType: 'enqueue'
   Doc: string // full doc
   UpdatedFields: string
   RemovedFields: string
 }
 
 export interface IDBNextEventDataUpdateQueueDequeue extends IDBEventBase {
-  DataType: "update"
-  QueueType: "dequeue"
-  Doc: ""
+  DataType: 'update'
+  QueueType: 'dequeue'
+  Doc: ''
   UpdatedFields: string
   RemovedFields: string
 }
 
 export interface IDBNextEventDataReplaceQueueUpdate extends IDBEventBase {
-  DataType: "replace"
-  QueueType: "update"
+  DataType: 'replace'
+  QueueType: 'update'
   Doc: string
-  UpdatedFields: ""
-  RemovedFields: ""
+  UpdatedFields: ''
+  RemovedFields: ''
 }
 
 export interface IDBNextEventDataReplaceQueueEnqueue extends IDBEventBase {
-  DataType: "replace"
-  QueueType: "enqueue"
+  DataType: 'replace'
+  QueueType: 'enqueue'
   Doc: string
-  UpdatedFields: ""
-  RemovedFields: ""
+  UpdatedFields: ''
+  RemovedFields: ''
 }
 
 export interface IDBNextEventDataReplaceQueueDequeue extends IDBEventBase {
-  DataType: "replace"
-  QueueType: "dequeue"
+  DataType: 'replace'
+  QueueType: 'dequeue'
   Doc: string
-  UpdatedFields: ""
-  RemovedFields: ""
+  UpdatedFields: ''
+  RemovedFields: ''
 }
 
 export interface IDBNextEventDataAdd extends IDBEventBase {
-  DataType: "add"
-  QueueType: "enqueue"
+  DataType: 'add'
+  QueueType: 'enqueue'
 }
 
 export interface IDBNextEventDataRemove extends IDBEventBase {
-  DataType: "remove"
-  QueueType: "dequeue"
-  Doc: ""
+  DataType: 'remove'
+  QueueType: 'dequeue'
+  Doc: ''
 }

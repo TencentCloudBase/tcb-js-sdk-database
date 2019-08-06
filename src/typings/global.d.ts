@@ -1,4 +1,4 @@
-import { WX, WXNS, AnyFunction } from "."
+import { WX, WXNS, AnyFunction } from '.'
 declare const wx: WX
 
 export interface __AppServiceSDK__ {
@@ -22,8 +22,8 @@ export interface __Reporter__ {
 }
 
 export interface __WXConfig {
-  platform: "devtools" | "ios" | "android"
-  vendor?: "mina"
+  platform: 'devtools' | 'ios' | 'android'
+  vendor?: 'mina'
   onReady: (callback: () => void) => void
 }
 
@@ -41,7 +41,7 @@ export interface INetworkLogOptionsBase {
 
 export interface INetworkLogOptionsRequestWillBeSent
   extends INetworkLogOptionsBase {
-  type: "requestWillBeSent"
+  type: 'requestWillBeSent'
   url: string
   headers: Record<string, any>
   body: string
@@ -49,20 +49,20 @@ export interface INetworkLogOptionsRequestWillBeSent
 
 export interface INetworkLogOptionsLoadingFinished
   extends INetworkLogOptionsBase {
-  type: "loadingFinished"
+  type: 'loadingFinished'
   body: string
   bodyBase64Encoded?: boolean
 }
 
 export interface INetworkLogOptionsLoadingFailed
   extends INetworkLogOptionsBase {
-  type: "loadingFailed"
+  type: 'loadingFailed'
   errorCode: number
   errorMsg: string
 }
 
 export interface INetworkLogOptionsInit extends INetworkLogOptionsBase {
-  type: "init"
+  type: 'init'
   config: Record<string, any> | string
 }
 
@@ -81,6 +81,6 @@ export interface IAutoNetworkLogOptions {
 }
 
 export type INetworkLogSendOptions = INetworkLogOptions & {
-  domain: "cloud"
-  method: "POST"
+  domain: 'cloud'
+  method: 'POST'
 }
