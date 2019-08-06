@@ -3,14 +3,14 @@ export interface ICloudSDKError extends Error {
     errMsg: string;
 }
 export declare class CloudSDKError extends Error {
-    errCode: number;
+    errCode: string;
     errMsg: string;
     requestID?: string;
     constructor(options: IErrorConstructorOptions);
     message: string;
 }
 interface IErrorConstructorOptions {
-    errCode?: number;
+    errCode?: string;
     errMsg: string;
 }
 export declare function isSDKError(error: any): error is CloudSDKError;

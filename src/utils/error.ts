@@ -8,7 +8,7 @@ export interface ICloudSDKError extends Error {
 }
 
 export class CloudSDKError extends Error {
-  public errCode: number = -1
+  public errCode: string = "UNKNOWN_ERROR"
   public errMsg: string
 
   public requestID?: string
@@ -30,7 +30,7 @@ export class CloudSDKError extends Error {
       }
     })
 
-    this.errCode = options.errCode || -1
+    this.errCode = options.errCode || "UNKNOWN_ERROR"
     this.errMsg = options.errMsg
   }
 
@@ -44,7 +44,7 @@ export class CloudSDKError extends Error {
 }
 
 interface IErrorConstructorOptions {
-  errCode?: number
+  errCode?: string
   errMsg: string
 }
 

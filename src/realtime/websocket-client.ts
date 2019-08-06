@@ -27,21 +27,6 @@ import { CloudSDKError, TimeoutError } from "../utils/error"
 // import { CloudSDKError } from "./utils/error"
 import { RealtimeErrorMessageError } from "./error"
 import { ERR_CODE } from "../config/error.config"
-// import { isDevTools } from "./externals/globals/wxconfig"
-// import * as WebSocket from "ws"
-// import { writeFile } from "fs"
-
-// function writeToFile(fileName, data) {
-//   // fs.open(fileName, "a", function() {
-//   writeFile(fileName, data, { flag: "a" }, function(err) {
-//     if (err) {
-//       console.log("write file err:", err)
-//     } else {
-//       console.log("write file ok!")
-//     }
-//   })
-//   // });
-// }
 
 // =============== Realtime WebSocket Client (Internal) ====================
 
@@ -214,9 +199,9 @@ export class RealtimeWebSocketClient {
           //     fail
           //   })
 
-          this._ws = new WebSocket("ws://212.129.231.116:80")
+          // this._ws = new WebSocket("ws://212.129.231.116:80")
           // this._ws = new WebSocket("ws://212.64.45.4:8080")
-          // this._ws = new WebSocket("wss://tcb-ws.tencentcloudapi.com")
+          this._ws = new WebSocket("wss://tcb-ws.tencentcloudapi.com")
           console.log("(((((((((((((((((((((((((((((((")
           success()
         })
@@ -287,7 +272,7 @@ export class RealtimeWebSocketClient {
           if (reconnect) {
             this.closeAllClients(
               new CloudSDKError({
-                errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_RECONNECT_WATCH_FAIL as number,
+                errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_RECONNECT_WATCH_FAIL as string,
                 errMsg: e
               })
             )
@@ -365,7 +350,7 @@ export class RealtimeWebSocketClient {
           this._virtualWSClient.forEach(client =>
             client.closeWithError(
               new CloudSDKError({
-                errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_WEBSOCKET_CONNECTION_ERROR as number,
+                errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_WEBSOCKET_CONNECTION_ERROR as string,
                 errMsg: event
               })
             )

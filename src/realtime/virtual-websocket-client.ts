@@ -369,8 +369,8 @@ export class VirtualWebSocketClient {
       this.closeWithError(
         new CloudSDKError({
           errCode: isInitWatch
-            ? (ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_INIT_WATCH_FAIL as number)
-            : (ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_REBUILD_WATCH_FAIL as number),
+            ? (ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_INIT_WATCH_FAIL as string)
+            : (ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_REBUILD_WATCH_FAIL as string),
           errMsg: e
         })
       )
@@ -459,7 +459,7 @@ export class VirtualWebSocketClient {
     } catch (e) {
       this.closeWithError(
         new CloudSDKError({
-          errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_CLOSE_WATCH_FAIL as number,
+          errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_CLOSE_WATCH_FAIL as string,
           errMsg: e
         })
       )
@@ -537,7 +537,7 @@ export class VirtualWebSocketClient {
             // must throw
             this.closeWithError(
               new CloudSDKError({
-                errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_CHECK_LAST_FAIL as number,
+                errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_CHECK_LAST_FAIL as string,
                 errMsg: msg.msgData.code
               })
             )
@@ -559,7 +559,7 @@ export class VirtualWebSocketClient {
       } else {
         this.closeWithError(
           new CloudSDKError({
-            errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_CHECK_LAST_FAIL as number,
+            errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_CHECK_LAST_FAIL as string,
             errMsg: e
           })
         )
@@ -680,7 +680,7 @@ export class VirtualWebSocketClient {
     } catch (e) {
       this.closeWithError(
         new CloudSDKError({
-          errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_RECEIVE_INVALID_SERVER_DATA as number,
+          errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_RECEIVE_INVALID_SERVER_DATA as string,
           errMsg: e
         })
       )
@@ -779,7 +779,7 @@ export class VirtualWebSocketClient {
                 case "enqueue": {
                   // doc is provided by server, this should never occur
                   const err = new CloudSDKError({
-                    errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_UNEXPECTED_FATAL_ERROR as number,
+                    errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_UNEXPECTED_FATAL_ERROR as string,
                     errMsg: `HandleServerEvents: full doc is not provided with dataType="update" and queueType="enqueue" (requestId ${
                       msg.requestId
                     })`
@@ -799,7 +799,7 @@ export class VirtualWebSocketClient {
             if (!change.doc) {
               // doc is provided by server, this should never occur
               const err = new CloudSDKError({
-                errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_UNEXPECTED_FATAL_ERROR as number,
+                errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_UNEXPECTED_FATAL_ERROR as string,
                 errMsg: `HandleServerEvents: full doc is not provided with dataType="replace" (requestId ${
                   msg.requestId
                 })`
@@ -1080,7 +1080,7 @@ export class VirtualWebSocketClient {
         // receive server error
         this.closeWithError(
           new CloudSDKError({
-            errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_SERVER_ERROR_MSG as number,
+            errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_SERVER_ERROR_MSG as string,
             errMsg: `${msg.msgData.code} - ${msg.msgData.message}`
           })
         )

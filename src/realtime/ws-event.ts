@@ -157,7 +157,7 @@ export const getWSCloseError = (code: CLOSE_EVENT_CODE, reason?: string) => {
     ? `code ${code}`
     : `${info.name}, code ${code}, reason ${reason || info.description}`
   return new CloudSDKError({
-    errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_WEBSOCKET_CONNECTION_CLOSED as number,
+    errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_WEBSOCKET_CONNECTION_CLOSED as string,
     errMsg
   })
 }

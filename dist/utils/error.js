@@ -6,7 +6,7 @@ const error_config_1 = require("../config/error.config");
 class CloudSDKError extends Error {
     constructor(options) {
         super(options.errMsg);
-        this.errCode = -1;
+        this.errCode = "UNKNOWN_ERROR";
         Object.defineProperties(this, {
             message: {
                 get() {
@@ -18,7 +18,7 @@ class CloudSDKError extends Error {
                 }
             }
         });
-        this.errCode = options.errCode || -1;
+        this.errCode = options.errCode || "UNKNOWN_ERROR";
         this.errMsg = options.errMsg;
     }
     get message() {

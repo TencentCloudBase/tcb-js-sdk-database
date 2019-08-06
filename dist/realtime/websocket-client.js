@@ -55,7 +55,7 @@ class RealtimeWebSocketClient {
                     console.log(`[realtime] initWebSocketConnection getSignature success`);
                     console.log(`[realtime] initWebSocketConnection start connectSocket`);
                     await new Promise(success => {
-                        this._ws = new WebSocket("ws://212.129.231.116:80");
+                        this._ws = new WebSocket("wss://tcb-ws.tencentcloudapi.com");
                         console.log("(((((((((((((((((((((((((((((((");
                         success();
                     });
