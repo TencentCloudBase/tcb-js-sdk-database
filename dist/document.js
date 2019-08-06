@@ -6,13 +6,33 @@ const util_2 = require("./util");
 const update_1 = require("./serializer/update");
 const datatype_1 = require("./serializer/datatype");
 const update_2 = require("./commands/update");
+const websocket_client_1 = require("./realtime/websocket-client");
 class DocumentReference {
     constructor(db, coll, docID, projection = {}) {
+        this.watch = (options) => {
+            if (!db_1.Db.ws) {
+                db_1.Db.ws = new websocket_client_1.RealtimeWebSocketClient({
+                    context: {
+                        appConfig: {
+                            docSizeLimit: 1000,
+                            realtimePingInterval: 10000,
+                            realtimePongWaitTimeout: 5000,
+                            getAccessToken: this._getAccessToken
+                        }
+                    }
+                });
+            }
+            console.log("test)))))))))))))))))))) single doc");
+            return db_1.Db.ws.watch(Object.assign({}, options, { envId: this._db.config.env, collectionName: this._coll, query: JSON.stringify({
+                    _id: this.id,
+                }) }));
+        };
         this._db = db;
         this._coll = coll;
         this.id = docID;
         this.request = new db_1.Db.reqClass(this._db.config);
         this.projection = projection;
+        this._getAccessToken = db_1.Db.getAccessToken;
     }
     create(data, callback) {
         callback = callback || util_1.createPromiseCallback();

@@ -4,6 +4,9 @@ import { Util } from "./util";
 import { UpdateSerializer } from "./serializer/update";
 import { serialize } from "./serializer/datatype";
 import { UpdateCommand } from "./commands/update";
+import { DB } from "./typings"
+import { RealtimeWebSocketClient } from "./realtime/websocket-client"
+
 
 /**
  * 文档模块
@@ -42,6 +45,9 @@ export class DocumentReference {
    */
   private request: any;
 
+  private _getAccessToken: Function
+
+
   /**
    * 初始化
    *
@@ -58,6 +64,7 @@ export class DocumentReference {
     /* eslint-disable new-cap*/
     this.request = new Db.reqClass(this._db.config);
     this.projection = projection;
+    this._getAccessToken = Db.getAccessToken
   }
 
   /**
@@ -323,4 +330,37 @@ export class DocumentReference {
     }
     return new DocumentReference(this._db, this._coll, this.id, projection);
   }
+
+
+  /**
+   * 监听单个文档
+   */
+  watch = (options: DB.IWatchOptions): DB.RealtimeListener => {
+    // this._getAccessToken((accessToken, envId) => {
+    if (!Db.ws) {
+      Db.ws = new RealtimeWebSocketClient({
+        context: {
+          appConfig: {
+            docSizeLimit: 1000,
+            realtimePingInterval: 10000,
+            realtimePongWaitTimeout: 5000,
+            getAccessToken: this._getAccessToken
+          }
+        }
+      })
+    }
+
+    console.log("test)))))))))))))))))))) single doc")
+
+    return (Db.ws as RealtimeWebSocketClient).watch({
+      ...options,
+      envId: this._db.config.env,
+      collectionName: this._coll,
+      query: JSON.stringify({
+        _id: this.id,
+      })
+    })
+    // })
+  }
+
 }
