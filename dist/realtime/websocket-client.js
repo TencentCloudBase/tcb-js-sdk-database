@@ -302,7 +302,7 @@ class RealtimeWebSocketClient {
                         requestId: message_1.genRequestId(),
                         msgType: "LOGIN",
                         msgData: {
-                            envId: accessTokenRes.env,
+                            envId: accessTokenRes.env || '',
                             accessToken: accessTokenRes.accessToken,
                             referrer: "web",
                             sdkVersion: "",

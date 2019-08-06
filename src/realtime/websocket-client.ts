@@ -602,7 +602,7 @@ export class RealtimeWebSocketClient {
           requestId: genRequestId(),
           msgType: "LOGIN",
           msgData: {
-            envId: accessTokenRes.env,
+            envId: accessTokenRes.env || '',
             accessToken: accessTokenRes.accessToken,
             // signStr: signature.signStr,
             // secretVersion: signature.secretVersion,
