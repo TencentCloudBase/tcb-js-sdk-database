@@ -16,49 +16,6 @@ export const autoCount = (domain: string = 'any'): number => {
   return counters[domain]++
 }
 
-// interface IGetWXVersionResult {
-//   version: string
-//   updateTime: string
-//   updateDateInDashes: string
-// }
-
-// export const getWXVersion = (): IGetWXVersionResult => {
-//   const wx = getSDK().wx
-
-//   let version: string
-//   let updateTime: string
-//   let updateDateInDashes: string
-
-//   if (wx && wx.version) {
-//     version = wx.version.version
-//     updateTime = wx.version.updateTime
-
-//     const dateMatches = wx.version.updateTime.match(/^(\d+)\.(\d+)\.(\d+)/)
-//     if (dateMatches) {
-//       // updateDateInDashes = `${dateMatches[0]}-${dateMatches[1]}-${
-//       //   dateMatches[2]
-//       // }`
-//       updateDateInDashes = `${dateMatches[1]}-${dateMatches[2]}-${
-//         dateMatches[3]
-//       }`
-//     } else {
-//       updateDateInDashes = "unknown"
-//     }
-
-//     return {
-//       version,
-//       updateTime,
-//       updateDateInDashes
-//     }
-//   } else {
-//     return {
-//       version: "unknown",
-//       updateTime: "unknown",
-//       updateDateInDashes: "unknown"
-//     }
-//   }
-// }
-
 interface INetworkStatus {
   isConnected: boolean
   networkType: WXNS.NetworkType

@@ -6,7 +6,7 @@ class RealtimeListener {
         this.onChange = options.onChange;
         this.onError = options.onError;
         if (options.debug) {
-            Object.defineProperty(this, "virtualClient", {
+            Object.defineProperty(this, 'virtualClient', {
                 get: () => {
                     return options.virtualClient;
                 }

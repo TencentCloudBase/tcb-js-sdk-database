@@ -1,4 +1,4 @@
-import { DB } from "../typings";
+import { DB } from '../typings';
 interface ISnapshotConstructorOptions {
     id: number;
     docChanges: DB.ISingleDBEvent[];
@@ -10,7 +10,7 @@ export declare class Snapshot implements DB.ISnapshot {
     id: number;
     docChanges: DB.ISingleDBEvent[];
     docs: Record<string, any>[];
-    type?: "init";
+    type?: 'init';
     constructor(options: ISnapshotConstructorOptions);
 }
 export {};

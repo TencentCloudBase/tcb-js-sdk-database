@@ -1,4 +1,4 @@
-import { CloudSDKError } from "../utils/error";
+import { CloudSDKError } from '../utils/error';
 export declare const CLOSE_EVENT_CODE_INFO: {
     1000: {
         code: number;

@@ -1,5 +1,5 @@
-import { VirtualWebSocketClient } from "./virtual-websocket-client";
-import { DB } from "../typings";
+import { VirtualWebSocketClient } from './virtual-websocket-client';
+import { DB } from '../typings';
 interface IRealtimeListenerConstructorOptions extends DB.IRealtimeListenerConstructorOptions {
     close: () => void;
     debug?: boolean;

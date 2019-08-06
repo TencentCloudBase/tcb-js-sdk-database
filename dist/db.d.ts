@@ -1,6 +1,6 @@
-import { Point } from "./geo/point";
-import { CollectionReference } from "./collection";
-import { Command } from "./command";
+import { Point } from './geo/point';
+import { CollectionReference } from './collection';
+import { Command } from './command';
 interface GeoTeyp {
     Point: typeof Point;
 }

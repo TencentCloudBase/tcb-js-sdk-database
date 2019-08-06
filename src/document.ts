@@ -139,7 +139,6 @@ export class DocumentReference {
 
     let hasOperator = false
     const checkMixed = objs => {
-      // console.log(objs)
       if (typeof objs === 'object') {
         for (let key in objs) {
           if (objs[key] instanceof UpdateCommand) {
@@ -151,7 +150,6 @@ export class DocumentReference {
       }
     }
     checkMixed(data)
-    // console.log('hasOperator', hasOperator)
 
     if (hasOperator) {
       //不能包含操作符
@@ -161,7 +159,6 @@ export class DocumentReference {
       })
     }
 
-    // console.log(data, JSON.stringify(data))
     const merge = false //data不能带有操作符
     let param = {
       collectionName: this._coll,
@@ -349,8 +346,6 @@ export class DocumentReference {
         }
       })
     }
-
-    console.log('test)))))))))))))))))))) single doc')
 
     return (Db.ws as RealtimeWebSocketClient).watch({
       ...options,

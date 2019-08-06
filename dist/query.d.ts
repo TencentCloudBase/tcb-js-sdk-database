@@ -1,5 +1,5 @@
-import { OrderByDirection } from "./constant";
-import { DB } from "./typings";
+import { OrderByDirection } from './constant';
+import { DB } from './typings';
 interface GetRes {
     data: any[];
     requestId: string;

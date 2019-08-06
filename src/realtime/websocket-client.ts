@@ -202,7 +202,6 @@ export class RealtimeWebSocketClient {
           // this._ws = new WebSocket("ws://212.129.231.116:80")
           // this._ws = new WebSocket("ws://212.64.45.4:8080")
           this._ws = new WebSocket('wss://tcb-ws.tencentcloudapi.com')
-          console.log('(((((((((((((((((((((((((((((((')
           success()
         })
 
@@ -440,8 +439,6 @@ export class RealtimeWebSocketClient {
           throw new Error(`[realtime] onMessage parse res.data error: ${e}`)
         }
 
-        // this._context.debug &&
-        // console.log(`[realtime] onMessage (${new Date()})`, msg)
         console.log(
           `[realtime] onMessage ${
             msg.msgType
@@ -611,7 +608,6 @@ export class RealtimeWebSocketClient {
             dataVersion: ''
           }
         }
-        console.log('login requestid************', loginMsg.requestId)
 
         const loginResMsg = await this.send<IResponseMessageLoginResMsg>({
           msg: loginMsg,
@@ -705,201 +701,10 @@ export class RealtimeWebSocketClient {
     }
   }
 
-  // private login = async (
-  //   envId?: string,
-  //   refresh?: boolean
-  // ): Promise<ILoginResult> => {
-  //   envId = envId || this._context.env || this._defaultEnvId
-  //   if (!refresh) {
-  //     if (envId) {
-  //       const loginInfo = this._logins.get(envId)
-  //       if (loginInfo) {
-  //         if (loginInfo.loggedIn && loginInfo.loginResult) {
-  //           if (process.env.DEBUG) {
-  //             console.log(`[realtime] login: already logged in`)
-  //           }
-  //           return loginInfo.loginResult
-  //         } else if (loginInfo.loggingInPromise) {
-  //           return loginInfo.loggingInPromise
-  //         }
-  //       }
-  //     } else {
-  //       const emptyEnvLoginInfo = this._logins.get("")
-  //       if (emptyEnvLoginInfo && emptyEnvLoginInfo.loggingInPromise) {
-  //         return emptyEnvLoginInfo.loggingInPromise
-  //       }
-  //     }
-  //   }
-
-  //   if (process.env.DEBUG) {
-  //     console.log(`[realtime] login: logging in`)
-  //   }
-
-  //   const promise = new Promise<ILoginResult>(async (resolve, reject) => {
-  //     try {
-  //       // const signature = await this.getSignature(envId, refresh)
-
-  //       const accessTokenRes = await this.getAccessToken()
-
-  //       // const wxVersion = getWXVersion()
-
-  //       const loginMsg: IRequestMessageLoginMsg = {
-  //         watchId: undefined,
-  //         requestId: genRequestId(),
-  //         msgType: "LOGIN",
-  //         msgData: {
-  //           envId: accessTokenRes.env,
-  //           accessToken: accessTokenRes.accessToken,
-  //           // signStr: signature.signStr,
-  //           // secretVersion: signature.secretVersion,
-  //           referrer: "web",
-  //           sdkVersion: "",
-  //           dataVersion: ""
-  //         }
-  //       }
-  //       console.log("login requestid************", loginMsg.requestId)
-
-  //       const loginResMsg = await this.send<IResponseMessageLoginResMsg>({
-  //         msg: loginMsg,
-  //         waitResponse: true,
-  //         skipOnMessage: true,
-  //         timeout: DEFAULT_LOGIN_TIMEOUT
-  //       })
-
-  //       if (!loginResMsg.msgData.code) {
-  //         // login success
-  //         resolve({
-  //           // envId: signature.envId
-  //         })
-  //       } else {
-  //         // login failed
-  //         reject(
-  //           new Error(
-  //             `${loginResMsg.msgData.code} ${loginResMsg.msgData.message}`
-  //           )
-  //         )
-  //       }
-  //     } catch (e) {
-  //       reject(e)
-  //     }
-  //   })
-
-  //   let loginInfo = envId && this._logins.get(envId)
-
-  //   // used for concurrent force re-login on same env
-  //   // for example if there's a login invocation with refresh equals false,
-  //   // then another login invocation with refresh equals true comes in,
-  //   // then the result of the first login invocation must be discarded
-  //   const loginStartTS = Date.now()
-
-  //   if (loginInfo) {
-  //     loginInfo.loggedIn = false
-  //     loginInfo.loggingInPromise = promise
-  //     loginInfo.loginStartTS = loginStartTS
-  //   } else {
-  //     loginInfo = {
-  //       loggedIn: false,
-  //       loggingInPromise: promise,
-  //       loginStartTS
-  //     }
-
-  //     // '' => default env
-  //     this._logins.set(envId || "", loginInfo)
-  //   }
-
-  //   try {
-  //     const loginResult = await promise
-  //     const curLoginInfo = envId && this._logins.get(envId)
-  //     if (
-  //       curLoginInfo &&
-  //       curLoginInfo === loginInfo &&
-  //       curLoginInfo.loginStartTS === loginStartTS
-  //     ) {
-  //       loginInfo.loggedIn = true
-  //       loginInfo.loggingInPromise = undefined
-  //       loginInfo.loginStartTS = undefined
-  //       loginInfo.loginResult = loginResult
-  //       return loginResult
-  //     } else if (curLoginInfo) {
-  //       if (curLoginInfo.loggedIn && curLoginInfo.loginResult) {
-  //         return curLoginInfo.loginResult
-  //       } else if (curLoginInfo.loggingInPromise) {
-  //         return curLoginInfo.loggingInPromise
-  //       } else {
-  //         throw new Error(`ws unexpected login info`)
-  //       }
-  //     } else {
-  //       throw new Error(`ws login info reset`)
-  //     }
-  //   } catch (e) {
-  //     loginInfo.loggedIn = false
-  //     loginInfo.loggingInPromise = undefined
-  //     loginInfo.loginStartTS = undefined
-  //     loginInfo.loginResult = undefined
-  //     throw e
-  //   }
-  // }
-
   private getAccessToken = async (): Promise<any> => {
     // envId = envId || this._context.env || this._defaultEnvId
     return this._context.appConfig.getAccessToken()
   }
-
-  // private getSignature = async (
-  //   envId?: string,
-  //   refresh?: boolean
-  // ): Promise<ISignature> => {
-  //   envId = envId || this._context.env || this._defaultEnvId
-  //   if (!refresh && envId && this._signatures.has(envId)) {
-  //     const signature = this._signatures.get(envId)!
-  //     if (Date.now() < signature.expireTS) {
-  //       if (process.env.DEBUG) {
-  //         console.log(
-  //           `[realtime] getSignature: signature not expired yet, expired time : ${new Date(
-  //             signature.expireTS
-  //           )}`
-  //         )
-  //       }
-  //       return signature
-  //     } else if (process.env.DEBUG) {
-  //       console.log(
-  //         `[realtime] getSignature: signature expired, expired time : ${new Date(
-  //           signature.expireTS
-  //         )}`
-  //       )
-  //     }
-  //   } else if (process.env.DEBUG) {
-  //     refresh
-  //       ? console.log(`[realtime] getSignature force refresh`)
-  //       : console.log(`[realtime] getSignature for ${envId} for the first time`)
-  //   }
-
-  //   // const signatureResp = await getRealtimeConnectionSignature(this._context)
-
-  //   // const signature: ISignature = {
-  //   //   ...signatureResp,
-  //   //   expireTS: +new Date() + 60 * 1000
-  //   // }
-
-  //   // mock signature
-  //   const signature = {
-  //     envId: "alan-test-app2-exp",
-  //     secretVersion: 1564215208,
-  //     signStr:
-  //       "HNsVUC8AItoJvBErqefNvSCNIfI8pcTo8m3FWy/1+s9d3viYnYmpbfCtzGa4OYu9osviC/Ps5dmDlxow9TzJN26PNaDXkn7iHJfpTpsDZTJUtq/sXaeuSwMTYt4Cs25LPgi7/+GHK8qd8LtMsofzCOJpqrsUI9COGCgcQTrRcgPHLGIEql9uh/vQSWtZHHtltjFykbUYRlbGN5LGWU27CjHa8sBmyUEnJMnIfDS/oYKPjFJv1cmg9bh7yZ5bGTPApaQ5JON/65Rfv0TItt7PzoPoUUdSlujC8JcPTI5zXxIx9vjpUdvy3fXwmejLi1JZDnHPOOBFirJEHbsu+QvhCAyNpvCNmm+zMar0vtb2f2UAfxdp1F82AmYSsteoVkEdFVS/yKkSmQ2eJFET2ItwfmLo+k9/31Dje3t3Kjq7DfIXrsik6X1nOcWUt6I/grxp5kgQRj30RLq8HASdvo2rlub5cqECk+wLamRVOnifyakIj7hERDoi6PPnGm6Xvt2Sj4OpoRUGGOoZN7TcUy9ZuC7AcMGUtT5+dgiGa4QLpe/WyNN+x5SQ4FGLIGLpZ3xRmeegj8ivDQ/zMKyLqGmumgHRbDqUMK+tFLJFNNn+c+xi2rjKs7ZP2O7mLNEIPr9/vXqMxG2h3ueY8jpTMMIIT4DWmvUoT5t1SJjV7y7cfkwT25lt3JNxSAJ4vBoa4Om/U9v1zpG+otO8wSnJ+c6XE87PUIago2AdbZ7Fm/gNaZKUm7mVok8iGqo6k95pJPhsplp0HGDWJ72vyQmSRTegPbgX9gRP6tTtcXM3ckEWygvzhD41pAxostATgZAKrrq/63BEfswqJyQjFMowZcB4/Sfx26o27rvjdqzQn9R2CYnHtYCJXa41ppOESEZE80KhcHW7d4765M9wr8y2OSlYKu2jQ4pu1bF9/TZigdhMPejAlYNANw9Slx0pkrb1h4a+XX88+D/mJTofGiPJnONSN5sVJRNSz0LjbYYLr/j0s76RvDwYhvxzJIcKw+12ADXHEOHN5yZFK2hwCVKRAp4eM1CRFmAhYStNh72SkfpU6qpQVwb8mz5GXd07WClYSb8CU31UVn+oBg5dCVWnoFS+4TDu",
-  //     // wsUrl: "ws://212.129.231.117:80",
-  //     wsUrl: "ws://100.67.101.183:8008",
-  //     expireTS: +new Date() + 60 * 1000
-  //   }
-
-  //   this._signatures.set(signature.envId, signature)
-  //   if (!envId) {
-  //     // context.envId === undefined, using default envId
-  //     this._defaultEnvId = signature.envId
-  //   }
-
-  //   return signature
-  // }
 
   private getWaitExpectedTimeoutLength = () => {
     if (!this._rttObserved.length) {

@@ -198,8 +198,6 @@ export class Query {
     if (this._queryOptions.projection) {
       param.projection = this._queryOptions.projection
     }
-    // console.log('this._queryOptions', this._queryOptions);
-    // console.log(param);
     this._request
       .send('database.queryDocument', param)
       .then(res => {
@@ -241,7 +239,6 @@ export class Query {
       param.query = this._fieldFilters
     }
     this._request.send('database.countDocument', param).then(res => {
-      // console.log(res);
       if (res.code) {
         callback(0, res)
       } else {
@@ -433,10 +430,7 @@ export class Query {
       query: QuerySerializer.encode(this._fieldFilters),
       multi: true
     }
-    // console.log('this._queryOptions', this._queryOptions);
-    // console.log(param);
     this._request.send('database.deleteDocument', param).then(res => {
-      // console.log(res)
       if (res.code) {
         callback(0, res)
       } else {
@@ -453,39 +447,6 @@ export class Query {
   /**
    * 监听query对应的doc变化
    */
-  // watch(callbackObj: CallbackObj) {
-  //   // 1. 请求qbase-service服务获取access_token
-  //   this._getAccessToken((accessToken, envId) => {
-  //     console.log("access_token******", accessToken)
-  //     // 构造ws 客户端对象 DBName  CollName  Query 公共信息(mock)
-  //     const DBName = "tnt-61yk7lv8e" // mock
-  //     const CollName = this._coll
-  //     const Query = JSON.stringify(this._rawWhereParams)
-  //     const Uin = "xxx"
-  //     const RequestId = "123456"
-
-  //     let wsClient = new WSClient({
-  //       pingTimeout: this._pingTimeout,
-  //       pongTimeout: this._pongTimeout,
-  //       reconnectTimeout: this._reconnectTimeout,
-  //       wsURL: this._wsURL,
-  //       params: {
-  //         DBName,
-  //         CollName,
-  //         Query,
-  //         Uin,
-  //         RequestId,
-  //         AccessToken: accessToken,
-  //         EnvId: envId
-  //       },
-  //       callbackObj
-  //     })
-
-  //     // 开始监听
-  //     wsClient.createWsCon(false)
-  //   })
-  // }
-
   watch = (options: DB.IWatchOptions): DB.RealtimeListener => {
     // this._getAccessToken((accessToken, envId) => {
     if (!Db.ws) {
@@ -500,8 +461,6 @@ export class Query {
         }
       })
     }
-
-    console.log('test))))))))))))))))))))')
 
     return (Db.ws as RealtimeWebSocketClient).watch({
       ...options,

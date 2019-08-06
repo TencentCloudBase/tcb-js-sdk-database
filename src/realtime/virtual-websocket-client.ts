@@ -31,19 +31,6 @@ import { Snapshot } from './snapshot'
 import { IWSSendOptions, ILoginResult } from './websocket-client'
 import { isRealtimeErrorMessageError, RealtimeErrorMessageError } from './error'
 import { DB } from '../typings'
-// import { writeFile } from "fs"
-
-// function writeToFile(fileName, data) {
-//   // fs.open(fileName, "a", function() {
-//   writeFile(fileName, data, { flag: "a" }, function(err) {
-//     if (err) {
-//       console.log("write file err:", err)
-//     } else {
-//       console.log("write file ok!")
-//     }
-//   })
-//   // });
-// }
 
 // =============== Realtime Virtual WebSocket Client (Internal) ====================
 
@@ -930,8 +917,6 @@ export class VirtualWebSocketClient {
             docs: docsSnapshot,
             msgType
           })
-
-          // console.log("mock snapshot 结构**********", snapshot)
 
           // Reporter.surroundThirdByTryCatch(() =>
           this.listener.onChange(snapshot)

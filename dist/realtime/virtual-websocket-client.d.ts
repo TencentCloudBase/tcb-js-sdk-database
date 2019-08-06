@@ -1,7 +1,7 @@
-import { IResponseMessage } from "../typings/realtime";
-import { RealtimeListener } from "./listener";
-import { IWSSendOptions } from "./websocket-client";
-import { DB } from "../typings";
+import { IResponseMessage } from '../typings/realtime';
+import { RealtimeListener } from './listener';
+import { IWSSendOptions } from './websocket-client';
+import { DB } from '../typings';
 interface IVirtualWebSocketClientConstructorOptions extends DB.IWatchOptions {
     envId?: string;
     collectionName: string;

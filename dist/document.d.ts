@@ -1,4 +1,4 @@
-import { DB } from "./typings";
+import { DB } from './typings';
 export declare class DocumentReference {
     readonly id: string;
     readonly projection: Object;

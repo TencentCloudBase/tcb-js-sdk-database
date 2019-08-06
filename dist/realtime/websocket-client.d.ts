@@ -1,7 +1,7 @@
-import { VirtualWebSocketClient } from "./virtual-websocket-client";
-import { DB } from "../typings";
-import { IRequestMessage } from "../typings/realtime";
-import { CLOSE_EVENT_CODE } from "./ws-event";
+import { VirtualWebSocketClient } from './virtual-websocket-client';
+import { DB } from '../typings';
+import { IRequestMessage } from '../typings/realtime';
+import { CLOSE_EVENT_CODE } from './ws-event';
 export interface IRealtimeWebSocketClientConstructorOptions {
     maxReconnect?: number;
     reconnectInterval?: number;

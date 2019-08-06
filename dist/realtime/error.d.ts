@@ -1,4 +1,4 @@
-import { IResponseMessageErrorMsg } from "../typings/realtime";
+import { IResponseMessageErrorMsg } from '../typings/realtime';
 export declare class RealtimeErrorMessageError extends Error {
     isRealtimeErrorMessageError: boolean;
     payload: IResponseMessageErrorMsg;
