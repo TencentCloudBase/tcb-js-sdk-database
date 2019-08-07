@@ -8,28 +8,36 @@ import { Util } from './util'
 // import * as isRegExp from 'is-regex'
 import { QuerySerializer } from './serializer/query'
 import { UpdateSerializer } from './serializer/update'
+// import { WSClient } from "./websocket/wsclient"
+import { DB } from './typings'
+import { RealtimeWebSocketClient } from './realtime/websocket-client'
 
 interface GetRes {
-  data: any[];
-  requestId: string;
-  total: number;
-  limit: number;
-  offset: number;
+  data: any[]
+  requestId: string
+  total: number
+  limit: number
+  offset: number
 }
 
 interface QueryOrder {
-  field?: string;
-  direction?: 'asc' | 'desc';
+  field?: string
+  direction?: 'asc' | 'desc'
 }
 
 interface QueryOption {
   // 查询数量
-  limit?: number;
+  limit?: number
   // 偏移量
-  offset?: number;
+  offset?: number
   // 指定显示或者不显示哪些字段
-  projection?: Object;
+  projection?: Object
 }
+
+// interface CallbackObj {
+//   success: (event: any) => void
+//   fail: (err: any) => void
+// }
 
 /**
  * 查询模块
@@ -42,42 +50,73 @@ export class Query {
    *
    * @internal
    */
-  protected _db: Db;
+  protected _db: Db
 
   /**
    * Collection name
    *
    * @internal
    */
-  protected _coll: string;
+  protected _coll: string
 
   /**
    * 过滤条件
    *
    * @internal
    */
-  private _fieldFilters: Object;
+  private _fieldFilters: Object
 
   /**
    * 排序条件
    *
    * @internal
    */
-  private _fieldOrders: QueryOrder[];
+  private _fieldOrders: QueryOrder[]
 
   /**
    * 查询条件
    *
    * @internal
    */
-  private _queryOptions: QueryOption;
+  private _queryOptions: QueryOption
+
+  /**
+   * 原始过滤参数
+   */
+  // private _rawWhereParams: Object
 
   /**
    * 请求实例
    *
    * @internal
    */
-  private _request: any;
+  private _request: any
+
+  /**
+   * websocket 参数 pingTimeout
+   */
+  // private _pingTimeout: number
+
+  /**
+   * websocket 参数 pongTimeout
+   */
+  // private _pongTimeout: number
+
+  /**
+   * websocket 参数 reconnectTimeout
+   */
+  // private _reconnectTimeout: number
+
+  /**
+   * websocket 参数 wsURL
+   */
+  // private _wsURL: string
+
+  /**
+   * 鉴权方法
+   *
+   */
+  private _getAccessToken: Function
 
   /**
    * 初始化
@@ -96,14 +135,22 @@ export class Query {
     fieldFilters?: Object,
     fieldOrders?: QueryOrder[],
     queryOptions?: QueryOption
+    // rawWhereParams?: Object
   ) {
     this._db = db
     this._coll = coll
     this._fieldFilters = fieldFilters
     this._fieldOrders = fieldOrders || []
     this._queryOptions = queryOptions || {}
+    // this._pingTimeout = 10000
+    // this._pongTimeout = 5000
+    // this._reconnectTimeout = 15000
+    // this._rawWhereParams = rawWhereParams || {}
+    // this._wsURL = "ws://localhost:3000"
+
     /* eslint-disable new-cap */
     this._request = new Db.reqClass(this._db.config)
+    this._getAccessToken = Db.getAccessToken
   }
 
   /**
@@ -123,12 +170,12 @@ export class Query {
       })
     }
     interface Param {
-      collectionName: string;
-      query?: Object;
-      order?: string[];
-      offset?: number;
-      limit?: number;
-      projection?: Object;
+      collectionName: string
+      query?: Object
+      order?: string[]
+      offset?: number
+      limit?: number
+      projection?: Object
     }
     let param: Param = {
       collectionName: this._coll
@@ -151,25 +198,26 @@ export class Query {
     if (this._queryOptions.projection) {
       param.projection = this._queryOptions.projection
     }
-    // console.log('this._queryOptions', this._queryOptions);
-    // console.log(param);
-    this._request.send('database.queryDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        const documents = Util.formatResDocumentData(res.data.list)
-        const result: any = {
-          data: documents,
-          requestId: res.requestId
+    this._request
+      .send('database.queryDocument', param)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          const documents = Util.formatResDocumentData(res.data.list)
+          const result: any = {
+            data: documents,
+            requestId: res.requestId
+          }
+          if (res.TotalCount) result.total = res.TotalCount
+          if (res.Limit) result.limit = res.Limit
+          if (res.Offset) result.offset = res.Offset
+          callback(0, result)
         }
-        if (res.TotalCount) result.total = res.TotalCount
-        if (res.Limit) result.limit = res.Limit
-        if (res.Offset) result.offset = res.Offset
-        callback(0, result)
-      }
-    }).catch((err) => {
-      callback(err)
-    })
+      })
+      .catch(err => {
+        callback(err)
+      })
 
     return callback.promise
   }
@@ -181,8 +229,8 @@ export class Query {
     callback = callback || createPromiseCallback()
 
     interface Param {
-      collectionName: string;
-      query?: Object;
+      collectionName: string
+      query?: Object
     }
     let param: Param = {
       collectionName: this._coll
@@ -191,7 +239,6 @@ export class Query {
       param.query = this._fieldFilters
     }
     this._request.send('database.countDocument', param).then(res => {
-      // console.log(res);
       if (res.code) {
         callback(0, res)
       } else {
@@ -211,6 +258,8 @@ export class Query {
    * @param query
    */
   public where(query: object) {
+    // 记录转换前的query
+    // this._rawWhereParams = query
     return new Query(
       this._db,
       this._coll,
@@ -218,6 +267,7 @@ export class Query {
       QuerySerializer.encode(query),
       this._fieldOrders,
       this._queryOptions
+      // this._rawWhereParams
     )
   }
 
@@ -368,7 +418,9 @@ export class Query {
     callback = callback || createPromiseCallback()
 
     if (Object.keys(this._queryOptions).length > 0) {
-      console.warn('`offset`, `limit` and `projection` are not supported in remove() operation')
+      console.warn(
+        '`offset`, `limit` and `projection` are not supported in remove() operation'
+      )
     }
     if (this._fieldOrders.length > 0) {
       console.warn('`orderBy` is not supported in remove() operation')
@@ -378,10 +430,7 @@ export class Query {
       query: QuerySerializer.encode(this._fieldFilters),
       multi: true
     }
-    // console.log('this._queryOptions', this._queryOptions);
-    // console.log(param);
     this._request.send('database.deleteDocument', param).then(res => {
-      // console.log(res)
       if (res.code) {
         callback(0, res)
       } else {
@@ -394,6 +443,34 @@ export class Query {
 
     return callback.promise
   }
+
+  /**
+   * 监听query对应的doc变化
+   */
+  watch = (options: DB.IWatchOptions): DB.RealtimeListener => {
+    // this._getAccessToken((accessToken, envId) => {
+    if (!Db.ws) {
+      Db.ws = new RealtimeWebSocketClient({
+        context: {
+          appConfig: {
+            docSizeLimit: 1000,
+            realtimePingInterval: 10000,
+            realtimePongWaitTimeout: 5000,
+            getAccessToken: this._getAccessToken
+          }
+        }
+      })
+    }
+
+    return (Db.ws as RealtimeWebSocketClient).watch({
+      ...options,
+      envId: this._db.config.env,
+      collectionName: this._coll,
+      query: JSON.stringify(this._fieldFilters)
+    })
+    // })
+  }
+
   /*
   convertParams(query: object) {
     // console.log(JSON.stringify(query));

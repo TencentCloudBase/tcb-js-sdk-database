@@ -1,4 +1,5 @@
 import { OrderByDirection } from './constant';
+import { DB } from './typings';
 interface GetRes {
     data: any[];
     requestId: string;
@@ -7,6 +8,7 @@ interface GetRes {
     offset: number;
 }
 export declare class Query {
+    private _getAccessToken;
     get(callback?: any): Promise<GetRes>;
     count(callback?: any): any;
     where(query: object): Query;
@@ -16,5 +18,6 @@ export declare class Query {
     update(data: Object, callback?: any): Promise<any>;
     field(projection: Object): Query;
     remove(callback?: any): any;
+    watch: (options: DB.IWatchOptions) => DB.RealtimeListener;
 }
 export {};

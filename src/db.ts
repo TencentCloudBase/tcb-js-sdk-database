@@ -10,7 +10,7 @@ import { startTransaction, runTransaction } from './transaction'
  * 地理位置类型
  */
 interface GeoTeyp {
-  Point: typeof Point;
+  Point: typeof Point
 }
 
 /**
@@ -22,20 +22,20 @@ export class Db {
   /**
    * Geo 类型
    */
-  Geo: GeoTeyp;
+  Geo: GeoTeyp
 
   /**
    * 逻辑操作的命令
    */
-  command: typeof Command;
+  command: typeof Command
 
-  RegExp: any;
+  RegExp: any
 
-  serverDate: any;
+  serverDate: any
 
-  startTransaction: any;
+  startTransaction: any
 
-  runTransaction: any;
+  runTransaction: any
 
   /**
    * 初始化
@@ -44,9 +44,13 @@ export class Db {
    *
    * @param config
    */
-  config: any;
-  
-  static reqClass: any;
+  config: any
+
+  static ws: any
+
+  static reqClass: any
+
+  static getAccessToken: Function
 
   constructor(config?: any) {
     this.config = config

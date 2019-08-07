@@ -43,7 +43,6 @@ export class Util {
     keys.forEach(key => {
       const item = document[key]
       const type = Util.whichType(item)
-      // console.log(type, item)
       let realValue
       switch (type) {
         case FieldType.GeoPoint:
@@ -112,7 +111,6 @@ export class Util {
     let type = Object.prototype.toString.call(obj).slice(8, -1)
 
     if (type === FieldType.Object) {
-      // console.log(obj)
       if (obj instanceof Point) {
         return FieldType.GeoPoint
       } else if (obj instanceof Date) {
