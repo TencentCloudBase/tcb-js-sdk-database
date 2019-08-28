@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const set_1 = require("lodash-es/set");
-const unset_1 = require("lodash-es/unset");
-const cloneDeep_1 = require("lodash-es/cloneDeep");
+const set_1 = require("lodash/set");
+const unset_1 = require("lodash/unset");
+const cloneDeep_1 = require("lodash/cloneDeep");
 const message_1 = require("./message");
 const error_1 = require("../utils/error");
 const error_config_1 = require("../config/error.config");

@@ -1,6 +1,6 @@
-import set from 'lodash-es/set'
-import unset from 'lodash-es/unset'
-import cloneDeep from 'lodash-es/cloneDeep'
+import set from 'lodash/set'
+import unset from 'lodash/unset'
+import cloneDeep from 'lodash/cloneDeep'
 import { genRequestId } from './message'
 import {
   IResponseMessage,
@@ -399,9 +399,7 @@ export class VirtualWebSocketClient {
               // cancel
               options.reject(
                 new CancelledError(
-                  `${
-                    options.operationName
-                  } cancelled due to pause after unknownError`
+                  `${options.operationName} cancelled due to pause after unknownError`
                 )
               )
             } else if (!this.isWSConnected()) {
@@ -606,9 +604,7 @@ export class VirtualWebSocketClient {
 
       // if (process.env.DEBUG) {
       console.log(
-        `[realtime] ${operationName} use a retry ticket, now only ${
-          this._availableRetries[operationName]
-        } retry left`
+        `[realtime] ${operationName} use a retry ticket, now only ${this._availableRetries[operationName]} retry left`
       )
       // }
 
@@ -686,9 +682,7 @@ export class VirtualWebSocketClient {
           // TODO: report
           // if (process.env.DEBUG) {
           console.warn(
-            `[realtime] duplicate event received, cur ${
-              sessionInfo.currentEventId
-            } but got ${change.id}`
+            `[realtime] duplicate event received, cur ${sessionInfo.currentEventId} but got ${change.id}`
           )
           // }
         } else {
@@ -767,9 +761,7 @@ export class VirtualWebSocketClient {
                   // doc is provided by server, this should never occur
                   const err = new CloudSDKError({
                     errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_UNEXPECTED_FATAL_ERROR as string,
-                    errMsg: `HandleServerEvents: full doc is not provided with dataType="update" and queueType="enqueue" (requestId ${
-                      msg.requestId
-                    })`
+                    errMsg: `HandleServerEvents: full doc is not provided with dataType="update" and queueType="enqueue" (requestId ${msg.requestId})`
                   })
                   this.closeWithError(err)
                   throw err
@@ -787,9 +779,7 @@ export class VirtualWebSocketClient {
               // doc is provided by server, this should never occur
               const err = new CloudSDKError({
                 errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_UNEXPECTED_FATAL_ERROR as string,
-                errMsg: `HandleServerEvents: full doc is not provided with dataType="replace" (requestId ${
-                  msg.requestId
-                })`
+                errMsg: `HandleServerEvents: full doc is not provided with dataType="replace" (requestId ${msg.requestId})`
               })
               this.closeWithError(err)
               throw err
@@ -927,9 +917,7 @@ export class VirtualWebSocketClient {
         // if (process.env.DEBUG) {
         // TODO: report
         console.warn(
-          `[realtime listener] event received is out of order, cur ${
-            this.sessionInfo.currentEventId
-          } but got ${change.id}`
+          `[realtime listener] event received is out of order, cur ${this.sessionInfo.currentEventId} but got ${change.id}`
         )
         // }
         // rebuild watch
@@ -998,9 +986,7 @@ export class VirtualWebSocketClient {
       case WATCH_STATUS.INITING:
       case WATCH_STATUS.REBUILDING: {
         console.warn(
-          `[realtime listener] internal non-fatal error: unexpected message received while ${
-            this.watchStatus
-          }`
+          `[realtime listener] internal non-fatal error: unexpected message received while ${this.watchStatus}`
         )
         return
       }
@@ -1074,9 +1060,7 @@ export class VirtualWebSocketClient {
       default: {
         // if (process.env.DEBUG) {
         console.warn(
-          `[realtime listener] virtual client receive unexpected msg ${
-            msg.msgType
-          }: `,
+          `[realtime listener] virtual client receive unexpected msg ${msg.msgType}: `,
           msg
         )
         // }
@@ -1097,9 +1081,7 @@ export class VirtualWebSocketClient {
 
     // if (process.env.DEBUG) {
     console.log(
-      `[realtime] client closed (${this.collectionName} ${
-        this.query
-      }) (watchId ${this.watchId})`
+      `[realtime] client closed (${this.collectionName} ${this.query}) (watchId ${this.watchId})`
     )
     // }
   }
@@ -1108,9 +1090,7 @@ export class VirtualWebSocketClient {
     this.watchStatus = WATCH_STATUS.PAUSED
     // if (process.env.DEBUG) {
     console.log(
-      `[realtime] client paused (${this.collectionName} ${
-        this.query
-      }) (watchId ${this.watchId})`
+      `[realtime] client paused (${this.collectionName} ${this.query}) (watchId ${this.watchId})`
     )
     // }
   }
@@ -1135,17 +1115,13 @@ export class VirtualWebSocketClient {
 
       // if (process.env.DEBUG) {
       console.log(
-        `[realtime] client successfully resumed (${this.collectionName} ${
-          this.query
-        }) (${this.watchId})`
+        `[realtime] client successfully resumed (${this.collectionName} ${this.query}) (${this.watchId})`
       )
       // }
     } catch (e) {
       // if (process.env.DEBUG) {
       console.error(
-        `[realtime] client resume failed (${this.collectionName} ${
-          this.query
-        }) (${this.watchId})`,
+        `[realtime] client resume failed (${this.collectionName} ${this.query}) (${this.watchId})`,
         e
       )
       // }

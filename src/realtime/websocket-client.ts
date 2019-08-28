@@ -31,51 +31,51 @@ import { ERR_CODE } from '../config/error.config'
 // =============== Realtime WebSocket Client (Internal) ====================
 
 export interface IRealtimeWebSocketClientConstructorOptions {
-  maxReconnect?: number
-  reconnectInterval?: number
-  context: DB.IDatabaseServiceContext
+  maxReconnect?: number;
+  reconnectInterval?: number;
+  context: DB.IDatabaseServiceContext;
 }
 
 export interface ISignature {
-  envId: string
-  secretVersion: number
-  signStr: string
-  wsUrl: string
-  expireTS: number
+  envId: string;
+  secretVersion: number;
+  signStr: string;
+  wsUrl: string;
+  expireTS: number;
 }
 
 export interface ILoginInfo {
-  loggedIn: boolean
-  loggingInPromise?: Promise<ILoginResult>
-  loginStartTS?: number
-  loginResult?: ILoginResult
+  loggedIn: boolean;
+  loggingInPromise?: Promise<ILoginResult>;
+  loginStartTS?: number;
+  loginResult?: ILoginResult;
 }
 
 export interface ILoginResult {
-  envId: string
+  envId: string;
 }
 
 export interface IWSSendOptions {
-  msg: IRequestMessage
-  waitResponse?: boolean
+  msg: IRequestMessage;
+  waitResponse?: boolean;
   // when waitResponse is set to true, if skipOnMessage is true, general onMessage handler will be skipped
-  skipOnMessage?: boolean
-  timeout?: number
+  skipOnMessage?: boolean;
+  timeout?: number;
 }
 
 export interface IWSWatchOptions extends DB.IWatchOptions {
-  envId?: string
-  collectionName: string
-  query: string
+  envId?: string;
+  collectionName: string;
+  query: string;
 }
 
 interface IResolveReject {
-  resolve: (value?: any | PromiseLike<any> | undefined) => void
-  reject: (reason?: any) => void
+  resolve: (value?: any | PromiseLike<any> | undefined) => void;
+  reject: (reason?: any) => void;
 }
 
 interface IResponseWaitSpec extends IResolveReject {
-  skipOnMessage?: boolean
+  skipOnMessage?: boolean;
 }
 
 const WS_READY_STATE = {
@@ -96,32 +96,32 @@ const DEFAULT_PONG_MISS_TOLERANCE = 2
 const DEFAULT_LOGIN_TIMEOUT = 5000
 
 export class RealtimeWebSocketClient {
-  private _virtualWSClient: Set<VirtualWebSocketClient> = new Set()
+  private _virtualWSClient: Set<VirtualWebSocketClient> = new Set();
   // after listener initWatch, the listener has the queryID and can store it here
-  private _queryIdClientMap: Map<string, VirtualWebSocketClient> = new Map()
-  private _watchIdClientMap: Map<string, VirtualWebSocketClient> = new Map()
-  private _maxReconnect: number
+  private _queryIdClientMap: Map<string, VirtualWebSocketClient> = new Map();
+  private _watchIdClientMap: Map<string, VirtualWebSocketClient> = new Map();
+  private _maxReconnect: number;
   // private _availableRetries: number
-  private _reconnectInterval: number
-  private _context: DB.IDatabaseServiceContext
+  private _reconnectInterval: number;
+  private _context: DB.IDatabaseServiceContext;
   // private _ws?: WXNS.Socket.ISocketTask
-  private _ws?: any
-  private _lastPingSendTS?: number
-  private _pingFailed: number = 0
-  private _pongMissed: number = 0
-  private _pingTimeoutId?: number
-  private _pongTimeoutId?: number
-  private _logins: Map<string /* envId */, ILoginInfo> = new Map()
+  private _ws?: any;
+  private _lastPingSendTS?: number;
+  private _pingFailed: number = 0;
+  private _pongMissed: number = 0;
+  private _pingTimeoutId?: number;
+  private _pongTimeoutId?: number;
+  private _logins: Map<string /* envId */, ILoginInfo> = new Map();
   // private _loginInfo: ILoginInfo
   // private _signatures: Map<string /* envId */, ISignature> = new Map()
-  private _wsInitPromise?: Promise<void>
-  private _wsReadySubsribers: IResolveReject[] = []
+  private _wsInitPromise?: Promise<void>;
+  private _wsReadySubsribers: IResolveReject[] = [];
   private _wsResponseWait: Map<
     string /* requestId */,
     IResponseWaitSpec
-  > = new Map()
-  private _rttObserved: number[] = []
-  private _reconnectState: boolean
+  > = new Map();
+  private _rttObserved: number[] = [];
+  private _reconnectState: boolean;
   // obtained from the first getSignature with no envId provided
   // private _defaultEnvId?: string
 
@@ -264,7 +264,9 @@ export class RealtimeWebSocketClient {
             }
           }
 
-          resolve(this.initWebSocketConnection(reconnect, availableRetries - 1))
+          resolve(
+            this.initWebSocketConnection(reconnect, availableRetries - 1)
+          )
         } else {
           reject(e)
 
@@ -298,7 +300,7 @@ export class RealtimeWebSocketClient {
       `[realtime] initWebSocketConnection ${success ? 'success' : 'fail'}`
     )
     // }
-  }
+  };
 
   private initWebSocketEvent = () =>
     new Promise<void>((resolve, reject) => {
@@ -327,7 +329,10 @@ export class RealtimeWebSocketClient {
 
         if (!wsOpened) {
           // this._context.debug &&
-          console.error('[realtime] ws open failed with ws event: error', event)
+          console.error(
+            '[realtime] ws open failed with ws event: error',
+            event
+          )
           // writeToFile(
           //   "wserror.txt",
           //   `${
@@ -536,11 +541,11 @@ export class RealtimeWebSocketClient {
       }
 
       this.heartbeat()
-    })
+    });
 
   private isWSConnected = (): boolean => {
     return Boolean(this._ws && this._ws.readyState === WS_READY_STATE.OPEN)
-  }
+  };
 
   private onceWSConnected = async (): Promise<void> => {
     if (this.isWSConnected()) {
@@ -557,7 +562,7 @@ export class RealtimeWebSocketClient {
         reject
       })
     })
-  }
+  };
 
   private webLogin = async (
     envId?: string,
@@ -699,12 +704,12 @@ export class RealtimeWebSocketClient {
       loginInfo.loginResult = undefined
       throw e
     }
-  }
+  };
 
   private getAccessToken = async (): Promise<any> => {
     // envId = envId || this._context.env || this._defaultEnvId
     return this._context.appConfig.getAccessToken()
-  }
+  };
 
   private getWaitExpectedTimeoutLength = () => {
     if (!this._rttObserved.length) {
@@ -717,7 +722,7 @@ export class RealtimeWebSocketClient {
         this._rttObserved.length) *
       1.5
     )
-  }
+  };
 
   private heartbeat(immediate?: boolean) {
     this.clearHeartbeat()
@@ -772,7 +777,7 @@ export class RealtimeWebSocketClient {
       msg
     })
     console.log('ping sent')
-  }
+  };
 
   send = <T = any>(opts: IWSSendOptions): Promise<T> =>
     new Promise<T>(async (_resolve, _reject) => {
@@ -895,7 +900,7 @@ export class RealtimeWebSocketClient {
       } catch (e) {
         reject(e)
       }
-    })
+    });
 
   close(code: CLOSE_EVENT_CODE) {
     this.clearHeartbeat()
@@ -910,23 +915,23 @@ export class RealtimeWebSocketClient {
     this._virtualWSClient.forEach(client => {
       client.closeWithError(error)
     })
-  }
+  };
 
   pauseClients = (clients?: Set<VirtualWebSocketClient>) => {
-    ;(clients || this._virtualWSClient).forEach(client => {
+    (clients || this._virtualWSClient).forEach(client => {
       client.pause()
     })
-  }
+  };
 
   resumeClients = (clients?: Set<VirtualWebSocketClient>) => {
-    ;(clients || this._virtualWSClient).forEach(client => {
+    (clients || this._virtualWSClient).forEach(client => {
       client.resume()
     })
-  }
+  };
 
   private onWatchStart = (client: VirtualWebSocketClient, queryID: string) => {
     this._queryIdClientMap.set(queryID, client)
-  }
+  };
 
   private onWatchClose = (client: VirtualWebSocketClient, queryID: string) => {
     if (queryID) {
@@ -939,7 +944,7 @@ export class RealtimeWebSocketClient {
       // no more existing watch, we should release the websocket connection
       this.close(CLOSE_EVENT_CODE.NoRealtimeListeners)
     }
-  }
+  };
 
   watch(options: IWSWatchOptions): DB.RealtimeListener {
     if (!this._ws && !this._wsInitPromise) {
