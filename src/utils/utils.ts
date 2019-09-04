@@ -1,6 +1,6 @@
 // import WX from '@/externals/public-lib/wx'
 // import { getSDK } from "../externals/public-lib/appserviceSdk"
-import { WXNS } from '../typings'
+import { WXNS } from '../typings/index'
 // declare const wx: WX
 
 export const sleep = (ms: number = 0) => new Promise(r => setTimeout(r, ms))

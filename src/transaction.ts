@@ -1,6 +1,6 @@
 import { EJSON } from 'bson'
 import { DocumentReference } from './document' 
-import { Db } from './db'
+import { Db } from './index'
 
 class DocumentSnapshot {
   private _data: any

@@ -1,10 +1,10 @@
 import { createPromiseCallback } from './lib/util'
-import { Db } from './db'
+import { Db } from './index'
 import { Util } from './util'
 import { UpdateSerializer } from './serializer/update'
 import { serialize } from './serializer/datatype'
 import { UpdateCommand } from './commands/update'
-import { DB } from './typings'
+import { DB } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 
 

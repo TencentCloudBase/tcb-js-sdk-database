@@ -1,4 +1,4 @@
-import { Db } from './db'
+import { Db } from './index'
 import { DocumentReference } from './document'
 import { Query } from './query'
 import Aggregation from './aggregate'

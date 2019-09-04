@@ -30,7 +30,7 @@ import { RealtimeListener } from './listener'
 import { Snapshot } from './snapshot'
 import { IWSSendOptions, ILoginResult } from './websocket-client'
 import { isRealtimeErrorMessageError, RealtimeErrorMessageError } from './error'
-import { DB } from '../typings'
+import { DB } from '../typings/index'
 
 // =============== Realtime Virtual WebSocket Client (Internal) ====================
 

@@ -1,4 +1,4 @@
-import { Db } from './db'
+import { Db } from './index'
 import { EJSON } from 'bson'
 export default class Aggregation {
   _db: any

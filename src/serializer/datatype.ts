@@ -1,9 +1,9 @@
 // transpile internal data type
 import { SYMBOL_GEO_POINT, SYMBOL_SERVER_DATE, SYMBOL_REGEXP } from '../helper/symbol'
 import { getType, isObject, isArray, isDate, isNumber, isInternalObject, isRegExp } from '../utils/type'
-import { Point } from '../geo'
-import { ServerDate } from '../serverDate'
-import { RegExp } from '../regexp'
+import { Point } from '../geo/index'
+import { ServerDate } from '../serverDate/index'
+import { RegExp } from '../regexp/index'
 import { LogicCommand } from '../commands/logic'
 
 export type IQueryCondition = Record<string, any> | LogicCommand

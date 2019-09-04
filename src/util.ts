@@ -1,6 +1,6 @@
 import { FieldType } from './constant'
-import { Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon } from './geo'
-import { ServerDate } from './serverDate'
+import { Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon } from './geo/index'
+import { ServerDate } from './serverDate/index'
 
 interface DocumentModel {
   _id: string;

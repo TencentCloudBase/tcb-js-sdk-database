@@ -1,4 +1,4 @@
-import { DB } from '../typings'
+import { DB } from '../typings/index'
 
 // =============== Realtime Snapshot / Change Event (Public) ====================
 

@@ -1,5 +1,5 @@
 import { VirtualWebSocketClient } from './virtual-websocket-client'
-import { DB } from '../typings'
+import { DB } from '../typings/index'
 
 // =============== Realtime Listener (Public) ====================
 

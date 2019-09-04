@@ -1,6 +1,6 @@
 import { LogicCommand } from './logic'
 import { InternalSymbol, SYMBOL_QUERY_COMMAND } from '../helper/symbol'
-import { Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon } from '../geo'
+import { Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon } from '../geo/index'
 import { isNumber } from '../utils/type'
 
 export const EQ = 'eq'

@@ -10,7 +10,7 @@ import {
 // import { getRealtimeConnectionSignature } from "../../../internal/backend-api/backend-api"
 import { genRequestId } from './message'
 // import { DB, WXNS } from "../typings"
-import { DB } from '../typings'
+import { DB } from '../typings/index'
 import {
   IRequestMessage,
   IResponseMessage,

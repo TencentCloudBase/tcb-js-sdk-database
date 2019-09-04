@@ -1,7 +1,7 @@
 import { createPromiseCallback } from './lib/util'
 /* eslint-disable no-unused-vars */
 import { OrderByDirection } from './constant'
-import { Db } from './db'
+import { Db } from './index'
 import { Validate } from './validate'
 import { Util } from './util'
 // import { Command } from './command';
@@ -9,7 +9,7 @@ import { Util } from './util'
 import { QuerySerializer } from './serializer/query'
 import { UpdateSerializer } from './serializer/update'
 // import { WSClient } from "./websocket/wsclient"
-import { DB } from './typings'
+import { DB } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 
 interface GetRes {
