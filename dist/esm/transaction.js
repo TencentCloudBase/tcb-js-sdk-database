@@ -106,14 +106,16 @@ export async function startTransaction() {
 }
 export async function runTransaction(callback, times = 3) {
     if (times <= 0) {
-        return;
+        throw new Error('Transaction failed');
     }
     try {
         const transaction = new Transaction(this);
+        await transaction.init();
         await callback(transaction);
         await transaction.commit();
     }
     catch (error) {
-        arguments.callee(callback, --times);
+        console.log(error);
+        return runTransaction.bind(this)(callback, --times);
     }
 }
