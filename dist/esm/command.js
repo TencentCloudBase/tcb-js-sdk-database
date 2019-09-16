@@ -40,6 +40,10 @@ export const Command = {
         const expressions = isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
         return new LogicCommand(LOGIC_COMMANDS_LITERAL.AND, expressions);
     },
+    nor(...__expressions__) {
+        const expressions = isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
+        return new LogicCommand(LOGIC_COMMANDS_LITERAL.NOR, expressions);
+    },
     or(...__expressions__) {
         const expressions = isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
         return new LogicCommand(LOGIC_COMMANDS_LITERAL.OR, expressions);
@@ -70,7 +74,8 @@ export const Command = {
         const values = isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
         return new UpdateCommand(UPDATE_COMMANDS_LITERAL.UNSHIFT, values);
     },
-    aggregate: {}
+    aggregate: {},
+    project: {}
 };
 const pipelineOperators = [
     'abs',
@@ -174,6 +179,18 @@ pipelineOperators.forEach(op => {
         apiName = 'neq';
     }
     Command.aggregate[apiName] = function (param) {
+        return {
+            [`$${op}`]: param
+        };
+    };
+});
+const projectionOperators = [
+    'slice',
+    'elemMatch'
+];
+projectionOperators.forEach(op => {
+    let apiName = op;
+    Command.project[apiName] = function (param) {
         return {
             [`$${op}`]: param
         };

@@ -39,6 +39,7 @@ class QueryEncoder {
     }
     encodeLogicCommand(query) {
         switch (query.operator) {
+            case logic_1.LOGIC_COMMANDS_LITERAL.NOR:
             case logic_1.LOGIC_COMMANDS_LITERAL.AND:
             case logic_1.LOGIC_COMMANDS_LITERAL.OR: {
                 const $op = operator_map_1.operatorToString(query.operator);

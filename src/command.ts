@@ -58,6 +58,11 @@ export const Command = {
     return new LogicCommand(LOGIC_COMMANDS_LITERAL.AND, expressions)
   },
 
+  nor(...__expressions__: IQueryCondition[]) {
+    const expressions = isArray(arguments[0]) ? arguments[0] : Array.from(arguments)
+    return new LogicCommand(LOGIC_COMMANDS_LITERAL.NOR, expressions)
+  },
+
   or(...__expressions__: IQueryCondition[]) {
     const expressions = isArray(arguments[0]) ? arguments[0] : Array.from(arguments)
     return new LogicCommand(LOGIC_COMMANDS_LITERAL.OR, expressions)
@@ -97,7 +102,9 @@ export const Command = {
     return new UpdateCommand(UPDATE_COMMANDS_LITERAL.UNSHIFT, values)
   },
 
-  aggregate: {}
+  aggregate: {},
+
+  project: {}
 }
 
 
@@ -234,6 +241,19 @@ pipelineOperators.forEach(op => {
     apiName = 'neq'
   }
   Command.aggregate[apiName] = function(param) {
+    return {
+      [`$${op}`]: param
+    }
+  }
+})
+
+const projectionOperators = [
+  'slice',
+  'elemMatch'
+]
+projectionOperators.forEach(op => {
+  let apiName = op
+  Command.project[apiName] = function(param) {
     return {
       [`$${op}`]: param
     }

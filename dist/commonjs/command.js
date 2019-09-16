@@ -42,6 +42,10 @@ exports.Command = {
         const expressions = type_1.isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
         return new logic_1.LogicCommand(logic_1.LOGIC_COMMANDS_LITERAL.AND, expressions);
     },
+    nor(...__expressions__) {
+        const expressions = type_1.isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
+        return new logic_1.LogicCommand(logic_1.LOGIC_COMMANDS_LITERAL.NOR, expressions);
+    },
     or(...__expressions__) {
         const expressions = type_1.isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
         return new logic_1.LogicCommand(logic_1.LOGIC_COMMANDS_LITERAL.OR, expressions);
@@ -72,7 +76,8 @@ exports.Command = {
         const values = type_1.isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
         return new update_1.UpdateCommand(update_1.UPDATE_COMMANDS_LITERAL.UNSHIFT, values);
     },
-    aggregate: {}
+    aggregate: {},
+    project: {}
 };
 const pipelineOperators = [
     'abs',
@@ -176,6 +181,18 @@ pipelineOperators.forEach(op => {
         apiName = 'neq';
     }
     exports.Command.aggregate[apiName] = function (param) {
+        return {
+            [`$${op}`]: param
+        };
+    };
+});
+const projectionOperators = [
+    'slice',
+    'elemMatch'
+];
+projectionOperators.forEach(op => {
+    let apiName = op;
+    exports.Command.project[apiName] = function (param) {
         return {
             [`$${op}`]: param
         };

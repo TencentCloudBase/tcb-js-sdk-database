@@ -15,6 +15,7 @@ export declare const Command: {
     geoWithin(val: any): QueryCommand;
     geoIntersects(val: any): QueryCommand;
     and(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
+    nor(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
     or(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
     set(val: any): UpdateCommand;
     remove(): UpdateCommand;
@@ -25,5 +26,6 @@ export declare const Command: {
     shift(): UpdateCommand;
     unshift(...__values__: any[]): UpdateCommand;
     aggregate: {};
+    project: {};
 };
 export default Command;

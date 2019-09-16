@@ -390,10 +390,12 @@ export class Query {
    *
    * @param projection
    */
-  public field(projection: Object): Query {
+  public field(projection: any): Query {
     for (let k in projection) {
       if (projection[k]) {
-        projection[k] = 1
+        if (typeof projection !== 'object') {
+          projection[k] = 1
+        }
       } else {
         projection[k] = 0
       }

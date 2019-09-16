@@ -16,7 +16,7 @@ export declare class Query {
     limit(limit: number): Query;
     skip(offset: number): Query;
     update(data: Object, callback?: any): Promise<any>;
-    field(projection: Object): Query;
+    field(projection: any): Query;
     remove(callback?: any): any;
     watch: (options: DB.IWatchOptions) => DB.RealtimeListener;
 }
