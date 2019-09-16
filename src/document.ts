@@ -148,7 +148,6 @@ export class DocumentReference {
       }
     }
     checkMixed(data)
-    // console.log('hasOperator', hasOperator)
 
     if (hasOperator) {
       //不能包含操作符
@@ -158,7 +157,6 @@ export class DocumentReference {
       })
     }
 
-    // console.log(data, JSON.stringify(data))
     const merge = false //data不能带有操作符
     let param = {
       collectionName: this._coll,
