@@ -173,7 +173,7 @@ class Query {
     field(projection) {
         for (let k in projection) {
             if (projection[k]) {
-                if (typeof projection !== 'object') {
+                if (typeof projection[k] !== 'object') {
                     projection[k] = 1;
                 }
             }

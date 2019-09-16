@@ -393,7 +393,7 @@ export class Query {
   public field(projection: any): Query {
     for (let k in projection) {
       if (projection[k]) {
-        if (typeof projection !== 'object') {
+        if (typeof projection[k] !== 'object') {
           projection[k] = 1
         }
       } else {
