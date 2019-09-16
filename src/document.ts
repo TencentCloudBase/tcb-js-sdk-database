@@ -7,7 +7,6 @@ import { UpdateCommand } from './commands/update'
 import { DB } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 
-
 /**
  * 文档模块
  *
@@ -17,36 +16,35 @@ export class DocumentReference {
   /**
    * 文档ID
    */
-  readonly id: string;
+  readonly id: string | number
 
   /**
    *
    */
-  readonly projection: Object;
+  readonly projection: Object
 
   /**
    * 数据库引用
    *
    * @internal
    */
-  private _db: Db;
+  private _db: Db
 
   /**
    * 集合名称
    *
    * @internal
    */
-  readonly _coll: string;
+  readonly _coll: string
 
   /**
    * Request 实例
    *
    * @internal
    */
-  private request: any;
+  private request: any
 
   private _getAccessToken: Function
-
 
   /**
    * 初始化
@@ -57,7 +55,7 @@ export class DocumentReference {
    * @param coll  - 集合名称
    * @param docID - 文档ID
    */
-  constructor(db: Db, coll: string, docID: string, projection = {}) {
+  constructor(db: Db, coll: string, docID: string | number, projection = {}) {
     this._db = db
     this._coll = coll
     this.id = docID
@@ -328,7 +326,6 @@ export class DocumentReference {
     return new DocumentReference(this._db, this._coll, this.id, projection)
   }
 
-
   /**
    * 监听单个文档
    */
@@ -352,10 +349,9 @@ export class DocumentReference {
       envId: this._db.config.env,
       collectionName: this._coll,
       query: JSON.stringify({
-        _id: this.id,
+        _id: this.id
       })
     })
     // })
   }
-
 }

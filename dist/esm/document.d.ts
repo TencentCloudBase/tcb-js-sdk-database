@@ -1,6 +1,6 @@
 import { DB } from './typings/index';
 export declare class DocumentReference {
-    readonly id: string;
+    readonly id: string | number;
     readonly projection: Object;
     private _getAccessToken;
     set(data: Object, callback?: any): Promise<any>;

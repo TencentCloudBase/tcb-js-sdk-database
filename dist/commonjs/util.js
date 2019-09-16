@@ -5,7 +5,6 @@ const index_1 = require("./geo/index");
 const index_2 = require("./serverDate/index");
 class Util {
 }
-exports.Util = Util;
 Util.formatResDocumentData = (documents) => {
     return documents.map(document => {
         return Util.formatField(document);
@@ -109,3 +108,4 @@ Util.generateDocId = () => {
     }
     return autoId;
 };
+exports.Util = Util;

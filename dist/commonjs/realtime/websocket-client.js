@@ -544,7 +544,7 @@ class RealtimeWebSocketClient {
         if (!this._ws && !this._wsInitPromise) {
             this.initWebSocketConnection(false);
         }
-        const virtualClient = new virtual_websocket_client_1.VirtualWebSocketClient(Object.assign(Object.assign({}, options), { send: this.send, login: this.webLogin, isWSConnected: this.isWSConnected, onceWSConnected: this.onceWSConnected, getWaitExpectedTimeoutLength: this.getWaitExpectedTimeoutLength, onWatchStart: this.onWatchStart, onWatchClose: this.onWatchClose, debug: true }));
+        const virtualClient = new virtual_websocket_client_1.VirtualWebSocketClient(Object.assign({}, options, { send: this.send, login: this.webLogin, isWSConnected: this.isWSConnected, onceWSConnected: this.onceWSConnected, getWaitExpectedTimeoutLength: this.getWaitExpectedTimeoutLength, onWatchStart: this.onWatchStart, onWatchClose: this.onWatchClose, debug: true }));
         this._virtualWSClient.add(virtualClient);
         this._watchIdClientMap.set(virtualClient.watchId, virtualClient);
         return virtualClient.listener;

@@ -11,10 +11,13 @@ class CollectionReference extends query_1.Query {
         return this._coll;
     }
     doc(docID) {
+        if (typeof docID !== 'string' && typeof docID !== 'number') {
+            throw new Error('docId必须为字符串或数字');
+        }
         return new document_1.DocumentReference(this._db, this._coll, docID);
     }
     add(data, callback) {
-        let docRef = this.doc();
+        let docRef = new document_1.DocumentReference(this._db, this._coll, undefined);
         return docRef.create(data, callback);
     }
     aggregate() {
