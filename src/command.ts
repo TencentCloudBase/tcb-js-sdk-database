@@ -2,6 +2,7 @@ import { QueryCommand, QUERY_COMMANDS_LITERAL } from './commands/query'
 import { LogicCommand, LOGIC_COMMANDS_LITERAL } from './commands/logic'
 import { UpdateCommand, UPDATE_COMMANDS_LITERAL } from './commands/update'
 import { isArray } from './utils/type'
+import Aggregation from './aggregate'
 
 
 
@@ -39,6 +40,26 @@ export const Command = {
 
   nin(val: any) {
     return new QueryCommand(QUERY_COMMANDS_LITERAL.NIN, val)
+  },
+
+  all(val: any) {
+    return new QueryCommand(QUERY_COMMANDS_LITERAL.ALL, val)
+  },
+
+  elemMatch(val: any) {
+    return new QueryCommand(QUERY_COMMANDS_LITERAL.ELEM_MATCH, [val])
+  },
+
+  exists(val: boolean) {
+    return new QueryCommand(QUERY_COMMANDS_LITERAL.EXISTS, [val])
+  },
+
+  size(val: number) {
+    return new QueryCommand(QUERY_COMMANDS_LITERAL.SIZE, [val])
+  },
+
+  mod(val: number[]) {
+    return new QueryCommand(QUERY_COMMANDS_LITERAL.MOD, [val])
   },
 
   geoNear(val: any) {
@@ -84,9 +105,17 @@ export const Command = {
     return new UpdateCommand(UPDATE_COMMANDS_LITERAL.MUL, [val])
   },
 
-  push(...__values__: any[]) {
-    const values = isArray(arguments[0]) ? arguments[0] : Array.from(arguments)
+  push(...args) {
+    const values = isArray(args[0]) ? args[0] : Array.from(args)
     return new UpdateCommand(UPDATE_COMMANDS_LITERAL.PUSH, values)
+  },
+
+  pull(values) {
+    return new UpdateCommand(UPDATE_COMMANDS_LITERAL.PULL, values)
+  },
+
+  pullAll(values) {
+    return new UpdateCommand(UPDATE_COMMANDS_LITERAL.PULL_ALL, values)
   },
 
   pop() {
@@ -102,163 +131,173 @@ export const Command = {
     return new UpdateCommand(UPDATE_COMMANDS_LITERAL.UNSHIFT, values)
   },
 
-  aggregate: {},
+  addToSet(values) {
+    return new UpdateCommand(UPDATE_COMMANDS_LITERAL.ADD_TO_SET, values)
+  },
 
-  project: {}
+  rename(values) {
+    return new UpdateCommand(UPDATE_COMMANDS_LITERAL.RENAME, [values])
+  },
+
+  bit(values) {
+    return new UpdateCommand(UPDATE_COMMANDS_LITERAL.BIT, [values])
+  },
+
+  max(values) {
+    return new UpdateCommand(UPDATE_COMMANDS_LITERAL.MAX, [values])
+  },
+
+  min(values) {
+    return new UpdateCommand(UPDATE_COMMANDS_LITERAL.MIN, [values])
+  },
+
+  aggregate: {
+    pipeline() {
+      return new Aggregation()
+    },
+
+    // https://docs.mongodb.com/manual/reference/operator/aggregation/
+    // 算数操作符（15个）
+    abs: (param) => new AggregationOperator('abs', param),
+    add: (param) => new AggregationOperator('add', param),
+    ceil: (param) => new AggregationOperator('ceil', param),
+    divide: (param) => new AggregationOperator('divide', param),
+    exp: (param) => new AggregationOperator('exp', param),
+    floor: (param) => new AggregationOperator('floor', param),
+    ln: (param) => new AggregationOperator('ln', param),
+    log: (param) => new AggregationOperator('log', param),
+    log10: (param) => new AggregationOperator('log10', param),
+    mod: (param) => new AggregationOperator('mod', param),
+    multiply: (param) => new AggregationOperator('multiply', param),
+    pow: (param) => new AggregationOperator('pow', param),
+    sqrt: (param) => new AggregationOperator('sqrt', param),
+    subtract: (param) => new AggregationOperator('subtract', param),
+    trunc: (param) => new AggregationOperator('trunc', param),
+
+    // 数组操作符（15个）
+    arrayElemAt: (param) => new AggregationOperator('arrayElemAt', param),
+    arrayToObject: (param) => new AggregationOperator('arrayToObject', param),
+    concatArrays: (param) => new AggregationOperator('concatArrays', param),
+    filter: (param) => new AggregationOperator('filter', param),
+    in: (param) => new AggregationOperator('in', param),
+    indexOfArray: (param) => new AggregationOperator('indexOfArray', param),
+    isArray: (param) => new AggregationOperator('isArray', param),
+    map: (param) => new AggregationOperator('map', param),
+    range: (param) => new AggregationOperator('range', param),
+    reduce: (param) => new AggregationOperator('reduce', param),
+    reverseArray: (param) => new AggregationOperator('reverseArray', param),
+    size: (param) => new AggregationOperator('size', param),
+    slice: (param) => new AggregationOperator('slice', param),
+    zip: (param) => new AggregationOperator('zip', param),
+
+    //布尔操作符（3个）
+    and: (param) => new AggregationOperator('and', param),
+    not: (param) => new AggregationOperator('not', param),
+    or: (param) => new AggregationOperator('or', param),
+
+    // 比较操作符（7个）
+    cmp: (param) => new AggregationOperator('cmp', param),
+    eq: (param) => new AggregationOperator('eq', param),
+    gt: (param) => new AggregationOperator('gt', param),
+    gte: (param) => new AggregationOperator('gte', param),
+    lt: (param) => new AggregationOperator('lt', param),
+    lte: (param) => new AggregationOperator('lte', param),
+    ne: (param) => new AggregationOperator('neq', param), // neq?
+
+    // 条件操作符（3个）
+    cond: (param) => new AggregationOperator('cond', param),
+    ifNull: (param) => new AggregationOperator('ifNull', param),
+    switch: (param) => new AggregationOperator('switch', param),
+
+    // 日期操作符（15个）
+    dateFromParts: (param) => new AggregationOperator('dateFromParts', param),
+    dateFromString: (param) => new AggregationOperator('dateFromString', param),
+    dayOfMonth: (param) => new AggregationOperator('dayOfMonth', param),
+    dayOfWeek: (param) => new AggregationOperator('dayOfWeek', param),
+    dayOfYear: (param) => new AggregationOperator('dayOfYear', param),
+    isoDayOfWeek: (param) => new AggregationOperator('isoDayOfWeek', param),
+    isoWeek: (param) => new AggregationOperator('isoWeek', param),
+    isoWeekYear: (param) => new AggregationOperator('isoWeekYear', param),
+    millisecond: (param) => new AggregationOperator('millisecond', param),
+    minute: (param) => new AggregationOperator('minute', param),
+    month: (param) => new AggregationOperator('month', param),
+    second: (param) => new AggregationOperator('second', param),
+    hour: (param) => new AggregationOperator('hour', param),
+    // 'toDate', 4.0才有
+    week: (param) => new AggregationOperator('week', param),
+    year: (param) => new AggregationOperator('year', param),
+
+    // 字面操作符
+    literal: (param) => new AggregationOperator('literal', param),
+
+    // 对象操作符
+    mergeObjects: (param) => new AggregationOperator('mergeObjects', param),
+    objectToArray: (param) => new AggregationOperator('objectToArray', param),
+
+    // 集合操作符（7个）
+    allElementsTrue: (param) => new AggregationOperator('allElementsTrue', param),
+    anyElementTrue: (param) => new AggregationOperator('anyElementTrue', param),
+    setDifference: (param) => new AggregationOperator('setDifference', param),
+    setEquals: (param) => new AggregationOperator('setEquals', param),
+    setIntersection: (param) => new AggregationOperator('setIntersection', param),
+    setIsSubset: (param) => new AggregationOperator('setIsSubset', param),
+    setUnion: (param) => new AggregationOperator('setUnion', param),
+
+    // 字符串操作符（13个）
+    concat: (param) => new AggregationOperator('concat', param),
+    dateToString: (param) => new AggregationOperator('dateToString', param),
+    indexOfBytes: (param) => new AggregationOperator('indexOfBytes', param),
+    indexOfCP: (param) => new AggregationOperator('indexOfCP', param),
+    // 'ltrim',
+    // 'rtrim',
+    split: (param) => new AggregationOperator('split', param),
+    strLenBytes: (param) => new AggregationOperator('strLenBytes', param),
+    strLenCP: (param) => new AggregationOperator('strLenCP', param),
+    strcasecmp: (param) => new AggregationOperator('strcasecmp', param),
+    substr: (param) => new AggregationOperator('substr', param),
+    substrBytes: (param) => new AggregationOperator('substrBytes', param),
+    substrCP: (param) => new AggregationOperator('substrCP', param),
+    toLower: (param) => new AggregationOperator('toLower', param),
+    // 'toString'
+    // 'trim'
+    toUpper: (param) => new AggregationOperator('toUpper', param),
+
+    // 文本操作符
+    meta: (param) => new AggregationOperator('meta', param),
+
+    // group操作符（10个）
+    addToSet: (param) => new AggregationOperator('addToSet', param),
+    avg: (param) => new AggregationOperator('avg', param),
+    first: (param) => new AggregationOperator('first', param),
+    last: (param) => new AggregationOperator('last', param),
+    max: (param) => new AggregationOperator('max', param),
+    min: (param) => new AggregationOperator('min', param),
+    push: (param) => new AggregationOperator('push', param),
+    stdDevPop: (param) => new AggregationOperator('stdDevPop', param),
+    stdDevSamp: (param) => new AggregationOperator('stdDevSamp', param),
+    sum: (param) => new AggregationOperator('sum', param),
+
+    // 变量声明操作符
+    let: (param) => new AggregationOperator('let', param)
+  },
+
+  project: {
+    slice: (param) => new ProjectionOperator('slice', param),
+    elemMatch: (param) => new ProjectionOperator('elemMatch', param)
+  }
 }
 
-
-const pipelineOperators = [
-  // https://docs.mongodb.com/manual/reference/operator/aggregation/
-  // 算数操作符（15个）
-  'abs',
-  'add',
-  'ceil',
-  'divide',
-  'exp',
-  'floor',
-  'ln',
-  'log',
-  'log10',
-  'mod',
-  'multiply',
-  'pow',
-  'sqrt',
-  'subtract',
-  'trunc',
-
-  // 数组操作符（15个）
-  'arrayElemAt',
-  'arrayToObject',
-  'concatArrays',
-  'filter',
-  'in',
-  'indexOfArray',
-  'isArray',
-  'map',
-  'objectToArray',
-  'range',
-  'reduce',
-  'reverseArray',
-  'size',
-  'slice',
-  'zip',
-
-  //布尔操作符（3个）
-  'and',
-  'not',
-  'or',
-
-  // 比较操作符（7个）
-  'cmp',
-  'eq',
-  'gt',
-  'gte',
-  'lt',
-  'lte',
-  'ne', // neq?
-
-  // 条件操作符（3个）
-  'cond',
-  'ifNull',
-  'switch',
-
-  // 日期操作符（15个）
-  'dayOfWeek',
-  'dateFromParts',
-  'dateFromString',
-  'dayOfMonth',
-  'dayOfWeek',
-  'dayOfYear',
-  'isoDayOfWeek',
-  'isoWeek',
-  'isoWeekYear',
-  'millisecond',
-  'minute',
-  'month',
-  'second',
-  'hour',
-  // 'toDate', 4.0才有
-  'week',
-  'year',
-
-  // 字面操作符
-  'literal',
-
-  // 对象操作符
-  'mergeObjects',
-  'objectToArray',
-
-  // 集合操作符（7个）
-  'allElementsTrue',
-  'anyElementTrue',
-  'setDifference',
-  'setEquals',
-  'setIntersection',
-  'setIsSubset',
-  'setUnion',
-
-  // 字符串操作符（13个）
-  'concat',
-  'dateToString',
-  'indexOfBytes',
-  'indexOfCP',
-  // 'ltrim',
-  // 'rtrim',
-  'split',
-  'strLenBytes',
-  'strLenCP',
-  'strcasecmp',
-  'substr',
-  'substrBytes',
-  'substrCP',
-  'toLower',
-  // 'toString'
-  // 'trim'
-  'toUpper',
-
-  // 文本操作符
-  'meta',
-
-  // group操作符（10个）
-  'addToSet',
-  'avg',
-  'first',
-  'last',
-  'max',
-  'min',
-  'push',
-  'stdDevPop',
-  'stdDevSamp',
-  'sum',
-
-  // 变量声明操作符
-  'let'
-]
-pipelineOperators.forEach(op => {
-  let apiName = op
-  if (op === 'ne') {
-    apiName = 'neq'
+class AggregationOperator {
+  constructor(name, param) {
+    this['$' + name] = param
   }
-  Command.aggregate[apiName] = function(param) {
-    return {
-      [`$${op}`]: param
-    }
-  }
-})
+}
 
-const projectionOperators = [
-  'slice',
-  'elemMatch'
-]
-projectionOperators.forEach(op => {
-  let apiName = op
-  Command.project[apiName] = function(param) {
-    return {
-      [`$${op}`]: param
-    }
+class ProjectionOperator {
+  constructor(name, param) {
+    this['$' + name] = param
   }
-})
+}
 
 export default Command
 

@@ -12,7 +12,7 @@ export type IQueryCondition = Record<string, any> | LogicCommand
 
 export class QuerySerializer {
 
-  private constructor() {
+  constructor() {
 
   }
 
@@ -86,16 +86,20 @@ class QueryEncoder {
     if (query.fieldName === SYMBOL_UNSET_FIELD_NAME) {
       throw new Error('Cannot encode a comparison command with unset field name')
     }
-
+  
     const $op = operatorToString(query.operator)
-
+  
     switch (query.operator) {
       case QUERY_COMMANDS_LITERAL.EQ:
       case QUERY_COMMANDS_LITERAL.NEQ:
       case QUERY_COMMANDS_LITERAL.LT:
       case QUERY_COMMANDS_LITERAL.LTE:
       case QUERY_COMMANDS_LITERAL.GT:
-      case QUERY_COMMANDS_LITERAL.GTE: {
+      case QUERY_COMMANDS_LITERAL.GTE:
+      case QUERY_COMMANDS_LITERAL.ELEM_MATCH:
+      case QUERY_COMMANDS_LITERAL.EXISTS:
+      case QUERY_COMMANDS_LITERAL.SIZE:
+      case QUERY_COMMANDS_LITERAL.MOD: {
         return {
           [query.fieldName as string]: {
             [$op]: encodeInternalDataType(query.operands[0]),
@@ -103,7 +107,8 @@ class QueryEncoder {
         }
       }
       case QUERY_COMMANDS_LITERAL.IN:
-      case QUERY_COMMANDS_LITERAL.NIN: {
+      case QUERY_COMMANDS_LITERAL.NIN:
+      case QUERY_COMMANDS_LITERAL.ALL: {
         return {
           [query.fieldName as string]: {
             [$op]: encodeInternalDataType(query.operands),

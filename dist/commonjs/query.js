@@ -22,7 +22,7 @@ class Query {
                     }
                 });
             }
-            return index_1.Db.ws.watch(Object.assign({}, options, { envId: this._db.config.env, collectionName: this._coll, query: JSON.stringify(this._fieldFilters) }));
+            return index_1.Db.ws.watch(Object.assign(Object.assign({}, options), { envId: this._db.config.env, collectionName: this._coll, query: JSON.stringify(this._fieldFilters) }));
         };
         this._db = db;
         this._coll = coll;

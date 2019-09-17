@@ -9,6 +9,11 @@ export declare const LT = "lt";
 export declare const LTE = "lte";
 export declare const IN = "in";
 export declare const NIN = "nin";
+export declare const ALL = "all";
+export declare const ELEM_MATCH = "elemMatch";
+export declare const EXISTS = "exists";
+export declare const SIZE = "size";
+export declare const MOD = "mod";
 export declare enum QUERY_COMMANDS_LITERAL {
     EQ = "eq",
     NEQ = "neq",
@@ -18,13 +23,21 @@ export declare enum QUERY_COMMANDS_LITERAL {
     LTE = "lte",
     IN = "in",
     NIN = "nin",
+    ALL = "all",
+    ELEM_MATCH = "elemMatch",
+    EXISTS = "exists",
+    SIZE = "size",
+    MOD = "mod",
     GEO_NEAR = "geoNear",
     GEO_WITHIN = "geoWithin",
     GEO_INTERSECTS = "geoIntersects"
 }
 export declare class QueryCommand extends LogicCommand {
     operator: QUERY_COMMANDS_LITERAL;
-    constructor(operator: QUERY_COMMANDS_LITERAL, operands: any[], fieldName?: string | InternalSymbol);
+    constructor(operator: QUERY_COMMANDS_LITERAL, operands: any, fieldName?: string | InternalSymbol);
+    toJSON(): {
+        [x: string]: any;
+    };
     _setFieldName(fieldName: string): QueryCommand;
     eq(val: any): LogicCommand;
     neq(val: any): LogicCommand;

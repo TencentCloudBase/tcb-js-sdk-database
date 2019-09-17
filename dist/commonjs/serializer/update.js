@@ -28,16 +28,13 @@ class UpdateSerializer {
             throw new Error('Cannot encode a comparison command with unset field name');
         }
         switch (query.operator) {
-            case update_1.UPDATE_COMMANDS_LITERAL.SET:
-            case update_1.UPDATE_COMMANDS_LITERAL.REMOVE:
-            case update_1.UPDATE_COMMANDS_LITERAL.INC:
-            case update_1.UPDATE_COMMANDS_LITERAL.MUL: {
-                return this.encodeFieldUpdateCommand(query);
-            }
             case update_1.UPDATE_COMMANDS_LITERAL.PUSH:
+            case update_1.UPDATE_COMMANDS_LITERAL.PULL:
+            case update_1.UPDATE_COMMANDS_LITERAL.PULL_ALL:
             case update_1.UPDATE_COMMANDS_LITERAL.POP:
             case update_1.UPDATE_COMMANDS_LITERAL.SHIFT:
-            case update_1.UPDATE_COMMANDS_LITERAL.UNSHIFT: {
+            case update_1.UPDATE_COMMANDS_LITERAL.UNSHIFT:
+            case update_1.UPDATE_COMMANDS_LITERAL.ADD_TO_SET: {
                 return this.encodeArrayUpdateCommand(query);
             }
             default: {
@@ -55,9 +52,6 @@ class UpdateSerializer {
                     },
                 };
             }
-            case update_1.UPDATE_COMMANDS_LITERAL.SET:
-            case update_1.UPDATE_COMMANDS_LITERAL.INC:
-            case update_1.UPDATE_COMMANDS_LITERAL.MUL:
             default: {
                 return {
                     [$op]: {

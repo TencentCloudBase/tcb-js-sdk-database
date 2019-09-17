@@ -1,33 +1,31 @@
 import { InternalSymbol, SYMBOL_UNSET_FIELD_NAME, SYMBOL_UPDATE_COMMAND } from '../helper/symbol'
 
-export const SET = 'set'
-export const REMOVE = 'remove'
-export const INC = 'inc'
-export const MUL = 'mul'
-export const PUSH = 'push'
-export const POP = 'pop'
-export const SHIFT = 'shift'
-export const UNSHIFT = 'unshift'
-
 export enum UPDATE_COMMANDS_LITERAL {
   SET = 'set',
   REMOVE = 'remove',
   INC = 'inc',
   MUL = 'mul',
   PUSH = 'push',
+  PULL = 'pull',
+  PULL_ALL = 'pullAll',
   POP = 'pop',
   SHIFT = 'shift',
   UNSHIFT = 'unshift',
+  ADD_TO_SET = 'addToSet',
+  BIT = 'bit',
+  RENAME = 'rename',
+  MAX = 'max',
+  MIN = 'min'
 }
 
 export class UpdateCommand {
 
   public fieldName: string | InternalSymbol
   public operator: UPDATE_COMMANDS_LITERAL
-  public operands: any[]
+  public operands: any
   public _internalType = SYMBOL_UPDATE_COMMAND
 
-  constructor(operator: UPDATE_COMMANDS_LITERAL, operands: any[], fieldName?: string | InternalSymbol) {
+  constructor(operator: UPDATE_COMMANDS_LITERAL, operands?: any, fieldName?: string | InternalSymbol) {
 
     Object.defineProperties(this, {
       _internalType: {

@@ -51,7 +51,7 @@ class Transaction {
         const res = await this._request.send(UPDATE_DOC, param);
         if (res.code)
             throw res;
-        return Object.assign({}, res, { updated: bson_1.EJSON.parse(res.updated), upserted: res.upserted
+        return Object.assign(Object.assign({}, res), { updated: bson_1.EJSON.parse(res.updated), upserted: res.upserted
                 ? JSON.parse(res.upserted)
                 : null });
     }
@@ -69,7 +69,7 @@ class Transaction {
         const res = await this._request.send(UPDATE_DOC, param);
         if (res.code)
             throw res;
-        return Object.assign({}, res, { updated: bson_1.EJSON.parse(res.updated) });
+        return Object.assign(Object.assign({}, res), { updated: bson_1.EJSON.parse(res.updated) });
     }
     async delete(documentRef) {
         const param = {
@@ -80,7 +80,7 @@ class Transaction {
         const res = await this._request.send(DELETE_DOC, param);
         if (res.code)
             throw res;
-        return Object.assign({}, res, { deleted: bson_1.EJSON.parse(res.deleted) });
+        return Object.assign(Object.assign({}, res), { deleted: bson_1.EJSON.parse(res.deleted) });
     }
     async commit() {
         const param = {
