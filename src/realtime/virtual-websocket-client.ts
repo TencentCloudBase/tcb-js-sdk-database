@@ -30,11 +30,11 @@ import { RealtimeListener } from './listener'
 import { Snapshot } from './snapshot'
 import { IWSSendOptions, ILoginResult } from './websocket-client'
 import { isRealtimeErrorMessageError, RealtimeErrorMessageError } from './error'
-import { DB } from '../typings/index'
+import { IWatchOptions, ISingleDBEvent } from '../typings/index'
 
 // =============== Realtime Virtual WebSocket Client (Internal) ====================
 
-interface IVirtualWebSocketClientConstructorOptions extends DB.IWatchOptions {
+interface IVirtualWebSocketClientConstructorOptions extends IWatchOptions {
   // ws: RealtimeWebSocketClient
   envId?: string
   collectionName: string
@@ -657,7 +657,7 @@ export class VirtualWebSocketClient {
 
     const sessionInfo = this.sessionInfo
 
-    let allChangeEvents: DB.ISingleDBEvent[]
+    let allChangeEvents: ISingleDBEvent[]
     try {
       allChangeEvents = events.map(getPublicEvent)
     } catch (e) {
@@ -1129,8 +1129,8 @@ export class VirtualWebSocketClient {
   }
 }
 
-function getPublicEvent(event: IDBEvent): DB.ISingleDBEvent {
-  const e: DB.ISingleDBEvent = {
+function getPublicEvent(event: IDBEvent): ISingleDBEvent {
+  const e: ISingleDBEvent = {
     id: event.ID,
     dataType: event.DataType,
     queueType: event.QueueType,

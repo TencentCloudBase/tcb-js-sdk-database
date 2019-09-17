@@ -4,7 +4,7 @@ import { Util } from './util'
 import { UpdateSerializer } from './serializer/update'
 import { serialize } from './serializer/datatype'
 import { UpdateCommand } from './commands/update'
-import { DB } from './typings/index'
+import { IWatchOptions, DBRealtimeListener } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 
 /**
@@ -329,7 +329,7 @@ export class DocumentReference {
   /**
    * 监听单个文档
    */
-  watch = (options: DB.IWatchOptions): DB.RealtimeListener => {
+  watch = (options: IWatchOptions): DBRealtimeListener => {
     // this._getAccessToken((accessToken, envId) => {
     if (!Db.ws) {
       Db.ws = new RealtimeWebSocketClient({

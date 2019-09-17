@@ -1,10 +1,12 @@
 import { VirtualWebSocketClient } from './virtual-websocket-client'
-import { DB } from '../typings/index'
+import {
+  IRealtimeListenerConstructorOptions,
+  DBRealtimeListener
+} from '../typings/index'
 
 // =============== Realtime Listener (Public) ====================
 
-interface IRealtimeListenerConstructorOptions
-  extends DB.IRealtimeListenerConstructorOptions {
+interface IRealtimeListenerOptions extends IRealtimeListenerConstructorOptions {
   // init
   close: () => void
   // debug
@@ -12,12 +14,12 @@ interface IRealtimeListenerConstructorOptions
   virtualClient?: VirtualWebSocketClient
 }
 
-export class RealtimeListener implements DB.RealtimeListener {
+export class RealtimeListener implements DBRealtimeListener {
   close: () => void
   onChange: (res: any) => void
   onError: (error: any) => void
 
-  constructor(options: IRealtimeListenerConstructorOptions) {
+  constructor(options: IRealtimeListenerOptions) {
     this.close = options.close
     this.onChange = options.onChange
     this.onError = options.onError

@@ -1,5 +1,5 @@
 import { OrderByDirection } from './constant';
-import { DB } from './typings/index';
+import { IWatchOptions, DBRealtimeListener } from './typings/index';
 interface GetRes {
     data: any[];
     requestId: string;
@@ -18,6 +18,6 @@ export declare class Query {
     update(data: Object, callback?: any): Promise<any>;
     field(projection: any): Query;
     remove(callback?: any): any;
-    watch: (options: DB.IWatchOptions) => DB.RealtimeListener;
+    watch: (options: IWatchOptions) => DBRealtimeListener;
 }
 export {};

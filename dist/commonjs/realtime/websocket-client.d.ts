@@ -1,11 +1,11 @@
 import { VirtualWebSocketClient } from './virtual-websocket-client';
-import { DB } from '../typings/index';
+import { IDatabaseServiceContext, IWatchOptions, DBRealtimeListener } from '../typings/index';
 import { IRequestMessage } from '../typings/realtime';
 import { CLOSE_EVENT_CODE } from './ws-event';
 export interface IRealtimeWebSocketClientConstructorOptions {
     maxReconnect?: number;
     reconnectInterval?: number;
-    context: DB.IDatabaseServiceContext;
+    context: IDatabaseServiceContext;
 }
 export interface ISignature {
     envId: string;
@@ -29,7 +29,7 @@ export interface IWSSendOptions {
     skipOnMessage?: boolean;
     timeout?: number;
 }
-export interface IWSWatchOptions extends DB.IWatchOptions {
+export interface IWSWatchOptions extends IWatchOptions {
     envId?: string;
     collectionName: string;
     query: string;
@@ -71,5 +71,5 @@ export declare class RealtimeWebSocketClient {
     resumeClients: (clients?: Set<VirtualWebSocketClient>) => void;
     private onWatchStart;
     private onWatchClose;
-    watch(options: IWSWatchOptions): DB.RealtimeListener;
+    watch(options: IWSWatchOptions): DBRealtimeListener;
 }

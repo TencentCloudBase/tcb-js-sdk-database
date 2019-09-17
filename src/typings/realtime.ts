@@ -1,4 +1,4 @@
-import { DB } from '.'
+import { DataType, QueueType } from './index'
 
 export type IRequestMsgType =
   | 'LOGIN' // 鉴权（环境维度）
@@ -102,6 +102,7 @@ export interface IRequestMessagePingMsg extends IRequestMessageBase<false> {
 }
 
 // export interface IResponseMessageBase {
+
 export interface IResponseMessageBase<W extends boolean = true> {
   watchId: W extends true ? string : undefined
   // watchId: string
@@ -196,8 +197,8 @@ export type IDBEvent = IDBInitEvent | IDBNextEvent
 
 export interface IDBEventBase {
   ID: number // event id
-  DataType: DB.DataType
-  QueueType: DB.QueueType
+  DataType: DataType
+  QueueType: QueueType
   DocID: string
   Doc: string
 }

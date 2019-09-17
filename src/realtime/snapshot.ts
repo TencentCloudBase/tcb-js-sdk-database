@@ -1,19 +1,19 @@
-import { DB } from '../typings/index'
+import { ISingleDBEvent, SnapshotType, ISnapshot } from '../typings/index'
 
 // =============== Realtime Snapshot / Change Event (Public) ====================
 
 interface ISnapshotConstructorOptions {
   id: number
-  docChanges: DB.ISingleDBEvent[]
+  docChanges: ISingleDBEvent[]
   docs: Record<string, any>[]
-  type?: DB.SnapshotType
+  type?: SnapshotType
   // EJSON: any
   msgType?: String
 }
 
-export class Snapshot implements DB.ISnapshot {
+export class Snapshot implements ISnapshot {
   id!: number
-  docChanges!: DB.ISingleDBEvent[]
+  docChanges!: ISingleDBEvent[]
   docs!: Record<string, any>[]
   type?: 'init'
   // EJSON: any
@@ -21,7 +21,7 @@ export class Snapshot implements DB.ISnapshot {
   constructor(options: ISnapshotConstructorOptions) {
     const { id, docChanges, docs, msgType, type } = options
 
-    let cachedDocChanges: DB.ISingleDBEvent[]
+    let cachedDocChanges: ISingleDBEvent[]
     let cachedDocs: Record<string, any>[]
 
     Object.defineProperties(this, {
