@@ -1,12 +1,4 @@
 import { SYMBOL_UNSET_FIELD_NAME, SYMBOL_UPDATE_COMMAND } from '../helper/symbol';
-export const SET = 'set';
-export const REMOVE = 'remove';
-export const INC = 'inc';
-export const MUL = 'mul';
-export const PUSH = 'push';
-export const POP = 'pop';
-export const SHIFT = 'shift';
-export const UNSHIFT = 'unshift';
 export var UPDATE_COMMANDS_LITERAL;
 (function (UPDATE_COMMANDS_LITERAL) {
     UPDATE_COMMANDS_LITERAL["SET"] = "set";
@@ -14,9 +6,16 @@ export var UPDATE_COMMANDS_LITERAL;
     UPDATE_COMMANDS_LITERAL["INC"] = "inc";
     UPDATE_COMMANDS_LITERAL["MUL"] = "mul";
     UPDATE_COMMANDS_LITERAL["PUSH"] = "push";
+    UPDATE_COMMANDS_LITERAL["PULL"] = "pull";
+    UPDATE_COMMANDS_LITERAL["PULL_ALL"] = "pullAll";
     UPDATE_COMMANDS_LITERAL["POP"] = "pop";
     UPDATE_COMMANDS_LITERAL["SHIFT"] = "shift";
     UPDATE_COMMANDS_LITERAL["UNSHIFT"] = "unshift";
+    UPDATE_COMMANDS_LITERAL["ADD_TO_SET"] = "addToSet";
+    UPDATE_COMMANDS_LITERAL["BIT"] = "bit";
+    UPDATE_COMMANDS_LITERAL["RENAME"] = "rename";
+    UPDATE_COMMANDS_LITERAL["MAX"] = "max";
+    UPDATE_COMMANDS_LITERAL["MIN"] = "min";
 })(UPDATE_COMMANDS_LITERAL || (UPDATE_COMMANDS_LITERAL = {}));
 export class UpdateCommand {
     constructor(operator, operands, fieldName) {

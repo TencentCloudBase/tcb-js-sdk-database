@@ -24,12 +24,20 @@ export class LogicCommand {
         this.operands = operands;
         this.fieldName = fieldName || SYMBOL_UNSET_FIELD_NAME;
         if (this.fieldName !== SYMBOL_UNSET_FIELD_NAME) {
-            operands = operands.slice();
-            this.operands = operands;
-            for (let i = 0, len = operands.length; i < len; i++) {
-                const query = operands[i];
+            if (Array.isArray(operands)) {
+                operands = operands.slice();
+                this.operands = operands;
+                for (let i = 0, len = operands.length; i < len; i++) {
+                    const query = operands[i];
+                    if (isLogicCommand(query) || isQueryCommand(query)) {
+                        operands[i] = query._setFieldName(this.fieldName);
+                    }
+                }
+            }
+            else {
+                const query = operands;
                 if (isLogicCommand(query) || isQueryCommand(query)) {
-                    operands[i] = query._setFieldName(this.fieldName);
+                    operands = query._setFieldName(this.fieldName);
                 }
             }
         }

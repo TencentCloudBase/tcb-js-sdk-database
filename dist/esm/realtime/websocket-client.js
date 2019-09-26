@@ -468,11 +468,13 @@ export class RealtimeWebSocketClient {
             });
         };
         this.pauseClients = (clients) => {
+            ;
             (clients || this._virtualWSClient).forEach(client => {
                 client.pause();
             });
         };
         this.resumeClients = (clients) => {
+            ;
             (clients || this._virtualWSClient).forEach(client => {
                 client.resume();
             });

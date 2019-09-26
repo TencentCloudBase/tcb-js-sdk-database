@@ -1,4 +1,4 @@
-import { DB } from './typings/index';
+import { IWatchOptions, DBRealtimeListener } from './typings/index';
 export declare class DocumentReference {
     readonly id: string | number;
     readonly projection: Object;
@@ -8,5 +8,5 @@ export declare class DocumentReference {
     remove(callback?: any): Promise<any>;
     get(callback?: any): Promise<any>;
     field(projection: Object): DocumentReference;
-    watch: (options: DB.IWatchOptions) => DB.RealtimeListener;
+    watch: (options: IWatchOptions) => DBRealtimeListener;
 }

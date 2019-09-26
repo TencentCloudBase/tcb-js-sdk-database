@@ -1,14 +1,14 @@
-import { DB } from '../typings/index';
+import { ISingleDBEvent, SnapshotType, ISnapshot } from '../typings/index';
 interface ISnapshotConstructorOptions {
     id: number;
-    docChanges: DB.ISingleDBEvent[];
+    docChanges: ISingleDBEvent[];
     docs: Record<string, any>[];
-    type?: DB.SnapshotType;
+    type?: SnapshotType;
     msgType?: String;
 }
-export declare class Snapshot implements DB.ISnapshot {
+export declare class Snapshot implements ISnapshot {
     id: number;
-    docChanges: DB.ISingleDBEvent[];
+    docChanges: ISingleDBEvent[];
     docs: Record<string, any>[];
     type?: 'init';
     constructor(options: ISnapshotConstructorOptions);

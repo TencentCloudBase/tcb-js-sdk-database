@@ -6,13 +6,3 @@ export const autoCount = (domain = 'any') => {
     }
     return counters[domain]++;
 };
-let networkStatus;
-const networkOnlineSubscribers = [];
-export const onceNetworkOnline = () => new Promise(resolve => {
-    if (networkStatus && networkStatus.isConnected) {
-        resolve();
-    }
-    else {
-        networkOnlineSubscribers.push(resolve);
-    }
-});

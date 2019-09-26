@@ -21,7 +21,7 @@ export class DocumentReference {
                 });
             }
             return Db.ws.watch(Object.assign(Object.assign({}, options), { envId: this._db.config.env, collectionName: this._coll, query: JSON.stringify({
-                    _id: this.id,
+                    _id: this.id
                 }) }));
         };
         this._db = db;

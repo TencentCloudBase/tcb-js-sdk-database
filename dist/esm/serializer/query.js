@@ -81,7 +81,11 @@ class QueryEncoder {
             case QUERY_COMMANDS_LITERAL.LT:
             case QUERY_COMMANDS_LITERAL.LTE:
             case QUERY_COMMANDS_LITERAL.GT:
-            case QUERY_COMMANDS_LITERAL.GTE: {
+            case QUERY_COMMANDS_LITERAL.GTE:
+            case QUERY_COMMANDS_LITERAL.ELEM_MATCH:
+            case QUERY_COMMANDS_LITERAL.EXISTS:
+            case QUERY_COMMANDS_LITERAL.SIZE:
+            case QUERY_COMMANDS_LITERAL.MOD: {
                 return {
                     [query.fieldName]: {
                         [$op]: encodeInternalDataType(query.operands[0]),
@@ -89,7 +93,8 @@ class QueryEncoder {
                 };
             }
             case QUERY_COMMANDS_LITERAL.IN:
-            case QUERY_COMMANDS_LITERAL.NIN: {
+            case QUERY_COMMANDS_LITERAL.NIN:
+            case QUERY_COMMANDS_LITERAL.ALL: {
                 return {
                     [query.fieldName]: {
                         [$op]: encodeInternalDataType(query.operands),
