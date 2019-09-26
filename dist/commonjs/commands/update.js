@@ -1,14 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const symbol_1 = require("../helper/symbol");
-exports.SET = 'set';
-exports.REMOVE = 'remove';
-exports.INC = 'inc';
-exports.MUL = 'mul';
-exports.PUSH = 'push';
-exports.POP = 'pop';
-exports.SHIFT = 'shift';
-exports.UNSHIFT = 'unshift';
 var UPDATE_COMMANDS_LITERAL;
 (function (UPDATE_COMMANDS_LITERAL) {
     UPDATE_COMMANDS_LITERAL["SET"] = "set";
@@ -16,9 +8,16 @@ var UPDATE_COMMANDS_LITERAL;
     UPDATE_COMMANDS_LITERAL["INC"] = "inc";
     UPDATE_COMMANDS_LITERAL["MUL"] = "mul";
     UPDATE_COMMANDS_LITERAL["PUSH"] = "push";
+    UPDATE_COMMANDS_LITERAL["PULL"] = "pull";
+    UPDATE_COMMANDS_LITERAL["PULL_ALL"] = "pullAll";
     UPDATE_COMMANDS_LITERAL["POP"] = "pop";
     UPDATE_COMMANDS_LITERAL["SHIFT"] = "shift";
     UPDATE_COMMANDS_LITERAL["UNSHIFT"] = "unshift";
+    UPDATE_COMMANDS_LITERAL["ADD_TO_SET"] = "addToSet";
+    UPDATE_COMMANDS_LITERAL["BIT"] = "bit";
+    UPDATE_COMMANDS_LITERAL["RENAME"] = "rename";
+    UPDATE_COMMANDS_LITERAL["MAX"] = "max";
+    UPDATE_COMMANDS_LITERAL["MIN"] = "min";
 })(UPDATE_COMMANDS_LITERAL = exports.UPDATE_COMMANDS_LITERAL || (exports.UPDATE_COMMANDS_LITERAL = {}));
 class UpdateCommand {
     constructor(operator, operands, fieldName) {

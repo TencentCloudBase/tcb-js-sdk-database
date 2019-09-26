@@ -12,6 +12,11 @@ exports.LT = 'lt';
 exports.LTE = 'lte';
 exports.IN = 'in';
 exports.NIN = 'nin';
+exports.ALL = 'all';
+exports.ELEM_MATCH = 'elemMatch';
+exports.EXISTS = 'exists';
+exports.SIZE = 'size';
+exports.MOD = 'mod';
 var QUERY_COMMANDS_LITERAL;
 (function (QUERY_COMMANDS_LITERAL) {
     QUERY_COMMANDS_LITERAL["EQ"] = "eq";
@@ -22,6 +27,11 @@ var QUERY_COMMANDS_LITERAL;
     QUERY_COMMANDS_LITERAL["LTE"] = "lte";
     QUERY_COMMANDS_LITERAL["IN"] = "in";
     QUERY_COMMANDS_LITERAL["NIN"] = "nin";
+    QUERY_COMMANDS_LITERAL["ALL"] = "all";
+    QUERY_COMMANDS_LITERAL["ELEM_MATCH"] = "elemMatch";
+    QUERY_COMMANDS_LITERAL["EXISTS"] = "exists";
+    QUERY_COMMANDS_LITERAL["SIZE"] = "size";
+    QUERY_COMMANDS_LITERAL["MOD"] = "mod";
     QUERY_COMMANDS_LITERAL["GEO_NEAR"] = "geoNear";
     QUERY_COMMANDS_LITERAL["GEO_WITHIN"] = "geoWithin";
     QUERY_COMMANDS_LITERAL["GEO_INTERSECTS"] = "geoIntersects";
@@ -31,6 +41,19 @@ class QueryCommand extends logic_1.LogicCommand {
         super(operator, operands, fieldName);
         this.operator = operator;
         this._internalType = symbol_1.SYMBOL_QUERY_COMMAND;
+    }
+    toJSON() {
+        switch (this.operator) {
+            case QUERY_COMMANDS_LITERAL.IN:
+            case QUERY_COMMANDS_LITERAL.NIN:
+                return {
+                    ['$' + this.operator]: this.operands
+                };
+            default:
+                return {
+                    ['$' + this.operator]: this.operands[0]
+                };
+        }
     }
     _setFieldName(fieldName) {
         const command = new QueryCommand(this.operator, this.operands, fieldName);

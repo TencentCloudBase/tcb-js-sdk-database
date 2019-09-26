@@ -14,7 +14,7 @@ export declare class LogicCommand {
     operator: LOGIC_COMMANDS_LITERAL | string;
     operands: any[];
     _internalType: InternalSymbol;
-    constructor(operator: LOGIC_COMMANDS_LITERAL | string, operands: any[], fieldName?: string | InternalSymbol);
+    constructor(operator: LOGIC_COMMANDS_LITERAL | string, operands: any, fieldName?: string | InternalSymbol);
     _setFieldName(fieldName: string): LogicCommand;
     and(...__expressions__: LogicCommand[]): LogicCommand;
     or(...__expressions__: LogicCommand[]): LogicCommand;

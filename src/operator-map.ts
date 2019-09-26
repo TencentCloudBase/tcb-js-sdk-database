@@ -1,19 +1,20 @@
 import { QUERY_COMMANDS_LITERAL } from './commands/query'
 import { LOGIC_COMMANDS_LITERAL } from './commands/logic'
 import { UPDATE_COMMANDS_LITERAL } from './commands/update'
+import * as camelcase from 'camelcase'
 
 export const OperatorMap: { [key: string]: string } = {}
 
 for (const key in QUERY_COMMANDS_LITERAL) {
-  OperatorMap[key] = `$${key.toLowerCase()}`
+  OperatorMap[key] = '$' + camelcase(key)
 }
 
 for (const key in LOGIC_COMMANDS_LITERAL) {
-  OperatorMap[key] = `$${key.toLowerCase()}`
+  OperatorMap[key] = '$' + camelcase(key)
 }
 
 for (const key in UPDATE_COMMANDS_LITERAL) {
-  OperatorMap[key] = `$${key.toLowerCase()}`
+  OperatorMap[key] = '$' + camelcase(key)
 }
 
 // some exceptions
@@ -23,5 +24,5 @@ OperatorMap[UPDATE_COMMANDS_LITERAL.SHIFT] = '$pop' // same as POP
 OperatorMap[UPDATE_COMMANDS_LITERAL.UNSHIFT] = '$push' // same as PUSH
 
 export function operatorToString(operator: string): string {
-  return OperatorMap[operator] || `$${operator.toLowerCase()}`
+  return OperatorMap[operator] || ('$' + camelcase(operator))
 }

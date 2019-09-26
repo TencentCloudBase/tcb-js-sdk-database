@@ -20,7 +20,7 @@ export class LogicCommand {
   public operands: any[]
   public _internalType = SYMBOL_LOGIC_COMMAND
 
-  constructor(operator: LOGIC_COMMANDS_LITERAL | string, operands: any[], fieldName?: string | InternalSymbol) {
+  constructor(operator: LOGIC_COMMANDS_LITERAL | string, operands: any, fieldName?: string | InternalSymbol) {
 
     Object.defineProperties(this, {
       _internalType: {
@@ -34,14 +34,19 @@ export class LogicCommand {
     this.fieldName = fieldName || SYMBOL_UNSET_FIELD_NAME
 
     if (this.fieldName !== SYMBOL_UNSET_FIELD_NAME) {
-
-      operands = operands.slice()
-      this.operands = operands
-
-      for (let i = 0, len = operands.length; i < len; i++) {
-        const query = operands[i]
+      if (Array.isArray(operands)) {
+        operands = operands.slice()
+        this.operands = operands
+        for (let i = 0, len = operands.length; i < len; i++) {
+          const query = operands[i]
+          if (isLogicCommand(query) || isQueryCommand(query)) {
+            operands[i] = query._setFieldName(this.fieldName as string)
+          }
+        }
+      } else {
+        const query = operands
         if (isLogicCommand(query) || isQueryCommand(query)) {
-          operands[i] = query._setFieldName(this.fieldName as string)
+          operands = query._setFieldName(this.fieldName as string)
         }
       }
     }
