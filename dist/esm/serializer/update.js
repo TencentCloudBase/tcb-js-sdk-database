@@ -1,6 +1,6 @@
 import { UpdateCommand, isUpdateCommand, UPDATE_COMMANDS_LITERAL } from '../commands/update';
 import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol';
-import { getType, } from '../utils/type';
+import { getType, isArray } from '../utils/type';
 import { operatorToString } from '../operator-map';
 import { flattenQueryObject, encodeInternalDataType, mergeConditionAfterEncode } from './common';
 export class UpdateSerializer {
@@ -63,9 +63,13 @@ export class UpdateSerializer {
         const $op = operatorToString(query.operator);
         switch (query.operator) {
             case UPDATE_COMMANDS_LITERAL.PUSH: {
-                const modifiers = {
-                    $each: query.operands.map(encodeInternalDataType),
-                };
+                let modifiers;
+                if (isArray(query.operands)) {
+                    modifiers = query.operands.map(encodeInternalDataType);
+                }
+                else {
+                    modifiers = query.operands;
+                }
                 return {
                     [$op]: {
                         [query.fieldName]: modifiers,

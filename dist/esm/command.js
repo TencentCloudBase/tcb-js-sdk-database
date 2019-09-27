@@ -1,7 +1,7 @@
 import { QueryCommand, QUERY_COMMANDS_LITERAL } from './commands/query';
 import { LogicCommand, LOGIC_COMMANDS_LITERAL } from './commands/logic';
 import { UpdateCommand, UPDATE_COMMANDS_LITERAL } from './commands/update';
-import { isArray } from './utils/type';
+import { isArray, isObject } from './utils/type';
 import Aggregation from './aggregate';
 export const Command = {
     eq(val) {
@@ -77,7 +77,23 @@ export const Command = {
         return new UpdateCommand(UPDATE_COMMANDS_LITERAL.MUL, [val]);
     },
     push(...args) {
-        const values = isArray(args[0]) ? args[0] : Array.from(args);
+        let values;
+        if (isObject(args[0]) && args[0].hasOwnProperty('each')) {
+            const options = args[0];
+            values = {
+                $each: options.each,
+                $position: options.position,
+                $sort: options.sort,
+                $slice: options.slice
+            };
+        }
+        else if (isArray(args[0])) {
+            values = args[0];
+        }
+        else {
+            values = Array.from(args);
+        }
+        console.log(values);
         return new UpdateCommand(UPDATE_COMMANDS_LITERAL.PUSH, values);
     },
     pull(values) {
