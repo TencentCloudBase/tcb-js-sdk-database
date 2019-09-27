@@ -79,7 +79,23 @@ exports.Command = {
         return new update_1.UpdateCommand(update_1.UPDATE_COMMANDS_LITERAL.MUL, [val]);
     },
     push(...args) {
-        const values = type_1.isArray(args[0]) ? args[0] : Array.from(args);
+        let values;
+        if (type_1.isObject(args[0]) && args[0].hasOwnProperty('each')) {
+            const options = args[0];
+            values = {
+                $each: options.each,
+                $position: options.position,
+                $sort: options.sort,
+                $slice: options.slice
+            };
+        }
+        else if (type_1.isArray(args[0])) {
+            values = args[0];
+        }
+        else {
+            values = Array.from(args);
+        }
+        console.log(values);
         return new update_1.UpdateCommand(update_1.UPDATE_COMMANDS_LITERAL.PUSH, values);
     },
     pull(values) {

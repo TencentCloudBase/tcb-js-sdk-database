@@ -65,9 +65,13 @@ class UpdateSerializer {
         const $op = operator_map_1.operatorToString(query.operator);
         switch (query.operator) {
             case update_1.UPDATE_COMMANDS_LITERAL.PUSH: {
-                const modifiers = {
-                    $each: query.operands.map(common_1.encodeInternalDataType),
-                };
+                let modifiers;
+                if (type_1.isArray(query.operands)) {
+                    modifiers = query.operands.map(common_1.encodeInternalDataType);
+                }
+                else {
+                    modifiers = query.operands;
+                }
                 return {
                     [$op]: {
                         [query.fieldName]: modifiers,

@@ -3,7 +3,7 @@
 import { UpdateCommand, isUpdateCommand, UPDATE_COMMANDS_LITERAL } from '../commands/update'
 import { LogicCommand } from '../commands/logic'
 import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol'
-import { getType, } from '../utils/type'
+import { getType, isArray } from '../utils/type'
 import { operatorToString } from '../operator-map'
 import { flattenQueryObject, encodeInternalDataType, mergeConditionAfterEncode } from './common'
 export type IQueryCondition = Record<string, any> | LogicCommand
@@ -88,8 +88,11 @@ export class UpdateSerializer {
 
     switch (query.operator) {
       case UPDATE_COMMANDS_LITERAL.PUSH: {
-        const modifiers: IPushModifiers = {
-          $each: query.operands.map(encodeInternalDataType),
+        let modifiers
+        if (isArray(query.operands)) {
+          modifiers = query.operands.map(encodeInternalDataType)
+        } else {
+          modifiers = query.operands
         }
 
         return {
