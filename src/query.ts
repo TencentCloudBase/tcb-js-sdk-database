@@ -486,7 +486,12 @@ export class Query {
       ...options,
       envId: this._db.config.env,
       collectionName: this._coll,
-      query: JSON.stringify(this._fieldFilters)
+      query: JSON.stringify(this._fieldFilters),
+      limit: this._queryOptions.limit,
+      orderBy: this._fieldOrders ? this._fieldOrders.reduce<Record<string, string>>((acc, cur) => {
+        acc[cur.field] = cur.direction
+        return acc
+      }, {}) : undefined,
     })
     // })
   }

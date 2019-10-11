@@ -6,7 +6,7 @@
  * Database Watch
  */
 
-export type DataType = 'init' | 'update' | 'add' | 'remove' | 'replace'
+export type DataType = 'init' | 'update' | 'add' | 'remove' | 'replace' | 'limit'
 export type QueueType = 'init' | 'enqueue' | 'dequeue' | 'update'
 
 // TODO:

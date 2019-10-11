@@ -36,6 +36,8 @@ interface IVirtualWebSocketClientConstructorOptions extends IWatchOptions {
   envId?: string
   collectionName: string
   query: string
+  limit?: number
+  orderBy?: Record<string, string>
   send: <T = any>(opts: IWSSendOptions) => Promise<T>
   login: (envId?: string, refresh?: boolean) => Promise<any>
   isWSConnected: () => boolean
@@ -94,6 +96,8 @@ export class VirtualWebSocketClient {
   private envId?: string
   private collectionName: string
   private query: string
+  private limit: number
+  private orderBy: Record<string, string>
   private send: <T = any>(opts: IWSSendOptions) => Promise<T>
   private login: (envId?: string, refresh?: boolean) => Promise<any>
   private isWSConnected: () => boolean
@@ -128,6 +132,8 @@ export class VirtualWebSocketClient {
     this.envId = options.envId
     this.collectionName = options.collectionName
     this.query = options.query
+    this.limit = options.limit
+    this.orderBy = options.orderBy
     this.send = options.send
     this.login = options.login
     this.isWSConnected = options.isWSConnected
@@ -201,7 +207,9 @@ export class VirtualWebSocketClient {
             msgData: {
               envId,
               collName: this.collectionName,
-              query: this.query
+              query: this.query,
+              limit: this.limit,
+              orderBy: this.orderBy
             }
           }
 
@@ -805,6 +813,36 @@ export class VirtualWebSocketClient {
               //     )
               //   )} \n`
               // )
+            }
+            break
+          }
+          case 'limit': {
+            if (!change.doc) {
+              switch(change.queueType) {
+                case 'dequeue': {
+                  const doc = docs.find(doc => doc._id === change.docId)
+                  if (doc) {
+                    change.doc = doc
+                  } else {
+                    console.error(
+                      '[realtime listener] internal non-fatal server error: unexpected limit dataType event where no doc is associated.'
+                    )
+                  }
+                  break
+                }
+                case 'enqueue': {
+                  // doc is provided by server, this should never occur
+                  const err = new CloudSDKError({
+                    errCode: ERR_CODE.SDK_DATABASE_REALTIME_LISTENER_UNEXPECTED_FATAL_ERROR as string,
+                    errMsg: `HandleServerEvents: full doc is not provided with dataType="limit" and queueType="enqueue" (requestId ${msg.requestId})`
+                  })
+                  this.closeWithError(err)
+                  throw err
+                }
+                default: {
+                  break
+                }
+              }
             }
             break
           }

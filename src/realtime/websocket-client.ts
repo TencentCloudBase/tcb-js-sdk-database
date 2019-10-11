@@ -63,6 +63,8 @@ export interface IWSWatchOptions extends IWatchOptions {
   envId?: string
   collectionName: string
   query: string
+  limit?: number
+  orderBy?: Record<string, string>
 }
 
 interface IResolveReject {
