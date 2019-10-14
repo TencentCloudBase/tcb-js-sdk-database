@@ -121,7 +121,6 @@ export const Command = {
       values = Array.from(args)
     }
 
-    console.log(values)
     return new UpdateCommand(UPDATE_COMMANDS_LITERAL.PUSH, values)
   },
 

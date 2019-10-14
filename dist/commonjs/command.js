@@ -95,7 +95,6 @@ exports.Command = {
         else {
             values = Array.from(args);
         }
-        console.log(values);
         return new update_1.UpdateCommand(update_1.UPDATE_COMMANDS_LITERAL.PUSH, values);
     },
     pull(values) {

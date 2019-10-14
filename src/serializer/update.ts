@@ -90,7 +90,9 @@ export class UpdateSerializer {
       case UPDATE_COMMANDS_LITERAL.PUSH: {
         let modifiers
         if (isArray(query.operands)) {
-          modifiers = query.operands.map(encodeInternalDataType)
+          modifiers = {
+            $each: query.operands.map(encodeInternalDataType)
+          }
         } else {
           modifiers = query.operands
         }
