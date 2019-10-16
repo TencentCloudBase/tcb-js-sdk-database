@@ -93,7 +93,6 @@ export const Command = {
         else {
             values = Array.from(args);
         }
-        console.log(values);
         return new UpdateCommand(UPDATE_COMMANDS_LITERAL.PUSH, values);
     },
     pull(values) {
