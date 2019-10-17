@@ -20,10 +20,10 @@ export declare const Command: {
     geoNear(val: any): QueryCommand;
     geoWithin(val: any): QueryCommand;
     geoIntersects(val: any): QueryCommand;
-    and(...__expressions__: IQueryCondition[]): LogicCommand;
-    nor(...__expressions__: IQueryCondition[]): LogicCommand;
-    or(...__expressions__: IQueryCondition[]): LogicCommand;
-    not(...__expressions__: IQueryCondition[]): LogicCommand;
+    and(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
+    nor(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
+    or(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
+    not(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
     set(val: any): UpdateCommand;
     remove(): UpdateCommand;
     inc(val: number): UpdateCommand;
@@ -106,7 +106,7 @@ export declare const Command: {
         gte: (param: any) => AggregationOperator;
         lt: (param: any) => AggregationOperator;
         lte: (param: any) => AggregationOperator;
-        ne: (param: any) => AggregationOperator;
+        neq: (param: any) => AggregationOperator;
         cond: (param: any) => AggregationOperator;
         ifNull: (param: any) => AggregationOperator;
         switch: (param: any) => AggregationOperator;

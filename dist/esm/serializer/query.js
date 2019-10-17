@@ -1,7 +1,7 @@
 import { isQueryCommand, isComparisonCommand, QUERY_COMMANDS_LITERAL } from '../commands/query';
 import { isLogicCommand, LOGIC_COMMANDS_LITERAL } from '../commands/logic';
 import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol';
-import { getType, isObject, isArray } from '../utils/type';
+import { getType, isObject, isArray, isRegExp } from '../utils/type';
 import { operatorToString } from '../operator-map';
 import { flattenQueryObject, isConversionRequired, encodeInternalDataType } from './common';
 export class QuerySerializer {
@@ -34,6 +34,12 @@ class QueryEncoder {
             }
         }
     }
+    encodeRegExp(query) {
+        return {
+            $regex: query.source,
+            $options: query.flags,
+        };
+    }
     encodeLogicCommand(query) {
         switch (query.operator) {
             case LOGIC_COMMANDS_LITERAL.NOR:
@@ -44,6 +50,26 @@ class QueryEncoder {
                 return {
                     [$op]: subqueries,
                 };
+            }
+            case LOGIC_COMMANDS_LITERAL.NOT: {
+                console.log(query);
+                const $op = operatorToString(query.operator);
+                const operatorExpression = query.operands[0];
+                if (isRegExp(operatorExpression)) {
+                    return {
+                        [query.fieldName]: {
+                            [$op]: this.encodeRegExp(operatorExpression),
+                        }
+                    };
+                }
+                else {
+                    const subqueries = this.encodeQuery(operatorExpression)[query.fieldName];
+                    return {
+                        [query.fieldName]: {
+                            [$op]: subqueries,
+                        }
+                    };
+                }
             }
             default: {
                 const $op = operatorToString(query.operator);

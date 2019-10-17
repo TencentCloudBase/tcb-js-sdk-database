@@ -1,7 +1,7 @@
 import { QueryCommand, QUERY_COMMANDS_LITERAL } from './commands/query';
 import { LogicCommand, LOGIC_COMMANDS_LITERAL } from './commands/logic';
 import { UpdateCommand, UPDATE_COMMANDS_LITERAL } from './commands/update';
-import { isArray, isObject } from './utils/type';
+import { isArray, isObject, isString } from './utils/type';
 import Aggregation from './aggregate';
 export const Command = {
     eq(val) {
@@ -63,6 +63,10 @@ export const Command = {
     or(...__expressions__) {
         const expressions = isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
         return new LogicCommand(LOGIC_COMMANDS_LITERAL.OR, expressions);
+    },
+    not(...__expressions__) {
+        const expressions = isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
+        return new LogicCommand(LOGIC_COMMANDS_LITERAL.NOT, expressions);
     },
     set(val) {
         return new UpdateCommand(UPDATE_COMMANDS_LITERAL.SET, [val]);
@@ -126,6 +130,31 @@ export const Command = {
     min(values) {
         return new UpdateCommand(UPDATE_COMMANDS_LITERAL.MIN, [values]);
     },
+    expr(values) {
+        return {
+            $expr: values
+        };
+    },
+    jsonSchema(schema) {
+        return {
+            $jsonSchema: schema
+        };
+    },
+    text(values) {
+        if (isString(values)) {
+            return {
+                $search: values.search
+            };
+        }
+        else {
+            return {
+                $search: values.search,
+                $language: values.language,
+                $caseSensitive: values.caseSensitive,
+                $diacriticSensitive: values.diacriticSensitive
+            };
+        }
+    },
     aggregate: {
         pipeline() {
             return new Aggregation();
@@ -168,7 +197,7 @@ export const Command = {
         gte: (param) => new AggregationOperator('gte', param),
         lt: (param) => new AggregationOperator('lt', param),
         lte: (param) => new AggregationOperator('lte', param),
-        ne: (param) => new AggregationOperator('neq', param),
+        neq: (param) => new AggregationOperator('ne', param),
         cond: (param) => new AggregationOperator('cond', param),
         ifNull: (param) => new AggregationOperator('ifNull', param),
         switch: (param) => new AggregationOperator('switch', param),
