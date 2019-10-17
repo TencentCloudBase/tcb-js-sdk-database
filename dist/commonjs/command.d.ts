@@ -20,9 +20,10 @@ export declare const Command: {
     geoNear(val: any): QueryCommand;
     geoWithin(val: any): QueryCommand;
     geoIntersects(val: any): QueryCommand;
-    and(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
-    nor(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
-    or(...__expressions__: import("./serializer/datatype").IQueryCondition[]): LogicCommand;
+    and(...__expressions__: IQueryCondition[]): LogicCommand;
+    nor(...__expressions__: IQueryCondition[]): LogicCommand;
+    or(...__expressions__: IQueryCondition[]): LogicCommand;
+    not(...__expressions__: IQueryCondition[]): LogicCommand;
     set(val: any): UpdateCommand;
     remove(): UpdateCommand;
     inc(val: number): UpdateCommand;
@@ -38,6 +39,33 @@ export declare const Command: {
     bit(values: any): UpdateCommand;
     max(values: any): UpdateCommand;
     min(values: any): UpdateCommand;
+    expr(values: AggregationOperator): {
+        $expr: AggregationOperator;
+    };
+    jsonSchema(schema: any): {
+        $jsonSchema: any;
+    };
+    text(values: string | {
+        search: string;
+        language?: string;
+        caseSensitive?: boolean;
+        diacriticSensitive: boolean;
+    }): {
+        $search: {
+            (regexp: string | RegExp): number;
+            (searcher: {
+                [Symbol.search](string: string): number;
+            }): number;
+        };
+        $language?: undefined;
+        $caseSensitive?: undefined;
+        $diacriticSensitive?: undefined;
+    } | {
+        $search: string;
+        $language: string;
+        $caseSensitive: boolean;
+        $diacriticSensitive: boolean;
+    };
     aggregate: {
         pipeline(): Aggregation;
         abs: (param: any) => AggregationOperator;

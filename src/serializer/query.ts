@@ -2,7 +2,7 @@
 import { isQueryCommand, isComparisonCommand, QUERY_COMMANDS_LITERAL, QueryCommand } from '../commands/query'
 import { isLogicCommand, LOGIC_COMMANDS_LITERAL, LogicCommand } from '../commands/logic'
 import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol'
-import { getType, isObject, isArray } from '../utils/type'
+import { getType, isObject, isArray, isRegExp } from '../utils/type'
 import { operatorToString } from '../operator-map'
 import { flattenQueryObject, isConversionRequired, encodeInternalDataType } from './common'
 import { IGeoNearOptions, IGeoWithinOptions, IGeoIntersectsOptions } from '../commands/query'
@@ -45,6 +45,13 @@ class QueryEncoder {
 
   }
 
+  encodeRegExp(query: RegExp) {
+    return {
+      $regex: query.source,
+      $options: query.flags,
+    }
+  }
+
   encodeLogicCommand(query: LogicCommand): IQueryCondition {
     switch (query.operator) {
       case LOGIC_COMMANDS_LITERAL.NOR:
@@ -54,6 +61,26 @@ class QueryEncoder {
         const subqueries = query.operands.map((oprand) => this.encodeQuery(oprand, query.fieldName))
         return {
           [$op]: subqueries,
+        }
+      }
+      case LOGIC_COMMANDS_LITERAL.NOT: {
+        console.log(query)
+        const $op = operatorToString(query.operator)
+        const operatorExpression: QueryCommand | RegExp = query.operands[0]
+
+        if (isRegExp(operatorExpression)) {
+          return {
+            [query.fieldName as string]: {
+              [$op]: this.encodeRegExp(operatorExpression),
+            }
+          }
+        } else {
+          const subqueries = this.encodeQuery(operatorExpression)[query.fieldName as string]
+          return {
+            [query.fieldName as string]: {
+              [$op]: subqueries,
+            }
+          }
         }
       }
       default: {
@@ -86,9 +113,9 @@ class QueryEncoder {
     if (query.fieldName === SYMBOL_UNSET_FIELD_NAME) {
       throw new Error('Cannot encode a comparison command with unset field name')
     }
-  
+
     const $op = operatorToString(query.operator)
-  
+
     switch (query.operator) {
       case QUERY_COMMANDS_LITERAL.EQ:
       case QUERY_COMMANDS_LITERAL.NEQ:

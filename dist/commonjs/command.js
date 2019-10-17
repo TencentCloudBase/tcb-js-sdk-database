@@ -66,6 +66,10 @@ exports.Command = {
         const expressions = type_1.isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
         return new logic_1.LogicCommand(logic_1.LOGIC_COMMANDS_LITERAL.OR, expressions);
     },
+    not(...__expressions__) {
+        const expressions = type_1.isArray(arguments[0]) ? arguments[0] : Array.from(arguments);
+        return new logic_1.LogicCommand(logic_1.LOGIC_COMMANDS_LITERAL.NOT, expressions);
+    },
     set(val) {
         return new update_1.UpdateCommand(update_1.UPDATE_COMMANDS_LITERAL.SET, [val]);
     },
@@ -127,6 +131,31 @@ exports.Command = {
     },
     min(values) {
         return new update_1.UpdateCommand(update_1.UPDATE_COMMANDS_LITERAL.MIN, [values]);
+    },
+    expr(values) {
+        return {
+            $expr: values
+        };
+    },
+    jsonSchema(schema) {
+        return {
+            $jsonSchema: schema
+        };
+    },
+    text(values) {
+        if (type_1.isString(values)) {
+            return {
+                $search: values.search
+            };
+        }
+        else {
+            return {
+                $search: values.search,
+                $language: values.language,
+                $caseSensitive: values.caseSensitive,
+                $diacriticSensitive: values.diacriticSensitive
+            };
+        }
     },
     aggregate: {
         pipeline() {

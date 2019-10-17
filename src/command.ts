@@ -1,7 +1,7 @@
 import { QueryCommand, QUERY_COMMANDS_LITERAL } from './commands/query'
 import { LogicCommand, LOGIC_COMMANDS_LITERAL } from './commands/logic'
 import { UpdateCommand, UPDATE_COMMANDS_LITERAL } from './commands/update'
-import { isArray, isObject } from './utils/type'
+import { isArray, isObject, isString } from './utils/type'
 import Aggregation from './aggregate'
 
 
@@ -89,6 +89,11 @@ export const Command = {
     return new LogicCommand(LOGIC_COMMANDS_LITERAL.OR, expressions)
   },
 
+  not(...__expressions__: IQueryCondition[]) {
+    const expressions = isArray(arguments[0]) ? arguments[0] : Array.from(arguments)
+    return new LogicCommand(LOGIC_COMMANDS_LITERAL.NOT, expressions)
+  },
+
   set(val: any) {
     return new UpdateCommand(UPDATE_COMMANDS_LITERAL.SET, [val])
   },
@@ -165,6 +170,38 @@ export const Command = {
     return new UpdateCommand(UPDATE_COMMANDS_LITERAL.MIN, [values])
   },
 
+  expr(values: AggregationOperator) {
+    return {
+      $expr: values
+    }
+  },
+
+  jsonSchema(schema) {
+    return {
+      $jsonSchema: schema
+    }
+  },
+
+  text(values: string | {
+    search: string;
+    language?: string;
+    caseSensitive?: boolean;
+    diacriticSensitive: boolean;
+  }) {
+    if (isString(values)) {
+      return {
+        $search: values.search
+      }
+    } else {
+      return {
+        $search: values.search,
+        $language: values.language,
+        $caseSensitive: values.caseSensitive,
+        $diacriticSensitive: values.diacriticSensitive
+      }
+    }
+  },
+
   aggregate: {
     pipeline() {
       return new Aggregation()
@@ -216,7 +253,7 @@ export const Command = {
     gte: (param) => new AggregationOperator('gte', param),
     lt: (param) => new AggregationOperator('lt', param),
     lte: (param) => new AggregationOperator('lte', param),
-    ne: (param) => new AggregationOperator('neq', param), // neq?
+    neq: (param) => new AggregationOperator('ne', param),
 
     // 条件操作符（3个）
     cond: (param) => new AggregationOperator('cond', param),

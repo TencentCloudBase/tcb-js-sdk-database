@@ -37,6 +37,12 @@ class QueryEncoder {
             }
         }
     }
+    encodeRegExp(query) {
+        return {
+            $regex: query.source,
+            $options: query.flags,
+        };
+    }
     encodeLogicCommand(query) {
         switch (query.operator) {
             case logic_1.LOGIC_COMMANDS_LITERAL.NOR:
@@ -47,6 +53,26 @@ class QueryEncoder {
                 return {
                     [$op]: subqueries,
                 };
+            }
+            case logic_1.LOGIC_COMMANDS_LITERAL.NOT: {
+                console.log(query);
+                const $op = operator_map_1.operatorToString(query.operator);
+                const operatorExpression = query.operands[0];
+                if (type_1.isRegExp(operatorExpression)) {
+                    return {
+                        [query.fieldName]: {
+                            [$op]: this.encodeRegExp(operatorExpression),
+                        }
+                    };
+                }
+                else {
+                    const subqueries = this.encodeQuery(operatorExpression)[query.fieldName];
+                    return {
+                        [query.fieldName]: {
+                            [$op]: subqueries,
+                        }
+                    };
+                }
             }
             default: {
                 const $op = operator_map_1.operatorToString(query.operator);
