@@ -1,4 +1,3 @@
-import { createPromiseCallback } from './lib/util'
 import { Db } from './index'
 import { Util } from './util'
 import { UpdateSerializer } from './serializer/update'
@@ -69,9 +68,7 @@ export class DocumentReference {
    * @param data - 文档数据
    * @internal
    */
-  create(data: any, callback?: any): Promise<any> {
-    callback = callback || createPromiseCallback()
-
+  async create(data: any): Promise<any> {
     let params = {
       collectionName: this._coll,
       // data: Util.encodeDocumentDataForReq(data, false, false)
@@ -82,23 +79,16 @@ export class DocumentReference {
       params['_id'] = this.id
     }
 
-    this.request
-      .send('database.addDocument', params)
-      .then(res => {
-        if (res.code) {
-          callback(0, res)
-        } else {
-          callback(0, {
-            id: res.data._id,
-            requestId: res.requestId
-          })
-        }
-      })
-      .catch(err => {
-        callback(err)
-      })
+    const res = await this.request.send('database.addDocument', params)
 
-    return callback.promise
+    if (res.code) {
+      return res
+    } else {
+      return {
+        id: res.data._id,
+        requestId: res.requestId
+      }
+    }
   }
 
   /**
@@ -109,9 +99,7 @@ export class DocumentReference {
    *
    * @param data - 文档数据
    */
-  set(data: Object, callback?: any): Promise<any> {
-    callback = callback || createPromiseCallback()
-
+  async set(data: Object): Promise<any> {
     if (!this.id) {
       return Promise.resolve({
         code: 'INVALID_PARAM',
@@ -170,24 +158,17 @@ export class DocumentReference {
       param['query'] = { _id: this.id }
     }
 
-    this.request
-      .send('database.updateDocument', param)
-      .then(res => {
-        if (res.code) {
-          callback(0, res)
-        } else {
-          callback(0, {
-            updated: res.data.updated,
-            upsertedId: res.data.upserted_id,
-            requestId: res.requestId
-          })
-        }
-      })
-      .catch(err => {
-        callback(err)
-      })
+    const res: any = await this.request.send('database.updateDocument', param)
 
-    return callback.promise
+    if (res.code) {
+      return res
+    } else {
+      return {
+        updated: res.data.updated,
+        upsertedId: res.data.upserted_id,
+        requestId: res.requestId
+      }
+    }
   }
 
   /**
@@ -195,9 +176,7 @@ export class DocumentReference {
    *
    * @param data - 文档数据
    */
-  update(data: Object, callback?: any) {
-    callback = callback || createPromiseCallback()
-
+  async update(data: Object) {
     if (!data || typeof data !== 'object') {
       return Promise.resolve({
         code: 'INVALID_PARAM',
@@ -224,33 +203,23 @@ export class DocumentReference {
       merge,
       upsert: false
     }
-
-    this.request
-      .send('database.updateDocument', param)
-      .then(res => {
-        if (res.code) {
-          callback(0, res)
-        } else {
-          callback(0, {
-            updated: res.data.updated,
-            upsertedId: res.data.upserted_id,
-            requestId: res.requestId
-          })
-        }
-      })
-      .catch(err => {
-        callback(err)
-      })
-
-    return callback.promise
+    const res = await this.request.send('database.updateDocument', param)
+    
+    if (res.code) {
+      return res
+    } else {
+      return {
+        updated: res.data.updated,
+        upsertedId: res.data.upserted_id,
+        requestId: res.requestId
+      }
+    }
   }
 
   /**
    * 删除文档
    */
-  remove(callback?: any): Promise<any> {
-    callback = callback || createPromiseCallback()
-
+  async remove(): Promise<any> {
     const query = { _id: this.id }
     const param = {
       collectionName: this._coll,
@@ -259,31 +228,22 @@ export class DocumentReference {
       multi: false
     }
 
-    this.request
-      .send('database.deleteDocument', param)
-      .then(res => {
-        if (res.code) {
-          callback(0, res)
-        } else {
-          callback(0, {
-            deleted: res.data.deleted,
-            requestId: res.requestId
-          })
-        }
-      })
-      .catch(err => {
-        callback(err)
-      })
+    const res = await this.request.send('database.deleteDocument', param)
 
-    return callback.promise
+    if (res.code) {
+      return res
+    } else {
+      return {
+        deleted: res.data.deleted,
+        requestId: res.requestId
+      }
+    }
   }
 
   /**
    * 返回选中的文档（_id）
    */
-  get(callback?: any): Promise<any> {
-    callback = callback || createPromiseCallback()
-
+  async get(): Promise<any> {
     const query = { _id: this.id }
     const param = {
       collectionName: this._coll,
@@ -292,27 +252,20 @@ export class DocumentReference {
       multi: false,
       projection: this.projection
     }
-    this.request
-      .send('database.queryDocument', param)
-      .then(res => {
-        if (res.code) {
-          callback(0, res)
-        } else {
-          const documents = Util.formatResDocumentData(res.data.list)
-          callback(0, {
-            data: documents,
-            requestId: res.requestId,
-            total: res.TotalCount,
-            limit: res.Limit,
-            offset: res.Offset
-          })
-        }
-      })
-      .catch(err => {
-        callback(err)
-      })
+    const res = await this.request.send('database.queryDocument', param)
 
-    return callback.promise
+    if (res.code) {
+      return res
+    } else {
+      const documents = Util.formatResDocumentData(res.data.list)
+      return {
+        data: documents,
+        requestId: res.requestId,
+        total: res.TotalCount,
+        limit: res.Limit,
+        offset: res.Offset
+      }
+    }
   }
 
   /**

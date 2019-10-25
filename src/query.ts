@@ -1,4 +1,3 @@
-import { createPromiseCallback } from './lib/util'
 /* eslint-disable no-unused-vars */
 import { OrderByDirection, QueryType } from './constant'
 import { Db } from './index'
@@ -154,10 +153,8 @@ export class Query {
    * - 默认获取集合下全部文档数据
    * - 可以把通过 `orderBy`、`where`、`skip`、`limit`设置的数据添加请求参数上
    */
-  public get(callback?: any): Promise<GetRes> {
+  public async get(): Promise<GetRes> {
     /* eslint-disable no-param-reassign */
-    callback = callback || createPromiseCallback()
-
     let newOder = []
     if (this._fieldOrders) {
       this._fieldOrders.forEach(order => {
@@ -195,35 +192,27 @@ export class Query {
     if (this._queryOptions.projection) {
       param.projection = this._queryOptions.projection
     }
-    this._request
-      .send('database.queryDocument', param)
-      .then(res => {
-        if (res.code) {
-          callback(0, res)
-        } else {
-          const documents = Util.formatResDocumentData(res.data.list)
-          const result: any = {
-            data: documents,
-            requestId: res.requestId
-          }
-          if (res.TotalCount) result.total = res.TotalCount
-          if (res.Limit) result.limit = res.Limit
-          if (res.Offset) result.offset = res.Offset
-          callback(0, result)
-        }
-      })
-      .catch(err => {
-        callback(err)
-      })
+    const res = await this._request.send('database.queryDocument', param)
 
-    return callback.promise
+    if (res.code) {
+      return res
+    } else {
+      const documents = Util.formatResDocumentData(res.data.list)
+      const result: any = {
+        data: documents,
+        requestId: res.requestId
+      }
+      if (res.TotalCount) result.total = res.TotalCount
+      if (res.Limit) result.limit = res.Limit
+      if (res.Offset) result.offset = res.Offset
+      return result
+    }
   }
 
   /**
    * 获取总数
    */
-  public count(callback?: any) {
-    callback = callback || createPromiseCallback()
+  public async count() {
 
     interface Param {
       collectionName: string
@@ -237,18 +226,16 @@ export class Query {
     if (this._fieldFilters) {
       param.query = this._fieldFilters
     }
-    this._request.send('database.countDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          requestId: res.requestId,
-          total: res.data.total
-        })
+    const res = await this._request.send('database.countDocument', param)
+    
+    if (res.code) {
+      return res
+    } else {
+      return {
+        requestId: res.requestId,
+        total: res.data.total
       }
-    })
-
-    return callback.promise
+    }
   }
 
   /**
@@ -351,9 +338,7 @@ export class Query {
    *
    * @param data 数据
    */
-  public update(data: Object, callback?: any): Promise<any> {
-    callback = callback || createPromiseCallback()
-
+  public async update(data: Object): Promise<any> {
     if (!data || typeof data !== 'object') {
       return Promise.resolve({
         code: 'INVALID_PARAM',
@@ -381,19 +366,17 @@ export class Query {
       // data: this.convertParams(data)
     }
 
-    this._request.send('database.updateDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          requestId: res.requestId,
-          updated: res.data.updated,
-          upsertId: res.data.upsert_id
-        })
+    const res = await this._request.send('database.updateDocument', param)
+    
+    if (res.code) {
+      return res
+    } else {
+      return {
+        requestId: res.requestId,
+        updated: res.data.updated,
+        upsertId: res.data.upsert_id
       }
-    })
-
-    return callback.promise
+    }
   }
 
   /**
@@ -427,9 +410,7 @@ export class Query {
   /**
    * 条件删除文档
    */
-  public remove(callback?: any) {
-    callback = callback || createPromiseCallback()
-
+  public async remove() {
     if (Object.keys(this._queryOptions).length > 0) {
       console.warn(
         '`offset`, `limit` and `projection` are not supported in remove() operation'
@@ -444,18 +425,16 @@ export class Query {
       queryType: QueryType.WHERE,
       multi: true
     }
-    this._request.send('database.deleteDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          requestId: res.requestId,
-          deleted: res.data.deleted
-        })
+    const res = await this._request.send('database.deleteDocument', param)
+    
+    if (res.code) {
+      return res
+    } else {
+      return {
+        requestId: res.requestId,
+        deleted: res.data.deleted
       }
-    })
-
-    return callback.promise
+    }
   }
 
   /**
