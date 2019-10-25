@@ -4,43 +4,37 @@ import {
   QUERY_COMMANDS_LITERAL,
   QueryCommand
 } from '../commands/query'
-import {
-  isLogicCommand,
-  LOGIC_COMMANDS_LITERAL,
-  LogicCommand
-} from '../commands/logic'
+import { isLogicCommand, LOGIC_COMMANDS_LITERAL, LogicCommand } from '../commands/logic'
 import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol'
 import { getType, isObject, isArray, isRegExp } from '../utils/type'
 import { operatorToString } from '../operator-map'
-import {
-  flattenQueryObject,
-  isConversionRequired,
-  encodeInternalDataType
-} from './common'
-import {
-  IGeoNearOptions,
-  IGeoWithinOptions,
-  IGeoIntersectsOptions
-} from '../commands/query'
+import { flattenQueryObject, isConversionRequired, encodeInternalDataType } from './common'
+import { IGeoNearOptions, IGeoWithinOptions, IGeoIntersectsOptions } from '../commands/query'
+import { stringifyByEJSON } from '../utils/utils'
 
 export type IQueryCondition = Record<string, any> | LogicCommand
 
 export class QuerySerializer {
   constructor() {}
 
-  static encode(
-    query: IQueryCondition | QueryCommand | LogicCommand
-  ): IQueryCondition {
+  static encode(query: IQueryCondition | QueryCommand | LogicCommand): IQueryCondition {
     const encoder = new QueryEncoder()
     return encoder.encodeQuery(query)
+  }
+
+  static encodeEJSON(query: IQueryCondition | QueryCommand | LogicCommand): string {
+    const encoder = new QueryEncoder()
+    // console.log('encoder.encodeQuery(query):', encoder.encodeQuery(query))
+    // console.log(
+    //   'stringifyByEJSON(encoder.encodeQuery(query)):',
+    //   stringifyByEJSON(encoder.encodeQuery(query))
+    // )
+    return stringifyByEJSON(encoder.encodeQuery(query))
   }
 }
 
 class QueryEncoder {
-  encodeQuery(
-    query: IQueryCondition | QueryCommand | LogicCommand,
-    key?: any
-  ): IQueryCondition {
+  encodeQuery(query: IQueryCondition | QueryCommand | LogicCommand, key?: any): IQueryCondition {
     if (isConversionRequired(query)) {
       if (isLogicCommand(query)) {
         return this.encodeLogicCommand(query)
@@ -72,9 +66,7 @@ class QueryEncoder {
       case LOGIC_COMMANDS_LITERAL.AND:
       case LOGIC_COMMANDS_LITERAL.OR: {
         const $op = operatorToString(query.operator)
-        const subqueries = query.operands.map(oprand =>
-          this.encodeQuery(oprand, query.fieldName)
-        )
+        const subqueries = query.operands.map(oprand => this.encodeQuery(oprand, query.fieldName))
         return {
           [$op]: subqueries
         }
@@ -90,9 +82,7 @@ class QueryEncoder {
             }
           }
         } else {
-          const subqueries = this.encodeQuery(operatorExpression)[
-            query.fieldName as string
-          ]
+          const subqueries = this.encodeQuery(operatorExpression)[query.fieldName as string]
           return {
             [query.fieldName as string]: {
               [$op]: subqueries
@@ -128,9 +118,7 @@ class QueryEncoder {
 
   encodeComparisonCommand(query: QueryCommand): IQueryCondition {
     if (query.fieldName === SYMBOL_UNSET_FIELD_NAME) {
-      throw new Error(
-        'Cannot encode a comparison command with unset field name'
-      )
+      throw new Error('Cannot encode a comparison command with unset field name')
     }
 
     const $op = operatorToString(query.operator)
@@ -263,9 +251,7 @@ class QueryEncoder {
       if (query[conditionKey]) {
         if (isArray(query[conditionKey])) {
           // bug
-          query[conditionKey] = query[conditionKey].concat(
-            condition[conditionKey]
-          )
+          query[conditionKey] = query[conditionKey].concat(condition[conditionKey])
         } else if (isObject(query[conditionKey])) {
           if (isObject(condition[conditionKey])) {
             Object.assign(query, condition)

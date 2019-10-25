@@ -6,8 +6,10 @@ import { UpdateCommand } from './commands/update'
 import { IWatchOptions, DBRealtimeListener, IReqOpts } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 import { QueryType } from './constant'
-import { E } from './utils/utils'
+import { E, getReqOpts, stringifyByEJSON } from './utils/utils'
 import { ERRORS } from './const/code'
+import { EJSON } from 'bson'
+import { QueryOption, UpdateOption } from './query'
 
 /**
  * 文档模块
@@ -19,6 +21,8 @@ export class DocumentReference {
    * 文档ID
    */
   readonly id: string | number
+
+  readonly _transactionId: string
 
   /**
    *
@@ -46,6 +50,10 @@ export class DocumentReference {
    */
   private request: any
 
+  private _getAccessToken: Function
+
+  private _apiOptions: QueryOption | UpdateOption
+
   /**
    * 初始化
    *
@@ -55,13 +63,21 @@ export class DocumentReference {
    * @param coll  - 集合名称
    * @param docID - 文档ID
    */
-  constructor(db: Db, coll: string, docID: string | number, projection = {}) {
+  constructor(
+    db: Db,
+    coll: string,
+    apiOptions: QueryOption | UpdateOption,
+    docID: string | number,
+    transactionId: string
+  ) {
     this._db = db
     this._coll = coll
     this.id = docID
+    this._transactionId = transactionId
     /* eslint-disable new-cap*/
     this.request = new Db.reqClass(this._db.config)
-    this.projection = projection
+    this._apiOptions = apiOptions
+    this._getAccessToken = Db.getAccessToken
   }
 
   /**
@@ -70,24 +86,30 @@ export class DocumentReference {
    * @param data - 文档数据
    * @internal
    */
-  async create(data: any, opts?: IReqOpts): Promise<any> {
+  async create(data: any): Promise<any> {
+    // 存在docid 则放入data
+    if (this.id) {
+      data['_id'] = this.id
+    }
+
     let params = {
       collectionName: this._coll,
       // data: Util.encodeDocumentDataForReq(data, false, false)
-      data: serialize(data)
+      data: [stringifyByEJSON(serialize(data))],
+      transactionId: this._transactionId
     }
 
-    if (this.id) {
-      params['_id'] = this.id
-    }
-
-    const res = await this.request.send('database.addDocument', params, opts)
+    const res = await this.request.send(
+      'database.addDocumentV3',
+      params,
+      getReqOpts(this._apiOptions)
+    )
 
     if (res.code) {
-      return res
+      throw E({ ...res })
     } else {
       return {
-        id: res.data._id,
+        insertedIds: res.data.insertedIds,
         requestId: res.requestId
       }
     }
@@ -102,7 +124,7 @@ export class DocumentReference {
    * @param data - 文档数据
    * @param opts - 可选项
    */
-  async set(data: Object, opts?: IReqOpts): Promise<any> {
+  async set(data: Object): Promise<any> {
     if (!this.id) {
       throw E({ ...ERRORS.INVALID_PARAM, message: 'docId不能为空' })
     }
@@ -137,29 +159,33 @@ export class DocumentReference {
       })
     }
 
-    const merge = false //data不能带有操作符
     let param = {
       collectionName: this._coll,
       queryType: QueryType.DOC,
-      // data: Util.encodeDocumentDataForReq(data, merge, false),
-      data: serialize(data),
+      data: stringifyByEJSON(serialize(data)),
+      transactionId: this._transactionId,
       multi: false,
-      merge,
+      merge: false, //data不能带有操作符
       upsert: true
     }
 
     if (this.id) {
-      param['query'] = { _id: this.id }
+      param['query'] = stringifyByEJSON({ _id: this.id })
     }
 
-    const res: any = await this.request.send('database.updateDocument', param, opts)
+    const res: any = await this.request.send(
+      'database.updateDocumentV3',
+      param,
+      getReqOpts(this._apiOptions)
+    )
 
     if (res.code) {
-      return res
+      throw E({ ...res })
     } else {
       return {
+        matched: res.data.matched,
         updated: res.data.updated,
-        upsertedId: res.data.upserted_id,
+        upsertedId: res.data.upsert_id,
         requestId: res.requestId
       }
     }
@@ -171,7 +197,7 @@ export class DocumentReference {
    * @param data - 文档数据
    * @param opts - 可选项
    */
-  async update(data: Object, opts?: IReqOpts): Promise<any> {
+  async update(data: Object): Promise<any> {
     if (!data || typeof data !== 'object') {
       throw E({ ...ERRORS.INVALID_PARAM, message: '参数必需是非空对象' })
     }
@@ -180,26 +206,30 @@ export class DocumentReference {
       throw E({ ...ERRORS.INVALID_PARAM, message: '不能更新_id的值' })
     }
 
-    const query = { _id: this.id }
-    const merge = true //把所有更新数据转为带操作符的
+    const query = stringifyByEJSON({ _id: this.id })
     const param = {
       collectionName: this._coll,
-      // data: Util.encodeDocumentDataForReq(data, merge, true),
-      data: UpdateSerializer.encode(data),
-      query: query,
+      transactionId: this._transactionId,
+      data: UpdateSerializer.encodeEJSON(data),
+      query,
       queryType: QueryType.DOC,
       multi: false,
-      merge,
+      merge: true, //把所有更新数据转为带操作符的
       upsert: false
     }
-    const res = await this.request.send('database.updateDocument', param, opts)
+
+    const res = await this.request.send(
+      'database.updateDocumentV3',
+      param,
+      getReqOpts(this._apiOptions)
+    )
 
     if (res.code) {
-      return res
+      throw E({ ...res })
     } else {
       return {
+        matched: res.data.matched,
         updated: res.data.updated,
-        upsertedId: res.data.upserted_id,
         requestId: res.requestId
       }
     }
@@ -208,19 +238,24 @@ export class DocumentReference {
   /**
    * 删除文档
    */
-  async remove(opts?: IReqOpts): Promise<any> {
-    const query = { _id: this.id }
+  async remove(): Promise<any> {
+    const query = stringifyByEJSON({ _id: this.id })
     const param = {
       collectionName: this._coll,
+      transactionId: this._transactionId,
       query: query,
       queryType: QueryType.DOC,
       multi: false
     }
 
-    const res = await this.request.send('database.deleteDocument', param, opts)
+    const res = await this.request.send(
+      'database.deleteDocumentV3',
+      param,
+      getReqOpts(this._apiOptions)
+    )
 
     if (res.code) {
-      return res
+      throw E({ ...res })
     } else {
       return {
         deleted: res.data.deleted,
@@ -232,26 +267,34 @@ export class DocumentReference {
   /**
    * 返回选中的文档（_id）
    */
-  async get(opts?: IReqOpts): Promise<any> {
-    const query = { _id: this.id }
-    const param = {
+  async get(): Promise<any> {
+    const query = stringifyByEJSON({ _id: this.id })
+    const { projection } = this._apiOptions as QueryOption
+    const param: any = {
       collectionName: this._coll,
-      query: query,
+      query,
+      transactionId: this._transactionId,
       queryType: QueryType.DOC,
-      multi: false,
-      projection: this.projection
+      multi: false
     }
-    const res = await this.request.send('database.queryDocument', param, opts)
+
+    if (projection) {
+      param.projection = stringifyByEJSON(projection)
+    }
+    const res = await this.request.send(
+      'database.queryDocumentV3',
+      param,
+      getReqOpts(this._apiOptions)
+    )
 
     if (res.code) {
       return res
     } else {
-      const documents = Util.formatResDocumentData(res.data.list)
+      const list = res.data.list.map(item => EJSON.parse(item))
+      const documents = Util.formatResDocumentData(list)
       return {
         data: documents,
-        requestId: res.requestId,
-        limit: res.Limit,
-        offset: res.Offset
+        requestId: res.requestId
       }
     }
   }
@@ -260,14 +303,22 @@ export class DocumentReference {
    *
    */
   field(projection: Object): DocumentReference {
+    let transformProjection = {}
     for (let k in projection) {
-      if (projection[k]) {
-        projection[k] = 1
-      } else {
-        projection[k] = 0
+      // 区分bool类型 和 Object类型
+      if (typeof projection[k] === 'boolean') {
+        transformProjection[k] = projection[k] === true ? 1 : 0
+      }
+
+      if (typeof projection[k] === 'object') {
+        transformProjection[k] = projection[k]
       }
     }
-    return new DocumentReference(this._db, this._coll, this.id, projection)
+
+    let newApiOption: QueryOption = { ...this._apiOptions }
+    newApiOption.projection = transformProjection
+
+    return new DocumentReference(this._db, this._coll, newApiOption, this.id, this._transactionId)
   }
 
   /**
@@ -292,6 +343,7 @@ export class DocumentReference {
       envId: this._db.config.env,
       collectionName: this._coll,
       query: JSON.stringify({
+        // todo 改为EJSON
         _id: this.id
       })
     })

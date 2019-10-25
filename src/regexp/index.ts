@@ -1,8 +1,8 @@
 import { SYMBOL_REGEXP } from '../helper/symbol'
 
 export class RegExp {
-  $regex: string;
-  $options: string;
+  $regex: string
+  $options: string
   constructor({ regexp, options }) {
     if (!regexp) {
       throw new TypeError('regexp must be a string')
@@ -13,8 +13,8 @@ export class RegExp {
 
   parse() {
     return {
-      $regex: this.$regex,
-      $options: this.$options
+      $regex: this.$regex || '',
+      $options: this.$options || ''
     }
   }
 

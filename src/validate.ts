@@ -7,15 +7,21 @@ import {
   FieldType
 } from './constant'
 import { Util } from './util'
+import { QueryOption, UpdateOption } from './query'
+import { ERRORS } from './const/code'
+import { E } from './utils/utils'
+import { getType } from './utils/type'
+
+const validOptionsKeys = ['limit', 'offset', 'projection', 'order', 'multi', 'timeout']
 
 /**
  * 校验模块
  *
  * @author haroldhu
  * @internal
+ * multi, upsert, merge
  */
 export class Validate {
-
   /**
    * 检测地址位置的点
    *
@@ -48,6 +54,76 @@ export class Validate {
     if (!Number.isInteger(num)) {
       throw new Error(param + ErrorCode.IntergerError)
     }
+    return true
+  }
+
+  /**
+   * 参数是否为bool
+   *
+   * @param param - 要验证的参数名
+   * @param num   - 要验证的参数值
+   */
+  static isBoolean(param: string, bool: boolean): Boolean {
+    if (typeof bool !== 'boolean') {
+      throw new Error(param + ErrorCode.BooleanError)
+    }
+    return true
+  }
+
+  static isProjection(param: string, value: object): Boolean {
+    // 遍历value 的 属性值， 只有1，0，ProjectionOperator 三种类型
+    if (getType(value) !== 'object') {
+      throw E({ ...ERRORS.INVALID_PARAM, message: `${param} projection must be an object` })
+    }
+
+    for (const key in value) {
+      const subValue = value[key]
+      if (getType(subValue) === 'number') {
+        if (subValue !== 0 && subValue !== 1) {
+          throw E({
+            ...ERRORS.INVALID_PARAM,
+            message: `if the value in projection is of number, it must be 0 or 1`
+          })
+        }
+      } else if (getType(subValue) === 'object') {
+      } else {
+        throw E({
+          ...ERRORS.INVALID_PARAM,
+          message: 'invalid projection'
+        })
+      }
+    }
+
+    return true
+  }
+
+  static isOrder(param: string, value: Record<string, any>): Boolean {
+    if (getType(value) !== 'object') {
+      throw E({ ...ERRORS.INVALID_PARAM, message: `${param} order must be an object` })
+    }
+
+    for (let key in value) {
+      const subValue = value[key]
+      if (subValue !== 1 && subValue !== -1) {
+        throw E({
+          ...ERRORS.INVALID_PARAM,
+          message: `order value must be 1 or -1`
+        })
+      }
+    }
+    // for (let index in value) {
+    //   const subValue = value[index]
+    //   if (
+    //     getType(subValue) !== 'object' ||
+    //     getType(subValue['key']) !== 'string' ||
+    //     getType(subValue['direction']) !== 'number'
+    //   ) {
+    //     throw E({
+    //       ...ERRORS.INVALID_PARAM,
+    //       message: `order must be like [{key: 'a', direction: '1'}, ...]`
+    //     })
+    //   }
+    // }
     return true
   }
 
@@ -113,6 +189,50 @@ export class Validate {
   static isDocID(docId: string): Boolean {
     if (!/^([a-fA-F0-9]){24}$/.test(docId)) {
       throw new Error(ErrorCode.DocIDError)
+    }
+    return true
+  }
+
+  /**
+   * 校验apiOption结构
+   *
+   * @static
+   * @param {(QueryOption | UpdateOption)} options
+   * multi, upsert, merge
+   * @returns {Boolean}
+   * @memberof Validate
+   */
+  static isRightOptions(options: QueryOption | UpdateOption = {}): Boolean {
+    if (getType(options) !== 'object') {
+      throw E({ ...ERRORS.INVALID_PARAM, message: `options must be an object` })
+    }
+
+    const keys = Object.keys(options)
+    for (const index in keys) {
+      if (validOptionsKeys.indexOf(keys[index]) < 0) {
+        throw E({ ...ERRORS.INVALID_PARAM, message: `${keys[index]} is invalid options key` })
+      }
+    }
+
+    const { limit, offset, projection, order } = options as QueryOption
+    const { multi } = options as UpdateOption
+    if (limit !== undefined) {
+      Validate.isInteger('limit', limit)
+    }
+    if (offset !== undefined) {
+      Validate.isInteger('offset', offset)
+    }
+    if (projection !== undefined) {
+      Validate.isProjection('projection', projection)
+    }
+    if (order !== undefined) {
+      Validate.isOrder('order', order)
+    }
+    if (multi !== undefined) {
+      Validate.isBoolean('multi', multi)
+    }
+    if (options.timeout !== undefined) {
+      Validate.isInteger('timeout', options.timeout)
     }
     return true
   }

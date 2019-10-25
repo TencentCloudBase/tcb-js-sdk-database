@@ -1,17 +1,11 @@
-import {
-  UpdateCommand,
-  isUpdateCommand,
-  UPDATE_COMMANDS_LITERAL
-} from '../commands/update'
+import { UpdateCommand, isUpdateCommand, UPDATE_COMMANDS_LITERAL } from '../commands/update'
 import { LogicCommand } from '../commands/logic'
 import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol'
 import { getType, isArray } from '../utils/type'
 import { operatorToString } from '../operator-map'
-import {
-  flattenQueryObject,
-  encodeInternalDataType,
-  mergeConditionAfterEncode
-} from './common'
+import { flattenQueryObject, encodeInternalDataType, mergeConditionAfterEncode } from './common'
+import { stringifyByEJSON } from '../utils/utils'
+
 export type IQueryCondition = Record<string, any> | LogicCommand
 
 export interface IUpdateCondition {
@@ -31,6 +25,13 @@ export class UpdateSerializer {
     return stringifier.encodeUpdate(query)
   }
 
+  static encodeEJSON(query: IQueryCondition | UpdateCommand): string {
+    const stringifier = new UpdateSerializer()
+    // console.log('stringifier.encodeUpdate(query):', stringifier.encodeUpdate(query))
+
+    return stringifyByEJSON(stringifier.encodeUpdate(query))
+  }
+
   encodeUpdate(query: IQueryCondition | UpdateCommand): IUpdateCondition {
     if (isUpdateCommand(query)) {
       return this.encodeUpdateCommand(query)
@@ -43,9 +44,7 @@ export class UpdateSerializer {
 
   encodeUpdateCommand(query: UpdateCommand): IQueryCondition {
     if (query.fieldName === SYMBOL_UNSET_FIELD_NAME) {
-      throw new Error(
-        'Cannot encode a comparison command with unset field name'
-      )
+      throw new Error('Cannot encode a comparison command with unset field name')
     }
 
     switch (query.operator) {
@@ -154,11 +153,7 @@ export class UpdateSerializer {
       } else {
         // $set
         flattened[key] = val = encodeInternalDataType(val)
-        const $setCommand = new UpdateCommand(
-          UPDATE_COMMANDS_LITERAL.SET,
-          [val],
-          key
-        )
+        const $setCommand = new UpdateCommand(UPDATE_COMMANDS_LITERAL.SET, [val], key)
         const condition = this.encodeUpdateCommand($setCommand)
         mergeConditionAfterEncode(flattened, condition, key)
       }

@@ -1,6 +1,6 @@
 import { FieldType } from './constant'
 import { Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon } from './geo/index'
-import { ServerDate } from './serverDate/index'
+// import { ServerDate } from './serverDate/index'
 
 interface DocumentModel {
   _id: string
@@ -78,8 +78,11 @@ export class Util {
             )
           )
           break
-        case FieldType.Timestamp:
-          realValue = new Date(item.$timestamp * 1000)
+        // case FieldType.Timestamp:
+        //   realValue = new Date(item.$timestamp * 1000)
+        //   break
+        case FieldType.Date:
+          realValue = item
           break
         case FieldType.Object:
         case FieldType.Array:
@@ -88,7 +91,6 @@ export class Util {
         case FieldType.ServerDate:
           realValue = new Date(item.$date)
           break
-
         default:
           realValue = item
       }
@@ -110,26 +112,27 @@ export class Util {
   public static whichType = (obj: any): String => {
     let type = Object.prototype.toString.call(obj).slice(8, -1)
 
-    if (type === FieldType.Timestamp) {
-      return FieldType.BsonDate
+    if (type === FieldType.Date) {
+      return FieldType.Date
     }
 
     if (type === FieldType.Object) {
-      if (obj instanceof Point) {
-        return FieldType.GeoPoint
-      } else if (obj instanceof Date) {
-        return FieldType.Timestamp
-      } /* else if (obj instanceof Command) {
-        return FieldType.Command;
-      } */ else if (
-        obj instanceof ServerDate
-      ) {
-        return FieldType.ServerDate
-      }
+      // if (obj instanceof Point) {
+      //   return FieldType.GeoPoint
+      // } else if (obj instanceof Date) {
+      //   return FieldType.Timestamp
+      // } /* else if (obj instanceof Command) {
+      //   return FieldType.Command;
+      // } */ else if (
+      //   obj instanceof ServerDate
+      // ) {
+      //   return FieldType.ServerDate
+      // }
 
-      if (obj.$timestamp) {
-        type = FieldType.Timestamp
-      } else if (obj.$date) {
+      // if (obj.$timestamp) {
+      //   type = FieldType.Timestamp // 特殊结构 秒级时间戳 是否可去掉 {a: {$timestamp: xxx}} => {a: xxx * 1000}
+      // } else
+      if (obj.$date) {
         type = FieldType.ServerDate
       } else if (Point.validate(obj)) {
         type = FieldType.GeoPoint

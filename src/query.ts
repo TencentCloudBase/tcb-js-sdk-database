@@ -11,8 +11,9 @@ import { UpdateSerializer } from './serializer/update'
 import { IWatchOptions, DBRealtimeListener, IReqOpts } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 import { ErrorCode } from './constant'
-import { E } from './utils/utils'
+import { E, getReqOpts, stringifyByEJSON } from './utils/utils'
 import { ERRORS } from './const/code'
+import { EJSON } from 'bson'
 
 interface GetRes {
   data: any[]
@@ -22,24 +23,36 @@ interface GetRes {
   offset: number
 }
 
-interface QueryOrder {
-  field?: string
-  direction?: 'asc' | 'desc'
+// interface QueryOrder {
+//   // field?: string
+//   // direction?: 'asc' | 'desc'
+//   key?: string
+//   direction?: -1 | 1
+// }
+
+interface BaseOption {
+  timeout?: number // 接口调用超时设置
 }
 
-interface QueryOption {
+export interface QueryOption extends BaseOption {
   // 查询数量
   limit?: number
   // 偏移量
   offset?: number
   // 指定显示或者不显示哪些字段
   projection?: Object
+  // 结果排序
+  order?: Record<string, any>[]
 }
 
-// interface CallbackObj {
-//   success: (event: any) => void
-//   fail: (err: any) => void
-// }
+export interface UpdateOption extends BaseOption {
+  // 是否只影响单条doc
+  multi?: boolean
+  // // 是否插入
+  // upsert?: boolean
+  // // 是否replace
+  // merge?: boolean
+}
 
 /**
  * 查询模块
@@ -66,33 +79,37 @@ export class Query {
    *
    * @internal
    */
-  private _fieldFilters: Object
+  private _fieldFilters: string
+
+  // /**
+  //  * 排序条件
+  //  *
+  //  * @internal
+  //  */
+  // private _fieldOrders: QueryOrder[]
+
+  // /**
+  //  * 查询条件
+  //  *
+  //  * @internal
+  //  */
+  // private _queryOptions: QueryOption
 
   /**
-   * 排序条件
+   * 统一条件项
    *
-   * @internal
+   * @private
+   * @type {(QueryOption | UpdateOption)}
+   * @memberof Query
    */
-  private _fieldOrders: QueryOrder[]
-
-  /**
-   * 查询条件
-   *
-   * @internal
-   */
-  private _queryOptions: QueryOption
-
-  /**
-   * 原始过滤参数
-   */
-  // private _rawWhereParams: Object
+  public _apiOptions: QueryOption | UpdateOption
 
   /**
    * 请求实例
    *
    * @internal
    */
-  private _request: any
+  public _request: any
 
   /**
    * websocket 参数 pingTimeout
@@ -129,22 +146,18 @@ export class Query {
   public constructor(
     db: Db,
     coll: string,
-    fieldFilters?: Object,
-    fieldOrders?: QueryOrder[],
-    queryOptions?: QueryOption
+    fieldFilters?: string,
+    // fieldOrders?: QueryOrder[],
+    // queryOptions?: QueryOption,
+    apiOptions?: QueryOption | UpdateOption
     // rawWhereParams?: Object
   ) {
     this._db = db
     this._coll = coll
     this._fieldFilters = fieldFilters
-    this._fieldOrders = fieldOrders || []
-    this._queryOptions = queryOptions || {}
-    // this._pingTimeout = 10000
-    // this._pongTimeout = 5000
-    // this._reconnectTimeout = 15000
-    // this._rawWhereParams = rawWhereParams || {}
-    // this._wsURL = "ws://localhost:3000"
-
+    // this._fieldOrders = fieldOrders || []
+    // this._queryOptions = queryOptions || {}
+    this._apiOptions = apiOptions || {}
     /* eslint-disable new-cap */
     this._request = new Db.reqClass(this._db.config)
   }
@@ -155,14 +168,23 @@ export class Query {
    * - 默认获取集合下全部文档数据
    * - 可以把通过 `orderBy`、`where`、`skip`、`limit`设置的数据添加请求参数上
    */
-  public async get(opts?: IReqOpts): Promise<GetRes> {
+  public async get(): Promise<GetRes> {
     /* eslint-disable no-param-reassign */
-    let newOder = []
-    if (this._fieldOrders) {
-      this._fieldOrders.forEach(order => {
-        newOder.push(order)
-      })
-    }
+    // let newOrder = {}
+    // if (this._fieldOrders) {
+    //   this._fieldOrders.forEach(order => {
+    //     newOder.push(order)
+    //   })
+    // }
+
+    const order = (this._apiOptions as QueryOption).order
+
+    // if (order) {
+    //   order.forEach(item => {
+    //     newOrder.push(item)
+    //   })
+    // }
+
     interface Param {
       collectionName: string
       query?: Object
@@ -179,32 +201,57 @@ export class Query {
     if (this._fieldFilters) {
       param.query = this._fieldFilters
     }
-    if (newOder.length > 0) {
-      param.order = newOder
+    if (order) {
+      param.order = stringifyByEJSON(order)
     }
-    if (this._queryOptions.offset) {
-      param.offset = this._queryOptions.offset
+    // if (this._queryOptions.offset) {
+    //   param.offset = this._queryOptions.offset
+    // }
+
+    const offset = (this._apiOptions as QueryOption).offset
+    if (offset) {
+      param.offset = offset
     }
-    if (this._queryOptions.limit) {
-      param.limit = this._queryOptions.limit < 1000 ? this._queryOptions.limit : 1000
+
+    const limit = (this._apiOptions as QueryOption).limit
+
+    // if (this._queryOptions.limit) {
+    //   param.limit = this._queryOptions.limit < 1000 ? this._queryOptions.limit : 1000
+    // } else {
+    //   param.limit = 100
+    // }
+    if (limit) {
+      param.limit = limit < 1000 ? limit : 1000
     } else {
       param.limit = 100
     }
-    if (this._queryOptions.projection) {
-      param.projection = this._queryOptions.projection
+
+    const projection = (this._apiOptions as QueryOption).projection
+    // if (this._queryOptions.projection) {
+    //   param.projection = this._queryOptions.projection
+    // }
+
+    if (projection) {
+      param.projection = stringifyByEJSON(projection)
     }
-    const res = await this._request.send('database.queryDocument', param, opts)
+
+    const res = await this._request.send(
+      'database.queryDocumentV3',
+      param,
+      getReqOpts(this._apiOptions)
+    )
 
     if (res.code) {
-      return res
+      throw E({ ...res })
     } else {
-      const documents = Util.formatResDocumentData(res.data.list)
+      const list = res.data.list.map(item => EJSON.parse(item))
+      const documents = Util.formatResDocumentData(list)
       const result: any = {
         data: documents,
         requestId: res.requestId
       }
-      if (res.Limit) result.limit = res.Limit
-      if (res.Offset) result.offset = res.Offset
+      if (res.limit) result.limit = res.limit
+      if (res.offset) result.offset = res.offset
       return result
     }
   }
@@ -212,7 +259,7 @@ export class Query {
   /**
    * 获取总数
    */
-  public async count(opts?: IReqOpts) {
+  public async count() {
     interface Param {
       collectionName: string
       query?: Object
@@ -225,10 +272,14 @@ export class Query {
     if (this._fieldFilters) {
       param.query = this._fieldFilters
     }
-    const res = await this._request.send('database.countDocument', param, opts)
+    const res = await this._request.send(
+      'database.countDocumentV3',
+      param,
+      getReqOpts(this._apiOptions)
+    )
 
     if (res.code) {
-      return res
+      throw E({ ...res })
     } else {
       return {
         requestId: res.requestId,
@@ -261,10 +312,23 @@ export class Query {
     return new Query(
       this._db,
       this._coll,
-      QuerySerializer.encode(query),
-      this._fieldOrders,
-      this._queryOptions
+      QuerySerializer.encodeEJSON(query),
+      this._apiOptions
+      // this._fieldOrders,
+      // this._queryOptions
     )
+  }
+
+  /**
+   * 设置请求操作项
+   *
+   * @param {(QueryOption | UpdateOption)} apiOptions
+   * @memberof Query
+   */
+  public options(apiOptions: QueryOption | UpdateOption) {
+    // 校验字段是否合规
+    Validate.isRightOptions(apiOptions)
+    return new Query(this._db, this._coll, this._fieldFilters, apiOptions)
   }
 
   /**
@@ -277,13 +341,20 @@ export class Query {
     Validate.isFieldPath(fieldPath)
     Validate.isFieldOrder(directionStr)
 
-    const newOrder: QueryOrder = {
-      field: fieldPath,
-      direction: directionStr
+    const newOrder: Record<string, any> = {
+      // key: fieldPath,
+      // direction: directionStr === 'desc' ? -1 : 1
+      [fieldPath]: directionStr === 'desc' ? -1 : 1
     }
-    const combinedOrders = this._fieldOrders.concat(newOrder)
+    // const combinedOrders = this._fieldOrders.concat(newOrder)
+    const order = (this._apiOptions as QueryOption).order || {}
 
-    return new Query(this._db, this._coll, this._fieldFilters, combinedOrders, this._queryOptions)
+    const newApiOption = Object.assign({}, this._apiOptions, {
+      // order: order.concat(newOrder)
+      order: Object.assign({}, order, newOrder)
+    })
+
+    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
   }
 
   /**
@@ -294,10 +365,10 @@ export class Query {
   public limit(limit: number): Query {
     Validate.isInteger('limit', limit)
 
-    let option = { ...this._queryOptions }
-    option.limit = limit
+    let newApiOption: QueryOption = { ...this._apiOptions }
+    newApiOption.limit = limit
 
-    return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option)
+    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
   }
 
   /**
@@ -308,10 +379,12 @@ export class Query {
   public skip(offset: number): Query {
     Validate.isInteger('offset', offset)
 
-    let option = { ...this._queryOptions }
-    option.offset = offset
+    // let option = { ...this._queryOptions }
+    let newApiOption: QueryOption = { ...this._apiOptions }
 
-    return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option)
+    newApiOption.offset = offset
+
+    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
   }
 
   /**
@@ -319,7 +392,7 @@ export class Query {
    *
    * @param data 数据
    */
-  public async update(data: Object, opts?: IReqOpts): Promise<any> {
+  public async update(data: Object): Promise<any> {
     if (!data || typeof data !== 'object') {
       throw E({ ...ERRORS.INVALID_PARAM, message: '参数必需是非空对象' })
     }
@@ -328,23 +401,28 @@ export class Query {
       throw E({ ...ERRORS.INVALID_PARAM, message: '不能更新_id的值' })
     }
 
+    let { multi } = this._apiOptions as UpdateOption
+    multi = multi === undefined ? true : multi // where update 不传multi默认为true
+
     let param = {
       collectionName: this._coll,
       query: this._fieldFilters,
       queryType: QueryType.WHERE,
       // query: QuerySerializer.encode(this._fieldFilters),
-      multi: true,
+      multi,
       merge: true,
       upsert: false,
-      data: UpdateSerializer.encode(data)
-      // data: Util.encodeDocumentDataForReq(data, true)
-      // data: this.convertParams(data)
+      data: UpdateSerializer.encodeEJSON(data)
     }
 
-    const res = await this._request.send('database.updateDocument', param, opts)
+    const res = await this._request.send(
+      'database.updateDocumentV3',
+      param,
+      getReqOpts(this._apiOptions)
+    )
 
     if (res.code) {
-      return res
+      throw E({ ...res })
     } else {
       return {
         requestId: res.requestId,
@@ -356,46 +434,71 @@ export class Query {
 
   /**
    * 指定要返回的字段
+   * project 示例
+   * 存在doc {a:1, b:2, c: [1,2,3,4], d: [{item: 1}, [item: 2]]}
+   * 1. 指定返回doc中字段a,b,  projection设置为{a: true, b:true}
+   * 2. 指定返回doc中数组字段c的 前1个元素  projection设置为{c: db.command.project.slice(1)}
+   * 3. 指定返回doc中数组字段c的 第2,3个元素  projection设置为{c: db.command.project.slice([1,2])}
+   * 4. 指定返回doc中数组字段d中的 满足属性值item大于1的第一个元素 projections设置为{c: db.command.project.elemMatch({item: db.command.gt(1)})}
    *
    * @param projection
    */
   public field(projection: any): Query {
+    let transformProjection = {}
     for (let k in projection) {
-      if (projection[k]) {
-        if (typeof projection[k] !== 'object') {
-          projection[k] = 1
-        }
-      } else {
-        projection[k] = 0
+      // 区分bool类型 和 Object类型
+      if (typeof projection[k] === 'boolean') {
+        transformProjection[k] = projection[k] === true ? 1 : 0
+      }
+
+      if (typeof projection[k] === 'object') {
+        transformProjection[k] = projection[k]
       }
     }
 
-    let option = { ...this._queryOptions }
-    option.projection = projection
+    let newApiOption: QueryOption = { ...this._apiOptions }
+    newApiOption.projection = transformProjection
 
-    return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option)
+    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
   }
 
   /**
    * 条件删除文档
    */
-  public async remove(opts?: IReqOpts) {
-    if (Object.keys(this._queryOptions).length > 0) {
-      console.warn('`offset`, `limit` and `projection` are not supported in remove() operation')
+  public async remove() {
+    // if (Object.keys(this._queryOptions).length > 0) {
+    //   console.warn('`offset`, `limit` and `projection` are not supported in remove() operation')
+    // }
+    // if (this._fieldOrders.length > 0) {
+    //   console.warn('`orderBy` is not supported in remove() operation')
+    // }
+
+    const { offset, limit, projection, order } = this._apiOptions as QueryOption
+    if (
+      offset !== undefined ||
+      limit !== undefined ||
+      projection !== undefined ||
+      order !== undefined
+    ) {
+      console.warn(
+        '`offset`, `limit`, `projection`, `orderBy` are not supported in remove() operation'
+      )
     }
-    if (this._fieldOrders.length > 0) {
-      console.warn('`orderBy` is not supported in remove() operation')
-    }
+
     const param = {
       collectionName: this._coll,
-      query: QuerySerializer.encode(this._fieldFilters),
+      query: this._fieldFilters,
       queryType: QueryType.WHERE,
       multi: true
     }
-    const res = await this._request.send('database.deleteDocument', param, opts)
+    const res = await this._request.send(
+      'database.deleteDocumentV3',
+      param,
+      getReqOpts(this._apiOptions)
+    )
 
     if (res.code) {
-      return res
+      throw E({ ...res })
     } else {
       return {
         requestId: res.requestId,
@@ -421,56 +524,20 @@ export class Query {
       })
     }
 
+    const { limit, order } = this._apiOptions as QueryOption
+
     return (Db.ws as RealtimeWebSocketClient).watch({
       ...options,
       envId: this._db.config.env,
       collectionName: this._coll,
-      query: JSON.stringify(this._fieldFilters),
-      limit: this._queryOptions.limit,
-      orderBy: this._fieldOrders ? this._fieldOrders.reduce<Record<string, string>>((acc, cur) => {
-        acc[cur.field] = cur.direction
-        return acc
-      }, {}) : undefined,
+      query: JSON.stringify(this._fieldFilters), // 实时推送这里需要换成ejson协议，todo
+      limit,
+      orderBy: order
+        ? order.reduce<Record<string, string>>((acc, cur) => {
+            acc[cur.field] = cur.direction
+            return acc
+          }, {})
+        : undefined
     })
-    // })
   }
-
-  /*
-  convertParams(query: object) {
-    // console.log(JSON.stringify(query));
-    let queryParam = {};
-    if (query instanceof Command) {
-      queryParam = query.parse();
-    } else {
-      for (let key in query) {
-        if (query[key] instanceof Command || query[key] instanceof RegExp || query[key] instanceof Point) {
-          queryParam = Object.assign({}, queryParam, query[key].parse(key));
-        } else if (isRegExp(query[key])) {
-          queryParam = {
-            [key]: {
-              $regex: query[key].source,
-              $options: query[key].flags
-            }
-          };
-        } else if (typeof query[key] === 'object') {
-          let command = new Command();
-          let tmp = {};
-          command.concatKeys({ [key]: query[key] }, ', tmp);
-          let keys = Object.keys(tmp)[0];
-          let value = tmp[keys];
-          if (value instanceof Command) {
-            value = value.parse(keys);
-          } else {
-            value = { [keys]: value };
-          }
-
-          queryParam = Object.assign({}, queryParam, value);
-        } else {
-          queryParam = Object.assign({}, queryParam, { [key]: query[key] });
-        }
-      }
-    }
-    // console.log(JSON.stringify(queryParam));
-    return queryParam;
-  } */
 }

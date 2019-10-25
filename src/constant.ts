@@ -13,6 +13,8 @@ enum ErrorCode {
   OpStrError = '操作符不合法',
   DirectionError = '排序字符不合法',
   IntergerError = 'must be integer',
+  BooleanError = 'must be boolean',
+  ArrayError = 'must be array',
   QueryParamTypeError = '查询参数必须为对象',
   QueryParamValueError = '查询参数对象值不能均为undefined'
 }
@@ -33,7 +35,8 @@ const FieldType = {
   GeoMultiPoint: 'GeoMultiPoint',
   GeoMultiLineString: 'GeoMultiLineString',
   GeoMultiPolygon: 'GeoMultiPolygon',
-  Timestamp: 'Date',
+  Date: 'Date', // 日期类型
+  // Timestamp: 'Timestamp', // 秒级时间戳
   Command: 'Command',
   ServerDate: 'ServerDate',
   BsonDate: 'BsonDate'

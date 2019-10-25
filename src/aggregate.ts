@@ -20,10 +20,12 @@ export default class Aggregation {
     if (!this._collectionName || !this._db) {
       throw new Error('Aggregation pipeline cannot send request')
     }
+
     const result = await this._request.send('database.aggregate', {
       collectionName: this._collectionName,
       stages: this._stages
     })
+
     if (result && result.data && result.data.list) {
       return {
         requestId: result.requestId,
@@ -45,10 +47,14 @@ export default class Aggregation {
     })
   }
 
-  _pipe(stage, param) {
+  _pipe(stage, param, isBson?: boolean) {
+    // 区分param是否为字符串
+    const transformParam = isBson === true ? param : JSON.stringify(param)
+
     this._stages.push({
       stageKey: `$${stage}`,
-      stageValue: JSON.stringify(param)
+      // stageValue: JSON.stringify(param)
+      stageValue: transformParam
     })
     return this
   }
@@ -82,7 +88,7 @@ export default class Aggregation {
   }
 
   match(param) {
-    return this._pipe('match', QuerySerializer.encode(param))
+    return this._pipe('match', QuerySerializer.encodeEJSON(param), true)
   }
 
   project(param) {

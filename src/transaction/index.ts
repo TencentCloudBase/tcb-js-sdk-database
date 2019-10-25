@@ -1,5 +1,5 @@
 import { Db } from '../index'
-import { CollectionReference } from './collection'
+import { CollectionReference } from '../collection'
 import { ERRORS } from '../const/code'
 
 const START = 'database.startTransaction'
@@ -51,7 +51,7 @@ export class Transaction {
     if (!collName) {
       throw new Error('Collection name is required')
     }
-    return new CollectionReference(this, collName)
+    return new CollectionReference(this._db, collName, {}, this._id)
   }
 
   public getTransactionId(): string {
@@ -123,7 +123,7 @@ export async function runTransaction(
         try {
           await transaction.rollback()
         } catch (err) {
-          // 保护数据库 释放锁而做的隐式操作 
+          // 保护数据库 释放锁而做的隐式操作
         }
         throw error
       }

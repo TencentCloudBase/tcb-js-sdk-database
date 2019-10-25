@@ -4,6 +4,7 @@ import { ERRORS } from '../const/code'
 import { UpdateSerializer } from '../serializer/update'
 import { serialize } from '../serializer/datatype'
 import { Util } from '../util'
+import { stringifyByEJSON } from '../utils/utils'
 
 // class DocumentSnapshot {
 //   private _data: any
@@ -111,7 +112,7 @@ export class DocumentReference {
     let params = {
       collectionName: this._coll,
       transactionId: this._transactionId,
-      data: EJSON.stringify(serialize(data), { relaxed: false })
+      data: stringifyByEJSON(serialize(data))
     }
 
     if (this.id) {
@@ -160,7 +161,7 @@ export class DocumentReference {
       query: {
         _id: { $eq: this.id }
       },
-      data: EJSON.stringify(serialize(data), { relaxed: false }),
+      data: stringifyByEJSON(serialize(data)),
       upsert: true
     }
 
@@ -182,14 +183,11 @@ export class DocumentReference {
       query: {
         _id: { $eq: this.id }
       },
-      data: EJSON.stringify(
+      data: stringifyByEJSON(
         // {
         //   $set: UpdateSerializer.encode(data)
         // },
-        UpdateSerializer.encode(data),
-        {
-          relaxed: false
-        }
+        UpdateSerializer.encode(data)
       )
     }
 
