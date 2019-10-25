@@ -1,28 +1,30 @@
-// import { cloneDeep } from 'lodash-es'
-// import { QueryCommmand, isQueryCommand, isComparisonCommand, QUERY_COMMANDS_LITERAL } from '../commands/query'
-import { UpdateCommand, isUpdateCommand, UPDATE_COMMANDS_LITERAL } from '../commands/update'
+import {
+  UpdateCommand,
+  isUpdateCommand,
+  UPDATE_COMMANDS_LITERAL
+} from '../commands/update'
 import { LogicCommand } from '../commands/logic'
 import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol'
 import { getType, isArray } from '../utils/type'
 import { operatorToString } from '../operator-map'
-import { flattenQueryObject, encodeInternalDataType, mergeConditionAfterEncode } from './common'
+import {
+  flattenQueryObject,
+  encodeInternalDataType,
+  mergeConditionAfterEncode
+} from './common'
 export type IQueryCondition = Record<string, any> | LogicCommand
 
-
 export interface IUpdateCondition {
-  [key: string]: any,
+  [key: string]: any
 }
 
 interface IPushModifiers {
-  $each?: any[],
-  $position?: number,
+  $each?: any[]
+  $position?: number
 }
 
 export class UpdateSerializer {
-
-  private constructor() {
-
-  }
+  private constructor() {}
 
   static encode(query: IQueryCondition | UpdateCommand): IUpdateCondition {
     const stringifier = new UpdateSerializer()
@@ -40,9 +42,10 @@ export class UpdateSerializer {
   }
 
   encodeUpdateCommand(query: UpdateCommand): IQueryCondition {
-
     if (query.fieldName === SYMBOL_UNSET_FIELD_NAME) {
-      throw new Error('Cannot encode a comparison command with unset field name')
+      throw new Error(
+        'Cannot encode a comparison command with unset field name'
+      )
     }
 
     switch (query.operator) {
@@ -68,19 +71,18 @@ export class UpdateSerializer {
       case UPDATE_COMMANDS_LITERAL.REMOVE: {
         return {
           [$op]: {
-            [query.fieldName as string]: '',
-          },
+            [query.fieldName as string]: ''
+          }
         }
       }
       default: {
         return {
           [$op]: {
-            [query.fieldName as string]: query.operands[0],
-          },
+            [query.fieldName as string]: query.operands[0]
+          }
         }
       }
     }
-
   }
 
   encodeArrayUpdateCommand(query: UpdateCommand): IQueryCondition {
@@ -99,41 +101,41 @@ export class UpdateSerializer {
 
         return {
           [$op]: {
-            [query.fieldName as string]: modifiers,
-          },
+            [query.fieldName as string]: modifiers
+          }
         }
       }
       case UPDATE_COMMANDS_LITERAL.UNSHIFT: {
         const modifiers: IPushModifiers = {
           $each: query.operands.map(encodeInternalDataType),
-          $position: 0,
+          $position: 0
         }
 
         return {
           [$op]: {
-            [query.fieldName as string]: modifiers,
-          },
+            [query.fieldName as string]: modifiers
+          }
         }
       }
       case UPDATE_COMMANDS_LITERAL.POP: {
         return {
           [$op]: {
-            [query.fieldName as string]: 1,
-          },
+            [query.fieldName as string]: 1
+          }
         }
       }
       case UPDATE_COMMANDS_LITERAL.SHIFT: {
         return {
           [$op]: {
-            [query.fieldName as string]: -1,
-          },
+            [query.fieldName as string]: -1
+          }
         }
       }
       default: {
         return {
           [$op]: {
-            [query.fieldName as string]: encodeInternalDataType(query.operands),
-          },
+            [query.fieldName as string]: encodeInternalDataType(query.operands)
+          }
         }
       }
     }
@@ -152,18 +154,18 @@ export class UpdateSerializer {
       } else {
         // $set
         flattened[key] = val = encodeInternalDataType(val)
-        const $setCommand = new UpdateCommand(UPDATE_COMMANDS_LITERAL.SET, [val], key)
+        const $setCommand = new UpdateCommand(
+          UPDATE_COMMANDS_LITERAL.SET,
+          [val],
+          key
+        )
         const condition = this.encodeUpdateCommand($setCommand)
         mergeConditionAfterEncode(flattened, condition, key)
       }
     }
     return flattened
   }
-
 }
-
-
-
 
 /**
 

@@ -1,6 +1,6 @@
-import set from 'lodash/set'
-import unset from 'lodash/unset'
-import cloneDeep from 'lodash/cloneDeep'
+import set from 'lodash.set'
+import unset from 'lodash.unset'
+import cloneDeep from 'lodash.cloneDeep'
 import { genRequestId } from './message'
 import {
   IResponseMessage,
@@ -8,13 +8,10 @@ import {
   IResponseMessageInitEventMsg,
   IDBEvent,
   IRequestMessageRebuildWatchMsg,
-  // IRequestMessageCloseWatchData,
   IRequestMessageCloseWatchMsg,
   IRequestMsgType,
   IResponseMessageNextEventMsg,
-  // IRequestMessageCheckLastData,
   IRequestMessageCheckLastMsg
-  // IResponseMessageErrorMsg
 } from '../typings/realtime'
 import {
   CloudSDKError,

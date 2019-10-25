@@ -1,31 +1,46 @@
-// import { cloneDeep } from 'lodash-es'
-import { isQueryCommand, isComparisonCommand, QUERY_COMMANDS_LITERAL, QueryCommand } from '../commands/query'
-import { isLogicCommand, LOGIC_COMMANDS_LITERAL, LogicCommand } from '../commands/logic'
+import {
+  isQueryCommand,
+  isComparisonCommand,
+  QUERY_COMMANDS_LITERAL,
+  QueryCommand
+} from '../commands/query'
+import {
+  isLogicCommand,
+  LOGIC_COMMANDS_LITERAL,
+  LogicCommand
+} from '../commands/logic'
 import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol'
 import { getType, isObject, isArray, isRegExp } from '../utils/type'
 import { operatorToString } from '../operator-map'
-import { flattenQueryObject, isConversionRequired, encodeInternalDataType } from './common'
-import { IGeoNearOptions, IGeoWithinOptions, IGeoIntersectsOptions } from '../commands/query'
-
+import {
+  flattenQueryObject,
+  isConversionRequired,
+  encodeInternalDataType
+} from './common'
+import {
+  IGeoNearOptions,
+  IGeoWithinOptions,
+  IGeoIntersectsOptions
+} from '../commands/query'
 
 export type IQueryCondition = Record<string, any> | LogicCommand
 
 export class QuerySerializer {
+  constructor() {}
 
-  constructor() {
-
-  }
-
-  static encode(query: IQueryCondition | QueryCommand | LogicCommand): IQueryCondition {
+  static encode(
+    query: IQueryCondition | QueryCommand | LogicCommand
+  ): IQueryCondition {
     const encoder = new QueryEncoder()
     return encoder.encodeQuery(query)
   }
-
 }
 
 class QueryEncoder {
-
-  encodeQuery(query: IQueryCondition | QueryCommand | LogicCommand, key?: any): IQueryCondition {
+  encodeQuery(
+    query: IQueryCondition | QueryCommand | LogicCommand,
+    key?: any
+  ): IQueryCondition {
     if (isConversionRequired(query)) {
       if (isLogicCommand(query)) {
         return this.encodeLogicCommand(query)
@@ -42,13 +57,12 @@ class QueryEncoder {
         return query
       }
     }
-
   }
 
   encodeRegExp(query: RegExp) {
     return {
       $regex: query.source,
-      $options: query.flags,
+      $options: query.flags
     }
   }
 
@@ -58,9 +72,11 @@ class QueryEncoder {
       case LOGIC_COMMANDS_LITERAL.AND:
       case LOGIC_COMMANDS_LITERAL.OR: {
         const $op = operatorToString(query.operator)
-        const subqueries = query.operands.map((oprand) => this.encodeQuery(oprand, query.fieldName))
+        const subqueries = query.operands.map(oprand =>
+          this.encodeQuery(oprand, query.fieldName)
+        )
         return {
-          [$op]: subqueries,
+          [$op]: subqueries
         }
       }
       case LOGIC_COMMANDS_LITERAL.NOT: {
@@ -70,14 +86,16 @@ class QueryEncoder {
         if (isRegExp(operatorExpression)) {
           return {
             [query.fieldName as string]: {
-              [$op]: this.encodeRegExp(operatorExpression),
+              [$op]: this.encodeRegExp(operatorExpression)
             }
           }
         } else {
-          const subqueries = this.encodeQuery(operatorExpression)[query.fieldName as string]
+          const subqueries = this.encodeQuery(operatorExpression)[
+            query.fieldName as string
+          ]
           return {
             [query.fieldName as string]: {
-              [$op]: subqueries,
+              [$op]: subqueries
             }
           }
         }
@@ -87,12 +105,12 @@ class QueryEncoder {
         if (query.operands.length === 1) {
           const subquery = this.encodeQuery(query.operands[0])
           return {
-            [$op]: subquery,
+            [$op]: subquery
           }
         } else {
           const subqueries = query.operands.map(this.encodeQuery.bind(this))
           return {
-            [$op]: subqueries,
+            [$op]: subqueries
           }
         }
       }
@@ -110,7 +128,9 @@ class QueryEncoder {
 
   encodeComparisonCommand(query: QueryCommand): IQueryCondition {
     if (query.fieldName === SYMBOL_UNSET_FIELD_NAME) {
-      throw new Error('Cannot encode a comparison command with unset field name')
+      throw new Error(
+        'Cannot encode a comparison command with unset field name'
+      )
     }
 
     const $op = operatorToString(query.operator)
@@ -128,8 +148,8 @@ class QueryEncoder {
       case QUERY_COMMANDS_LITERAL.MOD: {
         return {
           [query.fieldName as string]: {
-            [$op]: encodeInternalDataType(query.operands[0]),
-          },
+            [$op]: encodeInternalDataType(query.operands[0])
+          }
         }
       }
       case QUERY_COMMANDS_LITERAL.IN:
@@ -137,8 +157,8 @@ class QueryEncoder {
       case QUERY_COMMANDS_LITERAL.ALL: {
         return {
           [query.fieldName as string]: {
-            [$op]: encodeInternalDataType(query.operands),
-          },
+            [$op]: encodeInternalDataType(query.operands)
+          }
         }
       }
       case QUERY_COMMANDS_LITERAL.GEO_NEAR: {
@@ -176,8 +196,8 @@ class QueryEncoder {
       default: {
         return {
           [query.fieldName as string]: {
-            [$op]: encodeInternalDataType(query.operands[0]),
-          },
+            [$op]: encodeInternalDataType(query.operands[0])
+          }
         }
       }
     }
@@ -205,32 +225,36 @@ class QueryEncoder {
   /**
    * @description Merge 2 query conditions
    * @example
-   * 
+   *
    * Normal cases:
-   * 
+   *
    * C1. merge top-level commands, such as $and and $or:
    * let A = { $and: [{a: 1}] }
    * let B = { $and: [{b: 2}] }
    * merge(A, B) == { $and: [{a: 1}, {b: 2}] }
-   * 
+   *
    * C2. merge top-level fields
    * let A = { a: { $gt: 1 } }
    * let B = { a: { $lt: 5 } }
    * merge(A, B) == { a: { $gt: 1, $lt: 5 } }
-   * 
+   *
    * Edge cases:
-   * 
+   *
    * E1. unmergable top-level fields
    * Solution: override
    * let A = { a: 1 }
    * let B = { a: { $gt: 1 } }
    * merge(A, B) == B
-   * 
-   * @param query 
-   * @param condition 
-   * @param key 
+   *
+   * @param query
+   * @param condition
+   * @param key
    */
-  mergeConditionAfterEncode(query: Record<string, any>, condition: Record<string, any>, key: string): void {
+  mergeConditionAfterEncode(
+    query: Record<string, any>,
+    condition: Record<string, any>,
+    key: string
+  ): void {
     if (!condition[key]) {
       delete query[key]
     }
@@ -238,18 +262,30 @@ class QueryEncoder {
     for (const conditionKey in condition) {
       if (query[conditionKey]) {
         if (isArray(query[conditionKey])) {
-
           // bug
-          query[conditionKey] = query[conditionKey].concat(condition[conditionKey])
+          query[conditionKey] = query[conditionKey].concat(
+            condition[conditionKey]
+          )
         } else if (isObject(query[conditionKey])) {
           if (isObject(condition[conditionKey])) {
             Object.assign(query, condition)
           } else {
-            console.warn(`unmergable condition, query is object but condition is ${getType(condition)}, can only overwrite`, condition, key)
+            console.warn(
+              `unmergable condition, query is object but condition is ${getType(
+                condition
+              )}, can only overwrite`,
+              condition,
+              key
+            )
             query[conditionKey] = condition[conditionKey]
           }
         } else {
-          console.warn(`to-merge query is of type ${getType(query)}, can only overwrite`, query, condition, key)
+          console.warn(
+            `to-merge query is of type ${getType(query)}, can only overwrite`,
+            query,
+            condition,
+            key
+          )
           query[conditionKey] = condition[conditionKey]
         }
       } else {
@@ -257,11 +293,7 @@ class QueryEncoder {
       }
     }
   }
-
 }
-
-
-
 
 /**
 
@@ -307,7 +339,6 @@ class QueryEncoder {
 }
 
  */
-
 
 /**
 
