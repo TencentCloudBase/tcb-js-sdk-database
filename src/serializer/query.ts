@@ -64,7 +64,6 @@ class QueryEncoder {
         }
       }
       case LOGIC_COMMANDS_LITERAL.NOT: {
-        console.log(query)
         const $op = operatorToString(query.operator)
         const operatorExpression: QueryCommand | RegExp = query.operands[0]
 
