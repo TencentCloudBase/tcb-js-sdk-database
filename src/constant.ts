@@ -12,7 +12,9 @@ enum ErrorCode {
   CollNameError = '集合名称不合法',
   OpStrError = '操作符不合法',
   DirectionError = '排序字符不合法',
-  IntergerError = 'must be integer'
+  IntergerError = 'must be integer',
+  QueryParamTypeError = '查询参数必须为对象',
+  QueryParamValueError = '查询参数对象值不能均为undefined'
 }
 
 /**
@@ -39,7 +41,7 @@ const FieldType = {
 /**
  * 排序方向
  */
-type OrderByDirection = 'desc' | 'asc';
+type OrderByDirection = 'desc' | 'asc'
 
 /**
  * 排序方向列表
@@ -49,7 +51,7 @@ const OrderDirectionList = ['desc', 'asc']
 /**
  * 查询条件操作符
  */
-type WhereFilterOp = '<' | '<=' | '==' | '>=' | '>';
+type WhereFilterOp = '<' | '<=' | '==' | '>=' | '>'
 
 /**
  * 操作符列表

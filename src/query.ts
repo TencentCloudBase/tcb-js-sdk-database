@@ -11,6 +11,7 @@ import { UpdateSerializer } from './serializer/update'
 // import { WSClient } from "./websocket/wsclient"
 import { IWatchOptions, DBRealtimeListener } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
+import { ErrorCode } from './constant'
 
 interface GetRes {
   data: any[]
@@ -258,16 +259,27 @@ export class Query {
    * @param query
    */
   public where(query: object) {
-    // 记录转换前的query
-    // this._rawWhereParams = query
+    // query校验 1. 必填对象类型  2. value 不可均为undefiend
+    if (Object.prototype.toString.call(query).slice(8, -1) !== 'Object') {
+      throw Error(ErrorCode.QueryParamTypeError)
+    }
+
+    const keys = Object.keys(query)
+
+    const checkFlag = keys.some(item => {
+      return query[item] !== undefined
+    })
+
+    if (keys.length && !checkFlag) {
+      throw Error(ErrorCode.QueryParamValueError)
+    }
+
     return new Query(
       this._db,
       this._coll,
-      // this.convertParams(query),
       QuerySerializer.encode(query),
       this._fieldOrders,
       this._queryOptions
-      // this._rawWhereParams
     )
   }
 
