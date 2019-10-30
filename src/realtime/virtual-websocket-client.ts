@@ -1,6 +1,6 @@
 import set from 'lodash.set'
 import unset from 'lodash.unset'
-import cloneDeep from 'lodash.cloneDeep'
+import cloneDeep from 'lodash.clonedeep'
 import { genRequestId } from './message'
 import {
   IResponseMessage,
