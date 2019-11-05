@@ -61,9 +61,19 @@ astral-regex@^1.0.0:
   version "1.0.0"
   resolved "http://r.tnpm.oa.com/astral-regex/download/astral-regex-1.0.0.tgz#6c8c3fb827dd43ee3918f27b82782ab7658a6fd9"
 
+async-limiter@^1.0.0:
+  version "1.0.1"
+  resolved "http://r.tnpm.oa.com/async-limiter/download/async-limiter-1.0.1.tgz#dd379e94f0db8310b08291f9d64c3209766617fd"
+  integrity sha1-3TeelPDbgxCwgpH51kwyCXZmF/0=
+
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "http://r.tnpm.oa.com/balanced-match/download/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
+
+base64-js@^1.0.2:
+  version "1.3.1"
+  resolved "http://r.tnpm.oa.com/base64-js/download/base64-js-1.3.1.tgz#58ece8cb75dd07e71ed08c736abc5fac4dbf8df1"
+  integrity sha1-WOzoy3XdB+ce0IxzarxfrE2/jfE=
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -72,9 +82,30 @@ brace-expansion@^1.1.7:
     balanced-match "^1.0.0"
     concat-map "0.0.1"
 
+bson@^4.0.2:
+  version "4.0.2"
+  resolved "http://r.tnpm.oa.com/bson/download/bson-4.0.2.tgz#2929fdfed1a145b1c361908a2b950a6cf4bed2c2"
+  integrity sha1-KSn9/tGhRbHDYZCKK5UKbPS+0sI=
+  dependencies:
+    buffer "^5.1.0"
+    long "^4.0.0"
+
+buffer@^5.1.0:
+  version "5.4.3"
+  resolved "http://r.tnpm.oa.com/buffer/download/buffer-5.4.3.tgz#3fbc9c69eb713d323e3fc1a895eee0710c072115"
+  integrity sha1-P7ycaetxPTI+P8Gole7gcQwHIRU=
+  dependencies:
+    base64-js "^1.0.2"
+    ieee754 "^1.1.4"
+
 callsites@^3.0.0:
   version "3.0.0"
   resolved "http://r.tnpm.oa.com/callsites/download/callsites-3.0.0.tgz#fb7eb569b72ad7a45812f93fd9430a3e410b3dd3"
+
+camelcase@^5.3.1:
+  version "5.3.1"
+  resolved "http://r.tnpm.oa.com/camelcase/download/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
+  integrity sha1-48mzFWnhBoEd8kL3FXJaH0xJQyA=
 
 chalk@^2.0.0, chalk@^2.1.0, chalk@^2.4.2:
   version "2.4.2"
@@ -337,6 +368,11 @@ iconv-lite@^0.4.24:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
+ieee754@^1.1.4:
+  version "1.1.13"
+  resolved "http://r.tnpm.oa.com/ieee754/download/ieee754-1.1.13.tgz#ec168558e95aa181fd87d37f55c32bbcb6708b84"
+  integrity sha1-7BaFWOlaoYH9h9N/VcMrvLZwi4Q=
+
 ignore@^4.0.6:
   version "4.0.6"
   resolved "http://r.tnpm.oa.com/ignore/download/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
@@ -419,13 +455,33 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
+lodash.clonedeep@4.5.0:
+  version "4.5.0"
+  resolved "http://r.tnpm.oa.com/lodash.clonedeep/download/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+  integrity sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
+
+lodash.set@4.3.2:
+  version "4.3.2"
+  resolved "http://r.tnpm.oa.com/lodash.set/download/lodash.set-4.3.2.tgz#d8757b1da807dde24816b0d6a84bea1a76230b23"
+  integrity sha1-2HV7HagH3eJIFrDWqEvqGnYjCyM=
+
 lodash.unescape@4.0.1:
   version "4.0.1"
   resolved "http://r.tnpm.oa.com/lodash.unescape/download/lodash.unescape-4.0.1.tgz#bf2249886ce514cda112fae9218cdc065211fc9c"
 
+lodash.unset@4.5.2:
+  version "4.5.2"
+  resolved "http://r.tnpm.oa.com/lodash.unset/download/lodash.unset-4.5.2.tgz#370d1d3e85b72a7e1b0cdf2d272121306f23e4ed"
+  integrity sha1-Nw0dPoW3Kn4bDN8tJyEhMG8j5O0=
+
 lodash@^4.17.11:
   version "4.17.11"
   resolved "http://r.tnpm.oa.com/lodash/download/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
+
+long@^4.0.0:
+  version "4.0.0"
+  resolved "http://r.tnpm.oa.com/long/download/long-4.0.0.tgz#9a7b71cfb7d361a194ea555241c92f7468d5bf28"
+  integrity sha1-mntxz7fTYaGU6lVSQckvdGjVvyg=
 
 mimic-fn@^1.0.0:
   version "1.2.0"
@@ -686,9 +742,10 @@ typescript-estree@18.0.0:
     lodash.unescape "4.0.1"
     semver "5.5.0"
 
-typescript@^3.3.4000:
-  version "3.3.4000"
-  resolved "http://r.tnpm.oa.com/typescript/download/typescript-3.3.4000.tgz#76b0f89cfdbf97827e1112d64f283f1151d6adf0"
+typescript@^3.6.2:
+  version "3.6.4"
+  resolved "http://r.tnpm.oa.com/typescript/download/typescript-3.6.4.tgz#b18752bb3792bc1a0281335f7f6ebf1bbfc5b91d"
+  integrity sha1-sYdSuzeSvBoCgTNff26/G7/FuR0=
 
 uri-js@^4.2.2:
   version "4.2.2"
@@ -715,3 +772,10 @@ write@1.0.3:
   resolved "http://r.tnpm.oa.com/write/download/write-1.0.3.tgz#0800e14523b923a387e415123c865616aae0f5c3"
   dependencies:
     mkdirp "^0.5.1"
+
+ws@^7.0.0:
+  version "7.2.0"
+  resolved "http://r.tnpm.oa.com/ws/download/ws-7.2.0.tgz#422eda8c02a4b5dba7744ba66eebbd84bcef0ec7"
+  integrity sha1-Qi7ajAKktdundEumbuu9hLzvDsc=
+  dependencies:
+    async-limiter "^1.0.0"

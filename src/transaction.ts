@@ -51,7 +51,9 @@ export class Transaction {
     const param = {
       collectionName: documentRef._coll,
       transactionId: this._id,
-      _id: documentRef.id
+      query: {
+        _id: { $eq: documentRef.id }
+      }
     }
     const res = await this._request.send(GET_DOC, param)
     if (res.code) throw res
@@ -62,7 +64,9 @@ export class Transaction {
     const param = {
       collectionName: documentRef._coll,
       transactionId: this._id,
-      _id: documentRef.id,
+      query: {
+        _id: { $eq: documentRef.id }
+      },
       data: EJSON.stringify(data, { relaxed: false }),
       upsert: true
     }
@@ -82,7 +86,9 @@ export class Transaction {
     const param = {
       collectionName: documentRef._coll,
       transactionId: this._id,
-      _id: documentRef.id,
+      query: {
+        _id: { $eq: documentRef.id }
+      },
       data: EJSON.stringify({
         $set: data
       }, {
@@ -102,7 +108,9 @@ export class Transaction {
     const param = {
       collectionName: documentRef._coll,
       transactionId: this._id,
-      _id: documentRef.id
+      query: {
+        _id: { $eq: documentRef.id }
+      }
     }
 
     const res: DeleteResult | TcbError = await this._request.send(DELETE_DOC, param)
