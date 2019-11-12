@@ -192,9 +192,9 @@ export class Query {
     }
     if (this._queryOptions.limit) {
       param.limit =
-        this._queryOptions.limit < 100 ? this._queryOptions.limit : 100
+        this._queryOptions.limit < 1000 ? this._queryOptions.limit : 1000
     } else {
-      param.limit = 100
+      param.limit = 20
     }
     if (this._queryOptions.projection) {
       param.projection = this._queryOptions.projection
