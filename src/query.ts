@@ -194,7 +194,7 @@ export class Query {
       param.limit =
         this._queryOptions.limit < 1000 ? this._queryOptions.limit : 1000
     } else {
-      param.limit = 20
+      param.limit = 100
     }
     if (this._queryOptions.projection) {
       param.projection = this._queryOptions.projection
