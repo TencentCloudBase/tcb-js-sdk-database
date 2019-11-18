@@ -33,5 +33,10 @@ export const ERRORS = {
   DATABASE_TRANSACTION_CONFLICT: {
     code: 'DATABASE_TRANSACTION_CONFLICT',
     message: 'database transaction conflict'
+  },
+
+  DATABASE_REQUEST_FAILED: {
+    code: 'DATABASE_REQUEST_FAILED',
+    message: 'database request failed'
   }
 }

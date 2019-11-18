@@ -8,9 +8,11 @@ import { Util } from './util'
 import { QuerySerializer } from './serializer/query'
 import { UpdateSerializer } from './serializer/update'
 // import { WSClient } from "./websocket/wsclient"
-import { IWatchOptions, DBRealtimeListener } from './typings/index'
+import { IWatchOptions, DBRealtimeListener, IReqOpts } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 import { ErrorCode } from './constant'
+import { E } from './utils/utils'
+import { ERRORS } from './const/code'
 
 interface GetRes {
   data: any[]
@@ -153,7 +155,7 @@ export class Query {
    * - 默认获取集合下全部文档数据
    * - 可以把通过 `orderBy`、`where`、`skip`、`limit`设置的数据添加请求参数上
    */
-  public async get(): Promise<GetRes> {
+  public async get(opts?: IReqOpts): Promise<GetRes> {
     /* eslint-disable no-param-reassign */
     let newOder = []
     if (this._fieldOrders) {
@@ -184,15 +186,14 @@ export class Query {
       param.offset = this._queryOptions.offset
     }
     if (this._queryOptions.limit) {
-      param.limit =
-        this._queryOptions.limit < 1000 ? this._queryOptions.limit : 1000
+      param.limit = this._queryOptions.limit < 1000 ? this._queryOptions.limit : 1000
     } else {
       param.limit = 100
     }
     if (this._queryOptions.projection) {
       param.projection = this._queryOptions.projection
     }
-    const res = await this._request.send('database.queryDocument', param)
+    const res = await this._request.send('database.queryDocument', param, opts)
 
     if (res.code) {
       return res
@@ -202,7 +203,6 @@ export class Query {
         data: documents,
         requestId: res.requestId
       }
-      if (res.TotalCount) result.total = res.TotalCount
       if (res.Limit) result.limit = res.Limit
       if (res.Offset) result.offset = res.Offset
       return result
@@ -212,8 +212,7 @@ export class Query {
   /**
    * 获取总数
    */
-  public async count() {
-
+  public async count(opts?: IReqOpts) {
     interface Param {
       collectionName: string
       query?: Object
@@ -226,8 +225,8 @@ export class Query {
     if (this._fieldFilters) {
       param.query = this._fieldFilters
     }
-    const res = await this._request.send('database.countDocument', param)
-    
+    const res = await this._request.send('database.countDocument', param, opts)
+
     if (res.code) {
       return res
     } else {
@@ -284,13 +283,7 @@ export class Query {
     }
     const combinedOrders = this._fieldOrders.concat(newOrder)
 
-    return new Query(
-      this._db,
-      this._coll,
-      this._fieldFilters,
-      combinedOrders,
-      this._queryOptions
-    )
+    return new Query(this._db, this._coll, this._fieldFilters, combinedOrders, this._queryOptions)
   }
 
   /**
@@ -304,13 +297,7 @@ export class Query {
     let option = { ...this._queryOptions }
     option.limit = limit
 
-    return new Query(
-      this._db,
-      this._coll,
-      this._fieldFilters,
-      this._fieldOrders,
-      option
-    )
+    return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option)
   }
 
   /**
@@ -324,13 +311,7 @@ export class Query {
     let option = { ...this._queryOptions }
     option.offset = offset
 
-    return new Query(
-      this._db,
-      this._coll,
-      this._fieldFilters,
-      this._fieldOrders,
-      option
-    )
+    return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option)
   }
 
   /**
@@ -338,19 +319,13 @@ export class Query {
    *
    * @param data 数据
    */
-  public async update(data: Object): Promise<any> {
+  public async update(data: Object, opts?: IReqOpts): Promise<any> {
     if (!data || typeof data !== 'object') {
-      return Promise.resolve({
-        code: 'INVALID_PARAM',
-        message: '参数必需是非空对象'
-      })
+      throw E({ ...ERRORS.INVALID_PARAM, message: '参数必需是非空对象' })
     }
 
     if (data.hasOwnProperty('_id')) {
-      return Promise.resolve({
-        code: 'INVALID_PARAM',
-        message: '不能更新_id的值'
-      })
+      throw E({ ...ERRORS.INVALID_PARAM, message: '不能更新_id的值' })
     }
 
     let param = {
@@ -366,8 +341,8 @@ export class Query {
       // data: this.convertParams(data)
     }
 
-    const res = await this._request.send('database.updateDocument', param)
-    
+    const res = await this._request.send('database.updateDocument', param, opts)
+
     if (res.code) {
       return res
     } else {
@@ -398,23 +373,15 @@ export class Query {
     let option = { ...this._queryOptions }
     option.projection = projection
 
-    return new Query(
-      this._db,
-      this._coll,
-      this._fieldFilters,
-      this._fieldOrders,
-      option
-    )
+    return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option)
   }
 
   /**
    * 条件删除文档
    */
-  public async remove() {
+  public async remove(opts?: IReqOpts) {
     if (Object.keys(this._queryOptions).length > 0) {
-      console.warn(
-        '`offset`, `limit` and `projection` are not supported in remove() operation'
-      )
+      console.warn('`offset`, `limit` and `projection` are not supported in remove() operation')
     }
     if (this._fieldOrders.length > 0) {
       console.warn('`orderBy` is not supported in remove() operation')
@@ -425,8 +392,8 @@ export class Query {
       queryType: QueryType.WHERE,
       multi: true
     }
-    const res = await this._request.send('database.deleteDocument', param)
-    
+    const res = await this._request.send('database.deleteDocument', param, opts)
+
     if (res.code) {
       return res
     } else {

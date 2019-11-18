@@ -8,3 +8,22 @@ export const autoCount = (domain: string = 'any'): number => {
   }
   return counters[domain]++
 }
+
+export class TcbError extends Error {
+  readonly code: string
+  readonly message: string
+  constructor(error: IErrorInfo) {
+    super(error.message)
+    this.code = error.code
+    this.message = error.message
+  }
+}
+
+export const E = (errObj: IErrorInfo) => {
+  return new TcbError(errObj)
+}
+
+interface IErrorInfo {
+  code?: string
+  message?: string
+}

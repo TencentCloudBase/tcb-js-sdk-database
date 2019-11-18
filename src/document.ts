@@ -3,9 +3,11 @@ import { Util } from './util'
 import { UpdateSerializer } from './serializer/update'
 import { serialize } from './serializer/datatype'
 import { UpdateCommand } from './commands/update'
-import { IWatchOptions, DBRealtimeListener } from './typings/index'
+import { IWatchOptions, DBRealtimeListener, IReqOpts } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 import { QueryType } from './constant'
+import { E } from './utils/utils'
+import { ERRORS } from './const/code'
 
 /**
  * 文档模块
@@ -68,7 +70,7 @@ export class DocumentReference {
    * @param data - 文档数据
    * @internal
    */
-  async create(data: any): Promise<any> {
+  async create(data: any, opts?: IReqOpts): Promise<any> {
     let params = {
       collectionName: this._coll,
       // data: Util.encodeDocumentDataForReq(data, false, false)
@@ -79,7 +81,7 @@ export class DocumentReference {
       params['_id'] = this.id
     }
 
-    const res = await this.request.send('database.addDocument', params)
+    const res = await this.request.send('database.addDocument', params, opts)
 
     if (res.code) {
       return res
@@ -98,27 +100,19 @@ export class DocumentReference {
    * 添加数据的话，根据返回数据的 set 判断影响的行数
    *
    * @param data - 文档数据
+   * @param opts - 可选项
    */
-  async set(data: Object): Promise<any> {
+  async set(data: Object, opts?: IReqOpts): Promise<any> {
     if (!this.id) {
-      return Promise.resolve({
-        code: 'INVALID_PARAM',
-        message: 'docId不能为空'
-      })
+      throw E({ ...ERRORS.INVALID_PARAM, message: 'docId不能为空' })
     }
 
     if (!data || typeof data !== 'object') {
-      return Promise.resolve({
-        code: 'INVALID_PARAM',
-        message: '参数必需是非空对象'
-      })
+      throw E({ ...ERRORS.INVALID_PARAM, message: '参数必需是非空对象' })
     }
 
     if (data.hasOwnProperty('_id')) {
-      return Promise.resolve({
-        code: 'INVALID_PARAM',
-        message: '不能更新_id的值'
-      })
+      throw E({ ...ERRORS.INVALID_PARAM, message: '不能更新_id的值' })
     }
 
     let hasOperator = false
@@ -137,8 +131,8 @@ export class DocumentReference {
 
     if (hasOperator) {
       //不能包含操作符
-      return Promise.resolve({
-        code: 'DATABASE_REQUEST_FAILED',
+      throw E({
+        ...ERRORS.DATABASE_REQUEST_FAILED,
         message: 'update operator complicit'
       })
     }
@@ -158,7 +152,7 @@ export class DocumentReference {
       param['query'] = { _id: this.id }
     }
 
-    const res: any = await this.request.send('database.updateDocument', param)
+    const res: any = await this.request.send('database.updateDocument', param, opts)
 
     if (res.code) {
       return res
@@ -175,20 +169,15 @@ export class DocumentReference {
    * 更新数据
    *
    * @param data - 文档数据
+   * @param opts - 可选项
    */
-  async update(data: Object) {
+  async update(data: Object, opts?: IReqOpts): Promise<any> {
     if (!data || typeof data !== 'object') {
-      return Promise.resolve({
-        code: 'INVALID_PARAM',
-        message: '参数必需是非空对象'
-      })
+      throw E({ ...ERRORS.INVALID_PARAM, message: '参数必需是非空对象' })
     }
 
     if (data.hasOwnProperty('_id')) {
-      return Promise.resolve({
-        code: 'INVALID_PARAM',
-        message: '不能更新_id的值'
-      })
+      throw E({ ...ERRORS.INVALID_PARAM, message: '不能更新_id的值' })
     }
 
     const query = { _id: this.id }
@@ -203,8 +192,8 @@ export class DocumentReference {
       merge,
       upsert: false
     }
-    const res = await this.request.send('database.updateDocument', param)
-    
+    const res = await this.request.send('database.updateDocument', param, opts)
+
     if (res.code) {
       return res
     } else {
@@ -219,7 +208,7 @@ export class DocumentReference {
   /**
    * 删除文档
    */
-  async remove(): Promise<any> {
+  async remove(opts?: IReqOpts): Promise<any> {
     const query = { _id: this.id }
     const param = {
       collectionName: this._coll,
@@ -228,7 +217,7 @@ export class DocumentReference {
       multi: false
     }
 
-    const res = await this.request.send('database.deleteDocument', param)
+    const res = await this.request.send('database.deleteDocument', param, opts)
 
     if (res.code) {
       return res
@@ -243,7 +232,7 @@ export class DocumentReference {
   /**
    * 返回选中的文档（_id）
    */
-  async get(): Promise<any> {
+  async get(opts?: IReqOpts): Promise<any> {
     const query = { _id: this.id }
     const param = {
       collectionName: this._coll,
@@ -252,7 +241,7 @@ export class DocumentReference {
       multi: false,
       projection: this.projection
     }
-    const res = await this.request.send('database.queryDocument', param)
+    const res = await this.request.send('database.queryDocument', param, opts)
 
     if (res.code) {
       return res
@@ -261,7 +250,6 @@ export class DocumentReference {
       return {
         data: documents,
         requestId: res.requestId,
-        total: res.TotalCount,
         limit: res.Limit,
         offset: res.Offset
       }

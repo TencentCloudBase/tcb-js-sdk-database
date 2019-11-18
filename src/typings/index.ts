@@ -64,3 +64,7 @@ export interface IServiceContext {
   // debug: boolean
   env?: string
 }
+
+export interface IReqOpts {
+  timeout: number
+}
