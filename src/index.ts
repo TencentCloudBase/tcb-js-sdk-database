@@ -13,6 +13,10 @@ interface GeoTeyp {
   Point: typeof Point
 }
 
+export { Query } from './query'
+export { CollectionReference } from './collection'
+export { DocumentReference } from './document'
+
 /**
  * 数据库模块
  *
