@@ -1,6 +1,7 @@
 import { Db } from './index'
 import { DocumentReference } from './document'
 import { Query } from './query'
+import { IReqOpts } from './typings/index'
 import Aggregation from './aggregate'
 
 /**
@@ -44,11 +45,12 @@ export class CollectionReference extends Query {
   /**
    * 添加一篇文档
    *
-   * @param data - 数据
+   * @param data  - 数据
+   * @param opts  - 可选配置项
    */
-  add(data: Object): Promise<any> {
+  add(data: Object, opts?: IReqOpts): Promise<any> {
     let docRef = new DocumentReference(this._db, this._coll, undefined)
-    return docRef.create(data)
+    return docRef.create(data, opts)
   }
 
   aggregate() {
