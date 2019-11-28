@@ -1,6 +1,6 @@
 import { createPromiseCallback } from './lib/util'
 /* eslint-disable no-unused-vars */
-import { OrderByDirection } from './constant'
+import { OrderByDirection, QueryType } from './constant'
 import { Db } from './index'
 import { Validate } from './validate'
 import { Util } from './util'
@@ -173,13 +173,15 @@ export class Query {
     interface Param {
       collectionName: string
       query?: Object
+      queryType: QueryType
       order?: string[]
       offset?: number
       limit?: number
       projection?: Object
     }
     let param: Param = {
-      collectionName: this._coll
+      collectionName: this._coll,
+      queryType: QueryType.WHERE
     }
     if (this._fieldFilters) {
       param.query = this._fieldFilters
@@ -232,9 +234,11 @@ export class Query {
     interface Param {
       collectionName: string
       query?: Object
+      queryType: QueryType
     }
     let param: Param = {
-      collectionName: this._coll
+      collectionName: this._coll,
+      queryType: QueryType.WHERE
     }
     if (this._fieldFilters) {
       param.query = this._fieldFilters
@@ -373,6 +377,7 @@ export class Query {
     let param = {
       collectionName: this._coll,
       query: this._fieldFilters,
+      queryType: QueryType.WHERE,
       // query: QuerySerializer.encode(this._fieldFilters),
       multi: true,
       merge: true,
@@ -442,6 +447,7 @@ export class Query {
     const param = {
       collectionName: this._coll,
       query: QuerySerializer.encode(this._fieldFilters),
+      queryType: QueryType.WHERE,
       multi: true
     }
     this._request.send('database.deleteDocument', param).then(res => {

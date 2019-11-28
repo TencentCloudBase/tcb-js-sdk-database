@@ -95,6 +95,15 @@ const UpdateOperatorList = [
   '$position'
 ]
 
+/**
+ * queryType
+ */
+
+enum QueryType {
+  WHERE = 'WHERE',
+  DOC = 'DOC'
+}
+
 export {
   ErrorCode,
   FieldType,
@@ -104,5 +113,6 @@ export {
   OperatorMap,
   OrderByDirection,
   OrderDirectionList,
-  UpdateOperatorList
+  UpdateOperatorList,
+  QueryType
 }

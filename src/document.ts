@@ -6,6 +6,7 @@ import { serialize } from './serializer/datatype'
 import { UpdateCommand } from './commands/update'
 import { IWatchOptions, DBRealtimeListener } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
+import { QueryType } from './constant'
 
 /**
  * 文档模块
@@ -160,6 +161,7 @@ export class DocumentReference {
     const merge = false //data不能带有操作符
     let param = {
       collectionName: this._coll,
+      queryType: QueryType.DOC,
       // data: Util.encodeDocumentDataForReq(data, merge, false),
       data: serialize(data),
       multi: false,
@@ -220,6 +222,7 @@ export class DocumentReference {
       // data: Util.encodeDocumentDataForReq(data, merge, true),
       data: UpdateSerializer.encode(data),
       query: query,
+      queryType: QueryType.DOC,
       multi: false,
       merge,
       upsert: false
@@ -254,6 +257,7 @@ export class DocumentReference {
     const param = {
       collectionName: this._coll,
       query: query,
+      queryType: QueryType.DOC,
       multi: false
     }
 
@@ -286,6 +290,7 @@ export class DocumentReference {
     const param = {
       collectionName: this._coll,
       query: query,
+      queryType: QueryType.DOC,
       multi: false,
       projection: this.projection
     }
