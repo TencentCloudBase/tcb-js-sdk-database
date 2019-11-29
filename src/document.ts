@@ -227,6 +227,7 @@ export class DocumentReference {
       merge,
       upsert: false
     }
+
     this.request
       .send('database.updateDocument', param)
       .then(res => {

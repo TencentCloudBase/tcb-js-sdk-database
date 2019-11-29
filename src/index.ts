@@ -4,7 +4,7 @@ import { CollectionReference } from './collection'
 import { Command } from './command'
 import { ServerDateConstructor } from './serverDate/index'
 import { RegExpConstructor } from './regexp/index'
-import { startTransaction, runTransaction } from './transaction'
+import { startTransaction, runTransaction } from './transaction/index'
 
 /**
  * 地理位置类型

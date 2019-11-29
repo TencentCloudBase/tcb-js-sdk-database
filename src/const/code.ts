@@ -1,4 +1,4 @@
-exports.ERRORS = {
+export const ERRORS = {
   // 创建侦听失败 网络原因
   CREATE_WATCH_NET_ERROR: {
     code: 'CREATE_WATCH_NET_ERROR',
@@ -23,5 +23,10 @@ exports.ERRORS = {
   INVALID_PARAM: {
     code: 'INVALID_PARAM',
     message: 'Invalid request param'
+  },
+
+  INSERT_DOC_FAIL: {
+    code: 'INSERT_DOC_FAIL',
+    message: 'insert document failed'
   }
 }
