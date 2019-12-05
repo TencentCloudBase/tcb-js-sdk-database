@@ -22,6 +22,7 @@ import { CloudSDKError, TimeoutError } from '../utils/error'
 // import { CloudSDKError } from "./utils/error"
 import { RealtimeErrorMessageError } from './error'
 import { ERR_CODE } from '../config/error.config'
+import { Db } from '../';
 
 // =============== Realtime WebSocket Client (Internal) ====================
 
@@ -196,7 +197,9 @@ export class RealtimeWebSocketClient {
 
           // this._ws = new WebSocket("ws://212.129.231.116:80")
           // this._ws = new WebSocket("ws://212.64.45.4:8080")
-          this._ws = new WebSocket('wss://tcb-ws.tencentcloudapi.com')
+          // this._ws = new WebSocket('wss://tcb-ws.tencentcloudapi.com')
+          const url = 'wss://tcb-ws.tencentcloudapi.com';
+          this._ws = Db.wsClass ? new Db.wsClass(url) : new WebSocket(url)
           success()
         })
 
@@ -801,12 +804,12 @@ export class RealtimeWebSocketClient {
       try {
         // if (this._context.debug) {
         // console.log(`[realtime] ws send (${new Date()}): `, opts)
-        console.log(
-          `[realtime] ws send ${
-            opts.msg.msgType
-          } (${new Date().toLocaleString()}): `,
-          opts
-        )
+        // console.log(
+        //   `[realtime] ws send ${
+        //     opts.msg.msgType
+        //   } (${new Date().toLocaleString()}): `,
+        //   opts
+        // )
         // }
 
         if (this._wsInitPromise) {
