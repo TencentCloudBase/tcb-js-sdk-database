@@ -54,6 +54,8 @@ export class Db {
 
   static reqClass: any
 
+  static wsClass: any
+
   static getAccessToken: Function
 
   constructor(config?: any) {

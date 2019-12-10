@@ -61,11 +61,6 @@ astral-regex@^1.0.0:
   version "1.0.0"
   resolved "http://r.tnpm.oa.com/astral-regex/download/astral-regex-1.0.0.tgz#6c8c3fb827dd43ee3918f27b82782ab7658a6fd9"
 
-async-limiter@^1.0.0:
-  version "1.0.1"
-  resolved "http://r.tnpm.oa.com/async-limiter/download/async-limiter-1.0.1.tgz#dd379e94f0db8310b08291f9d64c3209766617fd"
-  integrity sha1-3TeelPDbgxCwgpH51kwyCXZmF/0=
-
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "http://r.tnpm.oa.com/balanced-match/download/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
@@ -101,11 +96,6 @@ buffer@^5.1.0:
 callsites@^3.0.0:
   version "3.0.0"
   resolved "http://r.tnpm.oa.com/callsites/download/callsites-3.0.0.tgz#fb7eb569b72ad7a45812f93fd9430a3e410b3dd3"
-
-camelcase@^5.3.1:
-  version "5.3.1"
-  resolved "http://r.tnpm.oa.com/camelcase/download/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
-  integrity sha1-48mzFWnhBoEd8kL3FXJaH0xJQyA=
 
 chalk@^2.0.0, chalk@^2.1.0, chalk@^2.4.2:
   version "2.4.2"
@@ -772,10 +762,3 @@ write@1.0.3:
   resolved "http://r.tnpm.oa.com/write/download/write-1.0.3.tgz#0800e14523b923a387e415123c865616aae0f5c3"
   dependencies:
     mkdirp "^0.5.1"
-
-ws@^7.0.0:
-  version "7.2.0"
-  resolved "http://r.tnpm.oa.com/ws/download/ws-7.2.0.tgz#422eda8c02a4b5dba7744ba66eebbd84bcef0ec7"
-  integrity sha1-Qi7ajAKktdundEumbuu9hLzvDsc=
-  dependencies:
-    async-limiter "^1.0.0"
