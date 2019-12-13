@@ -148,9 +148,9 @@ export class RealtimeWebSocketClient {
     }
 
     // if (process.env.DEBUG) {
-    console.log(
-      `[realtime] initWebSocketConnection reconnect ${reconnect} availableRetries ${availableRetries}`
-    )
+    // console.log(
+    //   `[realtime] initWebSocketConnection reconnect ${reconnect} availableRetries ${availableRetries}`
+    // )
     // }
 
     if (reconnect) {
@@ -162,16 +162,16 @@ export class RealtimeWebSocketClient {
     this._wsInitPromise = new Promise<void>(async (resolve, reject) => {
       try {
         // if (process.env.DEBUG) {
-        console.log(
-          '[realtime] initWebSocketConnection start throwErrorIfNetworkOffline'
-        )
+        // console.log(
+        //   '[realtime] initWebSocketConnection start throwErrorIfNetworkOffline'
+        // )
         // }
 
         // 暂不检查网络态
         // await throwErrorIfNetworkOffline()
 
         // if (process.env.DEBUG) {
-        console.log('[realtime] initWebSocketConnection start getSignature')
+        // console.log('[realtime] initWebSocketConnection start getSignature')
         // }
 
         // const signature = await this.getSignature()
@@ -179,8 +179,8 @@ export class RealtimeWebSocketClient {
         await this.getAccessToken()
 
         // if (process.env.DEBUG) {
-        console.log('[realtime] initWebSocketConnection getSignature success')
-        console.log('[realtime] initWebSocketConnection start connectSocket')
+        // console.log('[realtime] initWebSocketConnection getSignature success')
+        // console.log('[realtime] initWebSocketConnection start connectSocket')
         // }
 
         await new Promise(success => {
@@ -204,9 +204,9 @@ export class RealtimeWebSocketClient {
         })
 
         // if (process.env.DEBUG) {
-        console.log(
-          '[realtime] initWebSocketConnection connectSocket successfully fired'
-        )
+        // console.log(
+        //   '[realtime] initWebSocketConnection connectSocket successfully fired'
+        // )
         // }
 
         await this.initWebSocketEvent()
@@ -228,9 +228,9 @@ export class RealtimeWebSocketClient {
           const isConnected = true
 
           // if (process.env.DEBUG) {
-          console.log(
-            '[realtime] initWebSocketConnection waiting for network online'
-          )
+          // console.log(
+          //   '[realtime] initWebSocketConnection waiting for network online'
+          // )
           // }
 
           // auto wait until network online, cause' it would be meaningless to reconnect while network is offline
@@ -243,16 +243,16 @@ export class RealtimeWebSocketClient {
           // }
 
           // if (process.env.DEBUG) {
-          console.log('[realtime] initWebSocketConnection network online')
+          // console.log('[realtime] initWebSocketConnection network online')
           // }
 
           this._wsInitPromise = undefined
 
           if (isConnected) {
             // if (process.env.DEBUG) {
-            console.log(
-              `[realtime] initWebSocketConnection sleep ${this._reconnectInterval}ms`
-            )
+            // console.log(
+            //   `[realtime] initWebSocketConnection sleep ${this._reconnectInterval}ms`
+            // )
             // }
             await sleep(this._reconnectInterval)
             if (reconnect) {
@@ -276,11 +276,11 @@ export class RealtimeWebSocketClient {
       }
     })
 
-    let success = false
+    // let success = false
 
     try {
       await this._wsInitPromise
-      success = true
+      // success = true
       this._wsReadySubsribers.forEach(({ resolve }) => resolve())
     } catch (e) {
       this._wsReadySubsribers.forEach(({ reject }) => reject())
@@ -290,9 +290,9 @@ export class RealtimeWebSocketClient {
     }
 
     // if (process.env.DEBUG) {
-    console.log(
-      `[realtime] initWebSocketConnection ${success ? 'success' : 'fail'}`
-    )
+    // console.log(
+    //   `[realtime] initWebSocketConnection ${success ? 'success' : 'fail'}`
+    // )
     // }
   }
 
@@ -435,12 +435,12 @@ export class RealtimeWebSocketClient {
           throw new Error(`[realtime] onMessage parse res.data error: ${e}`)
         }
 
-        console.log(
-          `[realtime] onMessage ${
-            msg.msgType
-          } (${new Date().toLocaleString()})`,
-          msg
-        )
+        // console.log(
+        //   `[realtime] onMessage ${
+        //     msg.msgType
+        //   } (${new Date().toLocaleString()})`,
+        //   msg
+        // )
 
         if (msg.msgType === 'ERROR') {
           // 找到当前监听，并将error返回
@@ -519,8 +519,8 @@ export class RealtimeWebSocketClient {
               break
             }
             default: {
-              for (const [watchId, client] of this._watchIdClientMap) {
-                console.log('watchid*****', watchId)
+              for (const [,client] of this._watchIdClientMap) {
+                // console.log('watchid*****', watchId)
                 client.onMessage(msg)
                 break
               }
@@ -564,7 +564,7 @@ export class RealtimeWebSocketClient {
         if (loginInfo) {
           if (loginInfo.loggedIn && loginInfo.loginResult) {
             // if (process.env.DEBUG) {
-            console.log('[realtime] login: already logged in')
+            // console.log('[realtime] login: already logged in')
             // }
             return loginInfo.loginResult
           } else if (loginInfo.loggingInPromise) {
@@ -578,7 +578,7 @@ export class RealtimeWebSocketClient {
         }
       }
     }
-    console.log('[realtime] login: logging in')
+    // console.log('[realtime] login: logging in')
 
     const promise = new Promise<ILoginResult>(async (resolve, reject) => {
       try {
@@ -765,7 +765,7 @@ export class RealtimeWebSocketClient {
     await this.send({
       msg
     })
-    console.log('ping sent')
+    // console.log('ping sent')
   }
 
   send = <T = any>(opts: IWSSendOptions): Promise<T> =>
@@ -842,7 +842,7 @@ export class RealtimeWebSocketClient {
           } as IResponseWaitSpec)
         }
 
-        console.log('send msg:', opts.msg)
+        // console.log('send msg:', opts.msg)
         try {
           this._ws.send(JSON.stringify(opts.msg))
           if (!opts.waitResponse) {
