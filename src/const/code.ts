@@ -28,5 +28,10 @@ export const ERRORS = {
   INSERT_DOC_FAIL: {
     code: 'INSERT_DOC_FAIL',
     message: 'insert document failed'
+  },
+
+  DATABASE_TRANSACTION_CONFLICT: {
+    code: 'DATABASE_TRANSACTION_CONFLICT',
+    message: 'database transaction conflict'
   }
 }
