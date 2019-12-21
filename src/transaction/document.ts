@@ -1,6 +1,9 @@
 import { Transaction } from './index'
 import { EJSON } from 'bson'
 import { ERRORS } from '../const/code'
+import { UpdateSerializer } from '../serializer/update'
+import { serialize } from '../serializer/datatype'
+import { Util } from '../util'
 
 // class DocumentSnapshot {
 //   private _data: any
@@ -108,7 +111,7 @@ export class DocumentReference {
     let params = {
       collectionName: this._coll,
       transactionId: this._transactionId,
-      data: EJSON.stringify(data, { relaxed: false })
+      data: EJSON.stringify(serialize(data), { relaxed: false })
     }
 
     if (this.id) {
@@ -144,9 +147,8 @@ export class DocumentReference {
     }
     const res = await this._request.send(GET_DOC, param)
     if (res.code) throw res
-    // return new DocumentSnapshot(EJSON.parse(res.data), res.requestId)
     return {
-      data: EJSON.parse(res.data),
+      data: res.data !== 'null' ? Util.formatField(EJSON.parse(res.data)) : EJSON.parse(res.data),
       requestId: res.requestId
     }
   }
@@ -158,7 +160,7 @@ export class DocumentReference {
       query: {
         _id: { $eq: this.id }
       },
-      data: EJSON.stringify(data, { relaxed: false }),
+      data: EJSON.stringify(serialize(data), { relaxed: false }),
       upsert: true
     }
 
@@ -181,9 +183,10 @@ export class DocumentReference {
         _id: { $eq: this.id }
       },
       data: EJSON.stringify(
-        {
-          $set: data
-        },
+        // {
+        //   $set: UpdateSerializer.encode(data)
+        // },
+        UpdateSerializer.encode(data),
         {
           relaxed: false
         }

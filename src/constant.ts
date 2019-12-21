@@ -35,7 +35,8 @@ const FieldType = {
   GeoMultiPolygon: 'GeoMultiPolygon',
   Timestamp: 'Date',
   Command: 'Command',
-  ServerDate: 'ServerDate'
+  ServerDate: 'ServerDate',
+  BsonDate: 'BsonDate'
 }
 
 /**

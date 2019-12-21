@@ -19,6 +19,8 @@ export class Transaction {
 
   public aborted: boolean
 
+  public abortReason: any
+
   public commited: boolean
 
   public inited: boolean
@@ -77,9 +79,11 @@ export class Transaction {
     const res: RollbackResult | TcbError = await this._request.send(ABORT, param)
     if ((res as TcbError).code) throw res
     this.aborted = true // 标记当前事务已回滚
-    if (customRollbackRes !== undefined) {
-      return customRollbackRes
-    }
+    this.abortReason = customRollbackRes
+    // if (customRollbackRes !== undefined) {
+    //   // 用户自定义错误
+    //   throw customRollbackRes
+    // }
     return res as RollbackResult
   }
 }
@@ -103,7 +107,7 @@ export async function runTransaction(
 
     // 检查事务是否有回滚
     if (transaction.aborted === true) {
-      throw callbackRes
+      throw transaction.abortReason
     }
     await transaction.commit()
     return callbackRes
@@ -116,7 +120,17 @@ export async function runTransaction(
     const throwWithRollback = async error => {
       if (!transaction.aborted && !transaction.commited) {
         // init完成，但是未commit  且 未rollback，自动调用rollback
-        await transaction.rollback()
+        try {
+          await transaction.rollback()
+        } catch (err) {
+          // 保护数据库 释放锁而做的隐式操作 
+        }
+        throw error
+      }
+
+      // rollback自定义返回 抛出
+      if (transaction.aborted === true) {
+        throw transaction.abortReason
       }
 
       // 正常rollback 也会 throw返回
@@ -128,7 +142,7 @@ export async function runTransaction(
       await throwWithRollback(error)
     }
 
-    if (error.code === ERRORS.DATABASE_TRANSACTION_CONFLICT.code) {
+    if (error && error.code === ERRORS.DATABASE_TRANSACTION_CONFLICT.code) {
       return await runTransaction.bind(this)(callback, --times)
     }
 

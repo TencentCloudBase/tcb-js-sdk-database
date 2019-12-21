@@ -3,7 +3,7 @@ import { Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon }
 import { ServerDate } from './serverDate/index'
 
 interface DocumentModel {
-  _id: string;
+  _id: string
 }
 
 /**
@@ -21,7 +21,7 @@ export class Util {
     return documents.map(document => {
       return Util.formatField(document)
     })
-  };
+  }
 
   /**
    * 格式化字段
@@ -31,7 +31,7 @@ export class Util {
    * @param document
    * @internal
    */
-  private static formatField = document => {
+  public static formatField = document => {
     const keys = Object.keys(document)
     let protoField = {}
 
@@ -100,7 +100,7 @@ export class Util {
       }
     })
     return protoField
-  };
+  }
 
   /**
    * 查看数据类型
@@ -109,6 +109,10 @@ export class Util {
    */
   public static whichType = (obj: any): String => {
     let type = Object.prototype.toString.call(obj).slice(8, -1)
+
+    if (type === FieldType.Timestamp) {
+      return FieldType.BsonDate
+    }
 
     if (type === FieldType.Object) {
       if (obj instanceof Point) {
@@ -142,7 +146,7 @@ export class Util {
       }
     }
     return type
-  };
+  }
 
   /**
    * 生成文档ID
@@ -156,5 +160,5 @@ export class Util {
       autoId += chars.charAt(Math.floor(Math.random() * chars.length))
     }
     return autoId
-  };
+  }
 }
