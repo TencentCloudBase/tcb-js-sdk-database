@@ -49,9 +49,16 @@ export interface IRequestMessageLoginData {
   dataVersion: string
 }
 
+export interface IRequestExtraMessageLoginData {
+  sign: string
+  timestamp: number
+  appAccessKey: string
+  appSign: string
+}
 export interface IRequestMessageLoginMsg extends IRequestMessageBase<false> {
   msgType: 'LOGIN'
   msgData: IRequestMessageLoginData
+  exMsgData?: IRequestExtraMessageLoginData
 }
 
 export interface IRequestMessageInitWatchData {

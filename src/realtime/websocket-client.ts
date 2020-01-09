@@ -11,7 +11,8 @@ import {
   IResponseMessage,
   IRequestMessagePingMsg,
   IRequestMessageLoginMsg,
-  IResponseMessageLoginResMsg
+  IResponseMessageLoginResMsg,
+  IRequestMessageLoginData
 } from '../typings/realtime'
 import {
   CLOSE_EVENT_CODE,
@@ -201,6 +202,8 @@ export class RealtimeWebSocketClient {
           // this._ws = new WebSocket("ws://212.64.45.4:8080")
           // this._ws = new WebSocket('wss://tcb-ws.tencentcloudapi.com')
           const url = 'wss://tcb-ws.tencentcloudapi.com';
+          // debug
+          // const url = 'ws://tcb-ws.tencentcloudapi.com';
           this._ws = Db.wsClass ? new Db.wsClass(url) : new WebSocket(url)
           success()
         })
@@ -589,22 +592,39 @@ export class RealtimeWebSocketClient {
         const accessTokenRes = await this.getAccessToken()
 
         // const wxVersion = getWXVersion()
-
+        const msgData: IRequestMessageLoginData = {
+          envId: accessTokenRes.env || '',
+          accessToken: accessTokenRes.accessToken,
+          // signStr: signature.signStr,
+          // secretVersion: signature.secretVersion,
+          referrer: 'web',
+          sdkVersion: '',
+          dataVersion: Db.dataVersion||''
+        }
         const loginMsg: IRequestMessageLoginMsg = {
           watchId: undefined,
           requestId: genRequestId(),
           msgType: 'LOGIN',
-          msgData: {
-            envId: accessTokenRes.env || '',
-            accessToken: accessTokenRes.accessToken,
-            // signStr: signature.signStr,
-            // secretVersion: signature.secretVersion,
-            referrer: 'web',
-            sdkVersion: '',
-            dataVersion: ''
+          msgData
+        }
+        // 非常规web场景下附加应用签名信息
+        if(Db.runtime !== 'web'){
+          const timestamp = Date.now();
+          const {appAccessKey,appAccessKeyId,appSign} = Db.appSecretInfo;
+          const payload = {
+            data: msgData,
+            timestamp,
+            appAccessKeyId,
+            appSign
+          };
+          const sign = Db.createSign(payload,appAccessKey);
+          loginMsg.exMsgData = {
+            timestamp,
+            appAccessKey,
+            appSign,
+            sign
           }
         }
-
         const loginResMsg = await this.send<IResponseMessageLoginResMsg>({
           msg: loginMsg,
           waitResponse: true,
