@@ -56,7 +56,16 @@ export class Db {
 
   static wsClass: any
 
+  // 创建签名的工具函数，由jssdk传入
+  static createSign: Function
+
   static getAccessToken: Function
+  // 由jssdk传入
+  static dataVersion: string
+  // 运行环境，由jssdk传入
+  static runtime: string
+  // 应用签名信息，由jssdk传入
+  static appSecretInfo: any
 
   constructor(config?: any) {
     this.config = config
