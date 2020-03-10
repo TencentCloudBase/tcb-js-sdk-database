@@ -82,7 +82,7 @@ export default class Aggregation {
   }
 
   match(param) {
-    return this._pipe('match', QuerySerializer.encode(param))
+    return this._pipe('match', QuerySerializer.encodeEJSON(param))
   }
 
   project(param) {
