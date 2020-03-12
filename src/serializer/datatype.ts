@@ -1,14 +1,6 @@
 // transpile internal data type
 import { SYMBOL_GEO_POINT, SYMBOL_SERVER_DATE, SYMBOL_REGEXP } from '../helper/symbol'
-import {
-  getType,
-  isObject,
-  isArray,
-  isDate,
-  isNumber,
-  isInternalObject,
-  isRegExp
-} from '../utils/type'
+import { getType, isObject, isArray, isDate, isNumber, isInternalObject, isRegExp } from '../utils/type'
 import { Point } from '../geo/index'
 import { ServerDate } from '../serverDate/index'
 import { RegExp } from '../regexp/index'
@@ -24,7 +16,10 @@ export function serialize(val: any): IQueryCondition {
   return serializeHelper(val, [val])
 }
 
-function serializeHelper(val: any, visited: object[]): Record<string, any> {
+function serializeHelper(
+  val: any,
+  visited: object[]
+): Record<string, any> {
   if (isInternalObject(val)) {
     switch (val._internalType) {
       case SYMBOL_GEO_POINT: {
@@ -42,12 +37,12 @@ function serializeHelper(val: any, visited: object[]): Record<string, any> {
     }
   } else if (isDate(val)) {
     return {
-      $date: +val
+      $date: +val,
     }
   } else if (isRegExp(val)) {
     return {
       $regex: val.source,
-      $options: val.flags
+      $options: val.flags,
     }
   } else if (isArray(val)) {
     return val.map(item => {
@@ -55,7 +50,10 @@ function serializeHelper(val: any, visited: object[]): Record<string, any> {
         throw new Error('Cannot convert circular structure to JSON')
       }
 
-      return serializeHelper(item, [...visited, item])
+      return serializeHelper(item, [
+        ...visited,
+        item,
+      ])
     })
   } else if (isObject(val)) {
     const ret: AnyObject = { ...val }
@@ -64,7 +62,10 @@ function serializeHelper(val: any, visited: object[]): Record<string, any> {
         throw new Error('Cannot convert circular structure to JSON')
       }
 
-      ret[key] = serializeHelper(ret[key], [...visited, ret[key]])
+      ret[key] = serializeHelper(ret[key], [
+        ...visited,
+        ret[key],
+      ])
     }
     return ret
   } else {
@@ -93,11 +94,7 @@ export function deserialize(object: AnyObject): any {
         switch (ret.type) {
           case 'Point': {
             // GeoPoint
-            if (
-              isArray(ret.coordinates) &&
-              isNumber(ret.coordinates[0]) &&
-              isNumber(ret.coordinates[1])
-            ) {
+            if (isArray(ret.coordinates) && isNumber(ret.coordinates[0]) && isNumber(ret.coordinates[1])) {
               return new Point(ret.coordinates[0], ret.coordinates[1])
             }
             break
