@@ -485,6 +485,9 @@ export class Query {
       )
     }
 
+    let { multi } = this._apiOptions as UpdateOption
+    multi = multi === undefined ? true : multi // where remove 不传multi默认为true
+
     const param = {
       collectionName: this._coll,
       query: this._fieldFilters,
