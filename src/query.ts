@@ -492,7 +492,7 @@ export class Query {
       collectionName: this._coll,
       query: this._fieldFilters,
       queryType: QueryType.WHERE,
-      multi: true
+      multi
     }
     const res = await this._request.send(
       'database.deleteDocumentV3',
