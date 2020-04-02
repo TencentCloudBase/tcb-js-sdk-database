@@ -1,20 +1,22 @@
 import { SYMBOL_REGEXP } from '../helper/symbol'
 
 export class RegExp {
-  $regex: string
-  $options: string
+  pattern: string
+  options: string
   constructor({ regexp, options }) {
     if (!regexp) {
       throw new TypeError('regexp must be a string')
     }
-    this.$regex = regexp
-    this.$options = options
+    this.pattern = regexp
+    this.options = options
   }
 
   parse() {
     return {
-      $regex: this.$regex || '',
-      $options: this.$options || ''
+      $regularExpression: {
+        pattern: this.pattern || '',
+        options: this.options || ''
+      }
     }
   }
 

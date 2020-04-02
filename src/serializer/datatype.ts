@@ -47,8 +47,10 @@ function serializeHelper(val: any, visited: object[]): Record<string, any> {
     // }
   } else if (isRegExp(val)) {
     return {
-      $regex: val.source,
-      $options: val.flags
+      $regularExpression: {
+        pattern: val.source,
+        options: val.flags
+      }
     }
   } else if (isArray(val)) {
     return val.map(item => {
