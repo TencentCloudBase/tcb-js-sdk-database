@@ -462,6 +462,7 @@ export class VirtualWebSocketClient {
     this.clearACKSchedule()
 
     // TODO: should we check status after timeout
+    // @ts-ignore
     this._ackTimeoutId = setTimeout(() => {
       if (this._waitExpectedTimeoutId) {
         this.scheduleSendACK()
@@ -1069,6 +1070,7 @@ export class VirtualWebSocketClient {
           // there might be one or more pending events not yet received but sent by the server
           this.sessionInfo.expectEventId = msg.msgData.currEvent
           this.clearWaitExpectedEvent()
+          // @ts-ignore
           this._waitExpectedTimeoutId = setTimeout(() => {
             // must rebuild watch
             this.rebuildWatch()

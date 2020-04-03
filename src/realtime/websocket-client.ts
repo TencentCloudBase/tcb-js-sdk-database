@@ -211,6 +211,10 @@ export class RealtimeWebSocketClient {
           success()
         })
 
+        if(this._ws.connect){
+          await this._ws.connect()
+        }
+
         // if (process.env.DEBUG) {
         // console.log(
         //   '[realtime] initWebSocketConnection connectSocket successfully fired'
@@ -747,6 +751,7 @@ export class RealtimeWebSocketClient {
 
   private heartbeat(immediate?: boolean) {
     this.clearHeartbeat()
+    // @ts-ignore
     this._pingTimeoutId = setTimeout(
       async () => {
         try {
@@ -759,6 +764,7 @@ export class RealtimeWebSocketClient {
           await this.ping()
           this._pingFailed = 0
 
+          // @ts-ignore
           this._pongTimeoutId = setTimeout(() => {
             console.error('pong timed out')
             if (this._pongMissed < DEFAULT_PONG_MISS_TOLERANCE) {
@@ -800,7 +806,7 @@ export class RealtimeWebSocketClient {
     // console.log('ping sent')
   }
 
-  send = <T = any>(opts: IWSSendOptions): Promise<T> =>
+  send = async <T = any>(opts: IWSSendOptions): Promise<T> =>
     new Promise<T>(async (_resolve, _reject) => {
       let timeoutId: number
       let _hasResolved = false
@@ -821,6 +827,7 @@ export class RealtimeWebSocketClient {
       }
 
       if (opts.timeout) {
+        // @ts-ignore
         timeoutId = setTimeout(async () => {
           if (!_hasResolved || !_hasRejected) {
             // wait another immediate timeout to allow the success/fail callback to be invoked if ws has already got the result,
@@ -876,7 +883,7 @@ export class RealtimeWebSocketClient {
 
         // console.log('send msg:', opts.msg)
         try {
-          this._ws.send(JSON.stringify(opts.msg))
+          await this._ws.send(JSON.stringify(opts.msg))
           if (!opts.waitResponse) {
             resolve()
           }
