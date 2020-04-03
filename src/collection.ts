@@ -5,6 +5,8 @@ import Aggregation from './aggregate'
 import { serialize } from './serializer/datatype'
 import { E, getReqOpts, stringifyByEJSON } from './utils/utils'
 import { Validate } from './validate'
+import { isArray } from './utils/type'
+
 // import { EJSON } from 'bson'
 
 /**
@@ -67,6 +69,11 @@ export class CollectionReference extends Query {
     insertedIds: string[]
     requestId: string
   }> {
+    // 判断data是否为数组
+    if (!isArray(data)) {
+      data = [data]
+    }
+
     const transformData = data.map(item => {
       return stringifyByEJSON(serialize(item))
     })
