@@ -85,7 +85,7 @@ export class CollectionReference extends Query {
     // console.log('params:', params)
 
     const res = await this._request.send(
-      'database.addDocumentV3',
+      'database.insertDocument',
       params,
       getReqOpts(this._apiOptions)
     )

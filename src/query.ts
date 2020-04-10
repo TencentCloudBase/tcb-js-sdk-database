@@ -236,7 +236,7 @@ export class Query {
     }
 
     const res = await this._request.send(
-      'database.queryDocumentV3',
+      'database.getDocument',
       param,
       getReqOpts(this._apiOptions)
     )
@@ -273,7 +273,7 @@ export class Query {
       param.query = this._fieldFilters
     }
     const res = await this._request.send(
-      'database.countDocumentV3',
+      'database.calculateDocument',
       param,
       getReqOpts(this._apiOptions)
     )
@@ -416,7 +416,7 @@ export class Query {
     }
 
     const res = await this._request.send(
-      'database.updateDocumentV3',
+      'database.modifyDocument',
       param,
       getReqOpts(this._apiOptions)
     )
@@ -495,7 +495,7 @@ export class Query {
       multi
     }
     const res = await this._request.send(
-      'database.deleteDocumentV3',
+      'database.removeDocument',
       param,
       getReqOpts(this._apiOptions)
     )

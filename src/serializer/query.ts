@@ -6,7 +6,7 @@ import {
 } from '../commands/query'
 import { isLogicCommand, LOGIC_COMMANDS_LITERAL, LogicCommand } from '../commands/logic'
 import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol'
-import { getType, isObject, isArray, isRegExp } from '../utils/type'
+import { getType, isObject, isArray, isRegExp, isDate } from '../utils/type'
 import { operatorToString } from '../operator-map'
 import { flattenQueryObject, isConversionRequired, encodeInternalDataType } from './common'
 import { IGeoNearOptions, IGeoWithinOptions, IGeoIntersectsOptions } from '../commands/query'
@@ -40,6 +40,11 @@ class QueryEncoder {
         return this.encodeLogicCommand(query)
       } else if (isQueryCommand(query)) {
         return this.encodeQueryCommand(query)
+      } else if (isRegExp(query)) {
+        //  /xxx/ 形式
+        return { [key]: this.encodeRegExp(query) }
+      } else if (isDate(query)) {
+        return { [key]: query }
       } else {
         return { [key]: this.encodeQueryObject(query) }
       }
@@ -55,8 +60,10 @@ class QueryEncoder {
 
   encodeRegExp(query: RegExp) {
     return {
-      $regex: query.source,
-      $options: query.flags
+      $regularExpression: {
+        pattern: query.source,
+        options: query.flags
+      }
     }
   }
 

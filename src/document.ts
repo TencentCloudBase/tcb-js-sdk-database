@@ -100,7 +100,7 @@ export class DocumentReference {
     }
 
     const res = await this.request.send(
-      'database.addDocumentV3',
+      'database.insertDocument',
       params,
       getReqOpts(this._apiOptions)
     )
@@ -174,7 +174,7 @@ export class DocumentReference {
     }
 
     const res: any = await this.request.send(
-      'database.updateDocumentV3',
+      'database.modifyDocument',
       param,
       getReqOpts(this._apiOptions)
     )
@@ -219,7 +219,7 @@ export class DocumentReference {
     }
 
     const res = await this.request.send(
-      'database.updateDocumentV3',
+      'database.modifyDocument',
       param,
       getReqOpts(this._apiOptions)
     )
@@ -249,7 +249,7 @@ export class DocumentReference {
     }
 
     const res = await this.request.send(
-      'database.deleteDocumentV3',
+      'database.removeDocument',
       param,
       getReqOpts(this._apiOptions)
     )
@@ -281,11 +281,7 @@ export class DocumentReference {
     if (projection) {
       param.projection = stringifyByEJSON(projection)
     }
-    const res = await this.request.send(
-      'database.queryDocumentV3',
-      param,
-      getReqOpts(this._apiOptions)
-    )
+    const res = await this.request.send('database.getDocument', param, getReqOpts(this._apiOptions))
 
     if (res.code) {
       return res
