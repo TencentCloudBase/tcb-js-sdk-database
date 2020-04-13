@@ -37,7 +37,7 @@ export enum QUERY_COMMANDS_LITERAL {
 }
 
 export class QueryCommand extends LogicCommand {
-  public operator: QUERY_COMMANDS_LITERAL;
+  public operator: QUERY_COMMANDS_LITERAL
 
   constructor(
     operator: QUERY_COMMANDS_LITERAL,
@@ -55,6 +55,10 @@ export class QueryCommand extends LogicCommand {
       case QUERY_COMMANDS_LITERAL.NIN:
         return {
           ['$' + this.operator]: this.operands
+        }
+      case QUERY_COMMANDS_LITERAL.NEQ:
+        return {
+          ['$ne']: this.operands[0]
         }
       default:
         return {
@@ -169,15 +173,15 @@ export function isComparisonCommand(object: any): object is QueryCommand {
 export default QueryCommand
 
 export interface IGeoNearOptions {
-  geometry: Point;
-  maxDistance?: number;
-  minDistance?: number;
+  geometry: Point
+  maxDistance?: number
+  minDistance?: number
 }
 
 export interface IGeoWithinOptions {
-  geometry: Polygon | MultiPolygon;
+  geometry: Polygon | MultiPolygon
 }
 
 export interface IGeoIntersectsOptions {
-  geometry: Point | LineString | Polygon | MultiPoint | MultiLineString | MultiPolygon;
+  geometry: Point | LineString | Polygon | MultiPoint | MultiLineString | MultiPolygon
 }
