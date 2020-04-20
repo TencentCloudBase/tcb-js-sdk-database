@@ -17,6 +17,28 @@ export { Query } from './query'
 export { CollectionReference } from './collection'
 export { DocumentReference } from './document'
 
+interface ICloudBaseConfig {
+  timeout?: number
+  isHttp?: boolean
+  secretId?: string
+  secretKey?: string
+  envName?: string
+  env?: string
+  sessionToken?: string
+  serviceUrl?: string
+  headers?: any
+  proxy?: string
+  version?: string
+  credentials?: ICredentialsInfo
+  _useFeature?: boolean // 是否走新特性
+  throwOnCode?: boolean // 错误回包(带code) throw
+}
+
+interface ICredentialsInfo {
+  private_key_id: string
+  private_key: string
+}
+
 /**
  * 数据库模块
  *
@@ -48,7 +70,9 @@ export class Db {
    *
    * @param config
    */
-  config: any
+  config: ICloudBaseConfig
+
+  _oldDbInstance: any
 
   static ws: any
 
@@ -69,6 +93,7 @@ export class Db {
 
   constructor(config?: any) {
     this.config = config
+    this._oldDbInstance = config._oldDbInstance
     this.Geo = Geo
     this.serverDate = ServerDateConstructor
     this.command = Command

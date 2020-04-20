@@ -27,7 +27,6 @@ export class UpdateSerializer {
 
   static encodeEJSON(query: IQueryCondition | UpdateCommand): string {
     const stringifier = new UpdateSerializer()
-    // console.log('stringifier.encodeUpdate(query):', stringifier.encodeUpdate(query))
 
     return stringifyByEJSON(stringifier.encodeUpdate(query))
   }

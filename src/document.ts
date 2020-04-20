@@ -6,7 +6,7 @@ import { UpdateCommand } from './commands/update'
 import { IWatchOptions, DBRealtimeListener, IReqOpts } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 import { QueryType } from './constant'
-import { E, getReqOpts, stringifyByEJSON } from './utils/utils'
+import { getReqOpts, stringifyByEJSON, preProcess, processReturn } from './utils/utils'
 import { ERRORS } from './const/code'
 import { EJSON } from 'bson'
 import { QueryOption, UpdateOption } from './query'
@@ -54,6 +54,8 @@ export class DocumentReference {
 
   private _apiOptions: QueryOption | UpdateOption
 
+  _oldInstance: any
+
   /**
    * 初始化
    *
@@ -68,7 +70,8 @@ export class DocumentReference {
     coll: string,
     apiOptions: QueryOption | UpdateOption,
     docID: string | number,
-    transactionId: string
+    transactionId: string,
+    _oldInstance: any
   ) {
     this._db = db
     this._coll = coll
@@ -78,6 +81,7 @@ export class DocumentReference {
     this.request = new Db.reqClass(this._db.config)
     this._apiOptions = apiOptions
     this._getAccessToken = Db.getAccessToken
+    this._oldInstance = _oldInstance
   }
 
   /**
@@ -86,6 +90,7 @@ export class DocumentReference {
    * @param data - 文档数据
    * @internal
    */
+  @preProcess()
   async create(data: any): Promise<any> {
     // 存在docid 则放入data
     if (this.id) {
@@ -105,14 +110,21 @@ export class DocumentReference {
       getReqOpts(this._apiOptions)
     )
 
-    if (res.code) {
-      throw E({ ...res })
-    } else {
+    // 兼容原事务 插入文档接口
+    if (this._transactionId) {
       return {
-        insertedIds: res.data.insertedIds,
+        inserted: 1,
+        ok: 1,
+        id: res.data.insertedIds[0],
         requestId: res.requestId
       }
     }
+
+    return {
+      id: res.data.insertedIds[0],
+      requestId: res.requestId
+    }
+    // }
   }
 
   /**
@@ -124,17 +136,27 @@ export class DocumentReference {
    * @param data - 文档数据
    * @param opts - 可选项
    */
+  @preProcess()
   async set(data: Object): Promise<any> {
     if (!this.id) {
-      throw E({ ...ERRORS.INVALID_PARAM, message: 'docId不能为空' })
+      return processReturn(this._db.config.throwOnCode, {
+        ...ERRORS.INVALID_PARAM,
+        message: 'docId不能为空'
+      })
     }
 
     if (!data || typeof data !== 'object') {
-      throw E({ ...ERRORS.INVALID_PARAM, message: '参数必需是非空对象' })
+      return processReturn(this._db.config.throwOnCode, {
+        ...ERRORS.INVALID_PARAM,
+        message: '参数必需是非空对象'
+      })
     }
 
     if (data.hasOwnProperty('_id')) {
-      throw E({ ...ERRORS.INVALID_PARAM, message: '不能更新_id的值' })
+      return processReturn(this._db.config.throwOnCode, {
+        ...ERRORS.INVALID_PARAM,
+        message: '不能更新_id的值'
+      })
     }
 
     let hasOperator = false
@@ -153,7 +175,7 @@ export class DocumentReference {
 
     if (hasOperator) {
       //不能包含操作符
-      throw E({
+      return processReturn(this._db.config.throwOnCode, {
         ...ERRORS.DATABASE_REQUEST_FAILED,
         message: 'update operator complicit'
       })
@@ -179,16 +201,24 @@ export class DocumentReference {
       getReqOpts(this._apiOptions)
     )
 
-    if (res.code) {
-      throw E({ ...res })
-    } else {
+    // if (res.code) {
+    //   throw E({ ...res })
+    // } else {
+    // 兼容事务set 旧接口
+    if (this._transactionId) {
       return {
-        matched: res.data.matched,
         updated: res.data.updated,
-        upsertedId: res.data.upsert_id,
+        upserted: [{ _id: res.data.upsert_id }], // 成功插入的doc id
         requestId: res.requestId
       }
     }
+
+    return {
+      updated: res.data.updated,
+      upsertedId: res.data.upsert_id,
+      requestId: res.requestId
+    }
+    // }
   }
 
   /**
@@ -197,13 +227,20 @@ export class DocumentReference {
    * @param data - 文档数据
    * @param opts - 可选项
    */
+  @preProcess()
   async update(data: Object): Promise<any> {
     if (!data || typeof data !== 'object') {
-      throw E({ ...ERRORS.INVALID_PARAM, message: '参数必需是非空对象' })
+      return processReturn(this._db.config.throwOnCode, {
+        ...ERRORS.INVALID_PARAM,
+        message: '参数必需是非空对象'
+      })
     }
 
     if (data.hasOwnProperty('_id')) {
-      throw E({ ...ERRORS.INVALID_PARAM, message: '不能更新_id的值' })
+      return processReturn(this._db.config.throwOnCode, {
+        ...ERRORS.INVALID_PARAM,
+        message: '不能更新_id的值'
+      })
     }
 
     const query = stringifyByEJSON({ _id: this.id })
@@ -224,20 +261,29 @@ export class DocumentReference {
       getReqOpts(this._apiOptions)
     )
 
-    if (res.code) {
-      throw E({ ...res })
-    } else {
-      return {
-        matched: res.data.matched,
-        updated: res.data.updated,
-        requestId: res.requestId
-      }
+    // if (res.code) {
+    //   throw E({ ...res })
+    // } else {
+    return {
+      // matched: res.data.matched,
+      updated: res.data.updated,
+      requestId: res.requestId
     }
+    // }
+  }
+
+  /**
+   * 删除文档（事务兼容delete接口）
+   */
+  @preProcess()
+  async delete(): Promise<any> {
+    return this.remove()
   }
 
   /**
    * 删除文档
    */
+  @preProcess()
   async remove(): Promise<any> {
     const query = stringifyByEJSON({ _id: this.id })
     const param = {
@@ -254,19 +300,20 @@ export class DocumentReference {
       getReqOpts(this._apiOptions)
     )
 
-    if (res.code) {
-      throw E({ ...res })
-    } else {
-      return {
-        deleted: res.data.deleted,
-        requestId: res.requestId
-      }
+    // if (res.code) {
+    //   throw E({ ...res })
+    // } else {
+    return {
+      deleted: res.data.deleted,
+      requestId: res.requestId
     }
+    // }
   }
 
   /**
    * 返回选中的文档（_id）
    */
+  @preProcess()
   async get(): Promise<any> {
     const query = stringifyByEJSON({ _id: this.id })
     const { projection } = this._apiOptions as QueryOption
@@ -283,16 +330,27 @@ export class DocumentReference {
     }
     const res = await this.request.send('database.getDocument', param, getReqOpts(this._apiOptions))
 
-    if (res.code) {
-      return res
-    } else {
-      const list = res.data.list.map(item => EJSON.parse(item))
-      const documents = Util.formatResDocumentData(list)
+    // if (res.code) {
+    //   throw E({ ...res })
+    // } else {
+    const list = res.data.list.map(item => EJSON.parse(item))
+    const documents = Util.formatResDocumentData(list)
+
+    // 兼容事务查询文档旧接口
+    if (this._transactionId) {
       return {
-        data: documents,
+        data: documents[0] || null,
         requestId: res.requestId
       }
     }
+
+    return {
+      data: documents,
+      requestId: res.requestId,
+      offset: res.data.offset,
+      limit: res.data.limit
+    }
+    // }
   }
 
   /**
@@ -314,7 +372,14 @@ export class DocumentReference {
     let newApiOption: QueryOption = { ...this._apiOptions }
     newApiOption.projection = transformProjection
 
-    return new DocumentReference(this._db, this._coll, newApiOption, this.id, this._transactionId)
+    return new DocumentReference(
+      this._db,
+      this._coll,
+      newApiOption,
+      this.id,
+      this._transactionId,
+      this._oldInstance.field(projection)
+    )
   }
 
   /**

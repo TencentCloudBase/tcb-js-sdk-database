@@ -3,7 +3,7 @@ import { DocumentReference } from './document'
 import { Query, QueryOption, UpdateOption } from './query'
 import Aggregation from './aggregate'
 import { serialize } from './serializer/datatype'
-import { E, getReqOpts, stringifyByEJSON } from './utils/utils'
+import { getReqOpts, stringifyByEJSON, preProcess } from './utils/utils'
 import { Validate } from './validate'
 import { isArray } from './utils/type'
 
@@ -32,7 +32,7 @@ export class CollectionReference extends Query {
     apiOptions?: QueryOption | UpdateOption,
     transactionId?: string
   ) {
-    super(db, coll, '', apiOptions)
+    super(db, coll, '', apiOptions, db._oldDbInstance.collection(coll))
     if (transactionId) {
       this._transactionId = transactionId
     }
@@ -54,7 +54,14 @@ export class CollectionReference extends Query {
     if (typeof docID !== 'string' && typeof docID !== 'number') {
       throw new Error('docId必须为字符串或数字')
     }
-    return new DocumentReference(this._db, this._coll, this._apiOptions, docID, this._transactionId)
+    return new DocumentReference(
+      this._db,
+      this._coll,
+      this._apiOptions,
+      docID,
+      this._transactionId,
+      this._db._oldDbInstance.collection(this._coll).doc(docID)
+    )
   }
 
   /**
@@ -63,18 +70,23 @@ export class CollectionReference extends Query {
    * @param data  - 数据
    * @param opts  - 可选配置项
    */
+  @preProcess()
   async add(
-    data: any[]
+    data: any
   ): Promise<{
-    insertedIds: string[]
+    ids?: string[]
+    id?: string
+    inserted?: number // 事务调用返回
+    ok?: number // 事务调用返回
     requestId: string
   }> {
-    // 判断data是否为数组
+    // 判断data是否为数组, 兼容处理
+    let transformData = data
     if (!isArray(data)) {
-      data = [data]
+      transformData = [data]
     }
 
-    const transformData = data.map(item => {
+    transformData = transformData.map(item => {
       return stringifyByEJSON(serialize(item))
     })
     let params = {
@@ -82,22 +94,38 @@ export class CollectionReference extends Query {
       data: transformData
     }
 
-    // console.log('params:', params)
-
     const res = await this._request.send(
       'database.insertDocument',
       params,
       getReqOpts(this._apiOptions)
     )
 
-    if (res.code) {
-      throw E({ ...res })
-    } else {
+    // if (res.code) {
+    //   throw E({ ...res })
+    // } else {
+    // 判断data是否为数组, 兼容处理
+    if (!isArray(data)) {
+      // 兼容原事务 插入文档接口
+      if (this._transactionId) {
+        return {
+          inserted: 1,
+          ok: 1,
+          id: res.data.insertedIds[0],
+          requestId: res.requestId
+        }
+      }
       return {
-        insertedIds: res.data.insertedIds,
+        id: res.data.insertedIds[0],
         requestId: res.requestId
       }
     }
+
+    // 批量插入统一返回不区分是否在事务中b)
+    return {
+      ids: res.data.insertedIds,
+      requestId: res.requestId
+    }
+    // }
   }
 
   aggregate() {
@@ -112,7 +140,7 @@ export class CollectionReference extends Query {
    */
   public options(apiOptions: QueryOption | UpdateOption) {
     // 校验字段是否合规
-    Validate.isRightOptions(apiOptions)
+    Validate.isValidOptions(apiOptions)
     return new CollectionReference(this._db, this._coll, apiOptions, this._transactionId)
   }
 }

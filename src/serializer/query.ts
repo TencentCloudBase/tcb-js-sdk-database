@@ -24,11 +24,7 @@ export class QuerySerializer {
 
   static encodeEJSON(query: IQueryCondition | QueryCommand | LogicCommand): string {
     const encoder = new QueryEncoder()
-    // console.log('encoder.encodeQuery(query):', encoder.encodeQuery(query))
-    // console.log(
-    //   'stringifyByEJSON(encoder.encodeQuery(query)):',
-    //   stringifyByEJSON(encoder.encodeQuery(query))
-    // )
+
     return stringifyByEJSON(encoder.encodeQuery(query))
   }
 }

@@ -63,7 +63,7 @@ export class Validate {
    * @param param - 要验证的参数名
    * @param num   - 要验证的参数值
    */
-  static isBoolean(param: string, bool: boolean): Boolean {
+  static mustBeBoolean(param: string, bool: boolean): Boolean {
     if (typeof bool !== 'boolean') {
       throw new Error(param + ErrorCode.BooleanError)
     }
@@ -111,19 +111,6 @@ export class Validate {
         })
       }
     }
-    // for (let index in value) {
-    //   const subValue = value[index]
-    //   if (
-    //     getType(subValue) !== 'object' ||
-    //     getType(subValue['key']) !== 'string' ||
-    //     getType(subValue['direction']) !== 'number'
-    //   ) {
-    //     throw E({
-    //       ...ERRORS.INVALID_PARAM,
-    //       message: `order must be like [{key: 'a', direction: '1'}, ...]`
-    //     })
-    //   }
-    // }
     return true
   }
 
@@ -202,7 +189,7 @@ export class Validate {
    * @returns {Boolean}
    * @memberof Validate
    */
-  static isRightOptions(options: QueryOption | UpdateOption = {}): Boolean {
+  static isValidOptions(options: QueryOption | UpdateOption = {}): Boolean {
     if (getType(options) !== 'object') {
       throw E({ ...ERRORS.INVALID_PARAM, message: `options must be an object` })
     }
@@ -229,7 +216,7 @@ export class Validate {
       Validate.isOrder('order', order)
     }
     if (multi !== undefined) {
-      Validate.isBoolean('multi', multi)
+      Validate.mustBeBoolean('multi', multi)
     }
     if (options.timeout !== undefined) {
       Validate.isInteger('timeout', options.timeout)

@@ -11,7 +11,13 @@ import { UpdateSerializer } from './serializer/update'
 import { IWatchOptions, DBRealtimeListener, IReqOpts } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 import { ErrorCode } from './constant'
-import { E, getReqOpts, stringifyByEJSON } from './utils/utils'
+import {
+  getReqOpts,
+  stringifyByEJSON,
+  preProcess,
+  processReturn,
+  transformDbObjFromNewToOld
+} from './utils/utils'
 import { ERRORS } from './const/code'
 import { EJSON } from 'bson'
 
@@ -111,6 +117,8 @@ export class Query {
    */
   public _request: any
 
+  protected _oldInstance: any
+
   /**
    * websocket 参数 pingTimeout
    */
@@ -131,7 +139,6 @@ export class Query {
    */
   // private _wsURL: string
 
-
   /**
    * 初始化
    *
@@ -149,7 +156,8 @@ export class Query {
     fieldFilters?: string,
     // fieldOrders?: QueryOrder[],
     // queryOptions?: QueryOption,
-    apiOptions?: QueryOption | UpdateOption
+    apiOptions?: QueryOption | UpdateOption,
+    _oldInstance?: any
     // rawWhereParams?: Object
   ) {
     this._db = db
@@ -160,6 +168,8 @@ export class Query {
     this._apiOptions = apiOptions || {}
     /* eslint-disable new-cap */
     this._request = new Db.reqClass(this._db.config)
+    // this._getAccessToken = Db.getAccessToken
+    this._oldInstance = _oldInstance
   }
 
   /**
@@ -168,6 +178,7 @@ export class Query {
    * - 默认获取集合下全部文档数据
    * - 可以把通过 `orderBy`、`where`、`skip`、`limit`设置的数据添加请求参数上
    */
+  @preProcess()
   public async get(): Promise<GetRes> {
     /* eslint-disable no-param-reassign */
     // let newOrder = {}
@@ -241,24 +252,25 @@ export class Query {
       getReqOpts(this._apiOptions)
     )
 
-    if (res.code) {
-      throw E({ ...res })
-    } else {
-      const list = res.data.list.map(item => EJSON.parse(item))
-      const documents = Util.formatResDocumentData(list)
-      const result: any = {
-        data: documents,
-        requestId: res.requestId
-      }
-      if (res.limit) result.limit = res.limit
-      if (res.offset) result.offset = res.offset
-      return result
+    // if (res.code) {
+    //   throw E({ ...res })
+    // } else {
+    const list = res.data.list.map(item => EJSON.parse(item))
+    const documents = Util.formatResDocumentData(list)
+    const result: any = {
+      data: documents,
+      requestId: res.requestId
     }
+    if (res.limit) result.limit = res.limit
+    if (res.offset) result.offset = res.offset
+    return result
   }
+  // }
 
   /**
    * 获取总数
    */
+  @preProcess()
   public async count() {
     interface Param {
       collectionName: string
@@ -278,14 +290,14 @@ export class Query {
       getReqOpts(this._apiOptions)
     )
 
-    if (res.code) {
-      throw E({ ...res })
-    } else {
-      return {
-        requestId: res.requestId,
-        total: res.data.total
-      }
+    // if (res.code) {
+    //   throw E({ ...res })
+    // } else {
+    return {
+      requestId: res.requestId,
+      total: res.data.total
     }
+    // }
   }
 
   /**
@@ -313,7 +325,8 @@ export class Query {
       this._db,
       this._coll,
       QuerySerializer.encodeEJSON(query),
-      this._apiOptions
+      this._apiOptions,
+      this._oldInstance.where(transformDbObjFromNewToOld(query, this._db._oldDbInstance, [query]))
       // this._fieldOrders,
       // this._queryOptions
     )
@@ -327,7 +340,7 @@ export class Query {
    */
   public options(apiOptions: QueryOption | UpdateOption) {
     // 校验字段是否合规
-    Validate.isRightOptions(apiOptions)
+    Validate.isValidOptions(apiOptions)
     return new Query(this._db, this._coll, this._fieldFilters, apiOptions)
   }
 
@@ -354,7 +367,13 @@ export class Query {
       order: Object.assign({}, order, newOrder)
     })
 
-    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
+    return new Query(
+      this._db,
+      this._coll,
+      this._fieldFilters,
+      newApiOption,
+      this._oldInstance.orderBy(fieldPath, directionStr)
+    )
   }
 
   /**
@@ -368,7 +387,13 @@ export class Query {
     let newApiOption: QueryOption = { ...this._apiOptions }
     newApiOption.limit = limit
 
-    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
+    return new Query(
+      this._db,
+      this._coll,
+      this._fieldFilters,
+      newApiOption,
+      this._oldInstance.limit(limit)
+    )
   }
 
   /**
@@ -384,7 +409,13 @@ export class Query {
 
     newApiOption.offset = offset
 
-    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
+    return new Query(
+      this._db,
+      this._coll,
+      this._fieldFilters,
+      newApiOption,
+      this._oldInstance.skip(offset)
+    )
   }
 
   /**
@@ -392,13 +423,20 @@ export class Query {
    *
    * @param data 数据
    */
+  @preProcess()
   public async update(data: Object): Promise<any> {
     if (!data || typeof data !== 'object') {
-      throw E({ ...ERRORS.INVALID_PARAM, message: '参数必需是非空对象' })
+      return processReturn(this._db.config.throwOnCode, {
+        ...ERRORS.INVALID_PARAM,
+        message: '参数必需是非空对象'
+      })
     }
 
     if (data.hasOwnProperty('_id')) {
-      throw E({ ...ERRORS.INVALID_PARAM, message: '不能更新_id的值' })
+      return processReturn(this._db.config.throwOnCode, {
+        ...ERRORS.INVALID_PARAM,
+        message: '不能更新_id的值'
+      })
     }
 
     let { multi } = this._apiOptions as UpdateOption
@@ -421,15 +459,15 @@ export class Query {
       getReqOpts(this._apiOptions)
     )
 
-    if (res.code) {
-      throw E({ ...res })
-    } else {
-      return {
-        requestId: res.requestId,
-        updated: res.data.updated,
-        upsertId: res.data.upsert_id
-      }
+    // if (res.code) {
+    //   throw E({ ...res })
+    // } else {
+    return {
+      requestId: res.requestId,
+      updated: res.data.updated,
+      upsertId: res.data.upsert_id
     }
+    // }
   }
 
   /**
@@ -459,12 +497,19 @@ export class Query {
     let newApiOption: QueryOption = { ...this._apiOptions }
     newApiOption.projection = transformProjection
 
-    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
+    return new Query(
+      this._db,
+      this._coll,
+      this._fieldFilters,
+      newApiOption,
+      this._oldInstance.field(projection)
+    )
   }
 
   /**
    * 条件删除文档
    */
+  @preProcess()
   public async remove() {
     // if (Object.keys(this._queryOptions).length > 0) {
     //   console.warn('`offset`, `limit` and `projection` are not supported in remove() operation')
@@ -500,14 +545,14 @@ export class Query {
       getReqOpts(this._apiOptions)
     )
 
-    if (res.code) {
-      throw E({ ...res })
-    } else {
-      return {
-        requestId: res.requestId,
-        deleted: res.data.deleted
-      }
+    // if (res.code) {
+    //   throw E({ ...res })
+    // } else {
+    return {
+      requestId: res.requestId,
+      deleted: res.data.deleted
     }
+    // }
   }
 
   /**

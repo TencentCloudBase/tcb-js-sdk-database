@@ -15,7 +15,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": false,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     "outDir": "dist/commonjs",
     "pretty": true,
     "removeComments": true,
