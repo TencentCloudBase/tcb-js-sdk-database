@@ -45,8 +45,6 @@ export class DocumentReference {
    */
   private request: any
 
-  private _getAccessToken: Function
-
   /**
    * 初始化
    *
@@ -63,7 +61,6 @@ export class DocumentReference {
     /* eslint-disable new-cap*/
     this.request = new Db.reqClass(this._db.config)
     this.projection = projection
-    this._getAccessToken = Db.getAccessToken
   }
 
   /**
@@ -336,7 +333,6 @@ export class DocumentReference {
    * 监听单个文档
    */
   watch = (options: IWatchOptions): DBRealtimeListener => {
-    // this._getAccessToken((accessToken, envId) => {
     if (!Db.ws) {
       Db.ws = new RealtimeWebSocketClient({
         context: {
@@ -344,7 +340,7 @@ export class DocumentReference {
             docSizeLimit: 1000,
             realtimePingInterval: 10000,
             realtimePongWaitTimeout: 5000,
-            getAccessToken: this._getAccessToken
+            request: this.request
           }
         }
       })

@@ -77,6 +77,14 @@ interface IResponseWaitSpec extends IResolveReject {
   skipOnMessage?: boolean
 }
 
+interface IWsSign {
+  signStr: string,
+  wsUrl: string,
+  secretVersion: string
+  envId: string
+  expiredTs: number
+}
+
 const WS_READY_STATE = {
   CONNECTING: 0,
   OPEN: 1,
@@ -123,6 +131,7 @@ export class RealtimeWebSocketClient {
   private _reconnectState: boolean
   // obtained from the first getSignature with no envId provided
   // private _defaultEnvId?: string
+  private _wsSign: IWsSign
 
   constructor(options: IRealtimeWebSocketClientConstructorOptions) {
     this._maxReconnect = options.maxReconnect || DEFAULT_MAX_RECONNECT
@@ -178,8 +187,7 @@ export class RealtimeWebSocketClient {
         // }
 
         // const signature = await this.getSignature()
-        // const accessTokenRes = await this.getAccessToken()
-        await this.getAccessToken()
+        const wsSign = await this.getWsSign()
 
         // if (process.env.DEBUG) {
         // console.log('[realtime] initWebSocketConnection getSignature success')
@@ -198,15 +206,14 @@ export class RealtimeWebSocketClient {
           //     fail
           //   })
 
-          // this._ws = new WebSocket("ws://212.129.231.116:80")
-          // this._ws = new WebSocket("ws://212.64.45.4:8080")
-          // this._ws = new WebSocket('wss://tcb-ws.tencentcloudapi.com')
-          const url = 'wss://tcb-ws.tencentcloudapi.com';
-          // debug
-          // const url = 'ws://tcb-ws.tencentcloudapi.com';
+          const url = wsSign.wsUrl || 'wss://tcb-ws.tencentcloudapi.com';
           this._ws = Db.wsClass ? new Db.wsClass(url) : new WebSocket(url)
           success()
         })
+
+        if(this._ws.connect){
+          await this._ws.connect()
+        }
 
         // if (process.env.DEBUG) {
         // console.log(
@@ -589,12 +596,12 @@ export class RealtimeWebSocketClient {
       try {
         // const signature = await this.getSignature(envId, refresh)
 
-        const accessTokenRes = await this.getAccessToken()
+        const wsSign = await this.getWsSign()
 
         // const wxVersion = getWXVersion()
         const msgData: IRequestMessageLoginData = {
-          envId: accessTokenRes.env || '',
-          accessToken: accessTokenRes.accessToken,
+          envId: wsSign.envId || '',
+          accessToken: '', // 已废弃字段
           // signStr: signature.signStr,
           // secretVersion: signature.secretVersion,
           referrer: 'web',
@@ -605,24 +612,11 @@ export class RealtimeWebSocketClient {
           watchId: undefined,
           requestId: genRequestId(),
           msgType: 'LOGIN',
-          msgData
-        }
-        // 非常规web场景下附加应用签名信息
-        if(Db.runtime !== 'web'){
-          const timestamp = Date.now();
-          const {appAccessKey,appAccessKeyId,appSign} = Db.appSecretInfo;
-          const payload = {
-            data: msgData,
-            timestamp,
-            appAccessKeyId,
-            appSign
-          };
-          const sign = Db.createSign(payload,appAccessKey);
-          loginMsg.exMsgData = {
-            timestamp,
-            appAccessKey,
-            appSign,
-            sign
+          msgData,
+          exMsgData: {
+            runtime: Db.runtime,
+            signStr: wsSign.signStr,
+            secretVersion: wsSign.secretVersion
           }
         }
         const loginResMsg = await this.send<IResponseMessageLoginResMsg>({
@@ -635,7 +629,7 @@ export class RealtimeWebSocketClient {
         if (!loginResMsg.msgData.code) {
           // login success
           resolve({
-            envId: accessTokenRes.env
+            envId: wsSign.envId
           })
         } else {
           // login failed
@@ -717,9 +711,29 @@ export class RealtimeWebSocketClient {
     }
   }
 
-  private getAccessToken = async (): Promise<any> => {
-    // envId = envId || this._context.env || this._defaultEnvId
-    return this._context.appConfig.getAccessToken()
+  private getWsSign = async (): Promise<IWsSign> => {
+    if (this._wsSign && this._wsSign.expiredTs > Date.now()) {
+      return this._wsSign
+    }
+    const expiredTs = Date.now() + 60000
+    const res = await this._context.appConfig.request.send('auth.wsWebSign', {runtime: Db.runtime})
+
+    if (res.code) {
+      throw new Error(`[tcb-js-sdk] 获取实时数据推送登录票据失败: ${res.code}`)
+    }
+
+    if (res.data) {
+      const {signStr, wsUrl, secretVersion, envId} = res.data
+      return {
+        signStr,
+        wsUrl,
+        secretVersion,
+        envId,
+        expiredTs
+      }
+    } else {
+      throw new Error('[tcb-js-sdk] 获取实时数据推送登录票据失败')
+    }
   }
 
   private getWaitExpectedTimeoutLength = () => {
@@ -737,6 +751,7 @@ export class RealtimeWebSocketClient {
 
   private heartbeat(immediate?: boolean) {
     this.clearHeartbeat()
+    // @ts-ignore
     this._pingTimeoutId = setTimeout(
       async () => {
         try {
@@ -749,6 +764,7 @@ export class RealtimeWebSocketClient {
           await this.ping()
           this._pingFailed = 0
 
+          // @ts-ignore
           this._pongTimeoutId = setTimeout(() => {
             console.error('pong timed out')
             if (this._pongMissed < DEFAULT_PONG_MISS_TOLERANCE) {
@@ -790,7 +806,7 @@ export class RealtimeWebSocketClient {
     // console.log('ping sent')
   }
 
-  send = <T = any>(opts: IWSSendOptions): Promise<T> =>
+  send = async <T = any>(opts: IWSSendOptions): Promise<T> =>
     new Promise<T>(async (_resolve, _reject) => {
       let timeoutId: number
       let _hasResolved = false
@@ -811,6 +827,7 @@ export class RealtimeWebSocketClient {
       }
 
       if (opts.timeout) {
+        // @ts-ignore
         timeoutId = setTimeout(async () => {
           if (!_hasResolved || !_hasRejected) {
             // wait another immediate timeout to allow the success/fail callback to be invoked if ws has already got the result,
@@ -866,7 +883,7 @@ export class RealtimeWebSocketClient {
 
         // console.log('send msg:', opts.msg)
         try {
-          this._ws.send(JSON.stringify(opts.msg))
+          await this._ws.send(JSON.stringify(opts.msg))
           if (!opts.waitResponse) {
             resolve()
           }

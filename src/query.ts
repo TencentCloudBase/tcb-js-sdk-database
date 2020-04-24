@@ -113,11 +113,6 @@ export class Query {
    */
   // private _wsURL: string
 
-  /**
-   * 鉴权方法
-   *
-   */
-  private _getAccessToken: Function
 
   /**
    * 初始化
@@ -151,7 +146,6 @@ export class Query {
 
     /* eslint-disable new-cap */
     this._request = new Db.reqClass(this._db.config)
-    this._getAccessToken = Db.getAccessToken
   }
 
   /**
@@ -468,7 +462,6 @@ export class Query {
    * 监听query对应的doc变化
    */
   watch = (options: IWatchOptions): DBRealtimeListener => {
-    // this._getAccessToken((accessToken, envId) => {
     if (!Db.ws) {
       Db.ws = new RealtimeWebSocketClient({
         context: {
@@ -476,7 +469,7 @@ export class Query {
             docSizeLimit: 1000,
             realtimePingInterval: 10000,
             realtimePongWaitTimeout: 5000,
-            getAccessToken: this._getAccessToken
+            request: this._request
           }
         }
       })
