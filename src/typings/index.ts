@@ -19,8 +19,7 @@ export interface IAppConfig {
   docSizeLimit: number
   realtimePingInterval: number
   realtimePongWaitTimeout: number
-  // accessToken: any
-  getAccessToken: Function
+  request: any
 }
 
 export interface IWatchOptions {
