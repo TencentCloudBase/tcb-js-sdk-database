@@ -5,9 +5,9 @@ import { Command } from './command'
 import { ServerDateConstructor } from './serverDate/index'
 import { RegExpConstructor } from './regexp/index'
 import { startTransaction, runTransaction } from './transaction/index'
-import { LogicCommand } from '../src/commands/logic'
-import { QueryCommand } from '../src/commands/query'
-import { UpdateCommand } from '../src/commands/update'
+import { LogicCommand } from './commands/logic'
+import { QueryCommand } from './commands/query'
+import { UpdateCommand } from './commands/update'
 
 /**
  * 地理位置类型
