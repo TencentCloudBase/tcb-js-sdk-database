@@ -113,7 +113,6 @@ export class Query {
    */
   // private _wsURL: string
 
-
   /**
    * 初始化
    *
@@ -187,8 +186,7 @@ export class Query {
       param.offset = this._queryOptions.offset
     }
     if (this._queryOptions.limit) {
-      param.limit =
-        this._queryOptions.limit < 1000 ? this._queryOptions.limit : 1000
+      param.limit = this._queryOptions.limit < 1000 ? this._queryOptions.limit : 1000
     } else {
       param.limit = 100
     }
@@ -297,13 +295,7 @@ export class Query {
     }
     const combinedOrders = this._fieldOrders.concat(newOrder)
 
-    return new Query(
-      this._db,
-      this._coll,
-      this._fieldFilters,
-      combinedOrders,
-      this._queryOptions
-    )
+    return new Query(this._db, this._coll, this._fieldFilters, combinedOrders, this._queryOptions)
   }
 
   /**
@@ -317,13 +309,7 @@ export class Query {
     let option = { ...this._queryOptions }
     option.limit = limit
 
-    return new Query(
-      this._db,
-      this._coll,
-      this._fieldFilters,
-      this._fieldOrders,
-      option
-    )
+    return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option)
   }
 
   /**
@@ -337,13 +323,7 @@ export class Query {
     let option = { ...this._queryOptions }
     option.offset = offset
 
-    return new Query(
-      this._db,
-      this._coll,
-      this._fieldFilters,
-      this._fieldOrders,
-      option
-    )
+    return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option)
   }
 
   /**
@@ -415,13 +395,7 @@ export class Query {
     let option = { ...this._queryOptions }
     option.projection = projection
 
-    return new Query(
-      this._db,
-      this._coll,
-      this._fieldFilters,
-      this._fieldOrders,
-      option
-    )
+    return new Query(this._db, this._coll, this._fieldFilters, this._fieldOrders, option)
   }
 
   /**
@@ -431,9 +405,7 @@ export class Query {
     callback = callback || createPromiseCallback()
 
     if (Object.keys(this._queryOptions).length > 0) {
-      console.warn(
-        '`offset`, `limit` and `projection` are not supported in remove() operation'
-      )
+      console.warn('`offset`, `limit` and `projection` are not supported in remove() operation')
     }
     if (this._fieldOrders.length > 0) {
       console.warn('`orderBy` is not supported in remove() operation')
@@ -481,10 +453,12 @@ export class Query {
       collectionName: this._coll,
       query: JSON.stringify(this._fieldFilters),
       limit: this._queryOptions.limit,
-      orderBy: this._fieldOrders ? this._fieldOrders.reduce<Record<string, string>>((acc, cur) => {
-        acc[cur.field] = cur.direction
-        return acc
-      }, {}) : undefined,
+      orderBy: this._fieldOrders
+        ? this._fieldOrders.reduce<Record<string, string>>((acc, cur) => {
+            acc[cur.field] = cur.direction
+            return acc
+          }, {})
+        : undefined
     })
     // })
   }

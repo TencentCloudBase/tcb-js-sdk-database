@@ -5,6 +5,9 @@ import { Command } from './command'
 import { ServerDateConstructor } from './serverDate/index'
 import { RegExpConstructor } from './regexp/index'
 import { startTransaction, runTransaction } from './transaction/index'
+import { LogicCommand } from '../src/commands/logic'
+import { QueryCommand } from '../src/commands/query'
+import { UpdateCommand } from '../src/commands/update'
 
 /**
  * 地理位置类型
@@ -41,6 +44,12 @@ export class Db {
 
   runTransaction: any
 
+  logicCommand: any
+
+  updateCommand: any
+
+  queryCommand: any
+
   /**
    * 初始化
    *
@@ -75,6 +84,11 @@ export class Db {
     this.RegExp = RegExpConstructor
     this.startTransaction = startTransaction
     this.runTransaction = runTransaction
+
+    // 暴露command类 给新sdk灰度兼容用
+    this.logicCommand = LogicCommand
+    this.updateCommand = UpdateCommand
+    this.queryCommand = QueryCommand
   }
 
   /**
