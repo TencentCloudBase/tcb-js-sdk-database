@@ -69,7 +69,7 @@ const GRAY_ENV_KEY = 'TCB_SDK_GRAY_0'
 const needTransformFunc = ['update', 'set', 'create', 'add']
 
 export const preProcess = () => {
-  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function(_target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let newFunc = descriptor.value
 
     descriptor.value = async function() {
