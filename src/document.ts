@@ -107,6 +107,10 @@ export class DocumentReference {
       getReqOpts(this._apiOptions)
     )
 
+    if (res.code) {
+      return res
+    }
+
     // 兼容原事务 插入文档接口
     if (this._transactionId) {
       return {
@@ -198,6 +202,10 @@ export class DocumentReference {
       getReqOpts(this._apiOptions)
     )
 
+    if (res.code) {
+      return res
+    }
+
     // if (res.code) {
     //   throw E({ ...res })
     // } else {
@@ -258,6 +266,10 @@ export class DocumentReference {
       getReqOpts(this._apiOptions)
     )
 
+    if (res.code) {
+      return res
+    }
+
     // if (res.code) {
     //   throw E({ ...res })
     // } else {
@@ -297,6 +309,10 @@ export class DocumentReference {
       getReqOpts(this._apiOptions)
     )
 
+    if (res.code) {
+      return res
+    }
+
     // if (res.code) {
     //   throw E({ ...res })
     // } else {
@@ -327,6 +343,9 @@ export class DocumentReference {
     }
     const res = await this.request.send('database.getDocument', param, getReqOpts(this._apiOptions))
 
+    if (res.code) {
+      return res
+    }
     // if (res.code) {
     //   throw E({ ...res })
     // } else {

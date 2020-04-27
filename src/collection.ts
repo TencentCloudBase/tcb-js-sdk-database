@@ -100,6 +100,9 @@ export class CollectionReference extends Query {
       getReqOpts(this._apiOptions)
     )
 
+    if (res.code) {
+      return res
+    }
     // if (res.code) {
     //   throw E({ ...res })
     // } else {

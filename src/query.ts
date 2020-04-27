@@ -252,6 +252,10 @@ export class Query {
       getReqOpts(this._apiOptions)
     )
 
+    if (res.code) {
+      return res
+    }
+
     // if (res.code) {
     //   throw E({ ...res })
     // } else {
@@ -289,6 +293,10 @@ export class Query {
       param,
       getReqOpts(this._apiOptions)
     )
+
+    if (res.code) {
+      return res
+    }
 
     // if (res.code) {
     //   throw E({ ...res })
@@ -459,6 +467,10 @@ export class Query {
       getReqOpts(this._apiOptions)
     )
 
+    if (res.code) {
+      return res
+    }
+
     // if (res.code) {
     //   throw E({ ...res })
     // } else {
@@ -545,6 +557,9 @@ export class Query {
       getReqOpts(this._apiOptions)
     )
 
+    if (res.code) {
+      return res
+    }
     // if (res.code) {
     //   throw E({ ...res })
     // } else {
