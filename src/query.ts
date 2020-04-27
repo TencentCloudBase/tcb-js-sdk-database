@@ -8,7 +8,7 @@ import { Util } from './util'
 import { QuerySerializer } from './serializer/query'
 import { UpdateSerializer } from './serializer/update'
 // import { WSClient } from "./websocket/wsclient"
-import { IWatchOptions, DBRealtimeListener, IReqOpts } from './typings/index'
+import { IWatchOptions, DBRealtimeListener } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 import { ErrorCode } from './constant'
 import {

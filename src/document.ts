@@ -3,7 +3,7 @@ import { Util } from './util'
 import { UpdateSerializer } from './serializer/update'
 import { serialize } from './serializer/datatype'
 import { UpdateCommand } from './commands/update'
-import { IWatchOptions, DBRealtimeListener, IReqOpts } from './typings/index'
+import { IWatchOptions, DBRealtimeListener } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 import { QueryType } from './constant'
 import { getReqOpts, stringifyByEJSON, preProcess, processReturn } from './utils/utils'
@@ -50,8 +50,6 @@ export class DocumentReference {
    */
   private request: any
 
-  private _getAccessToken: Function
-
   private _apiOptions: QueryOption | UpdateOption
 
   _oldInstance: any
@@ -80,7 +78,6 @@ export class DocumentReference {
     /* eslint-disable new-cap*/
     this.request = new Db.reqClass(this._db.config)
     this._apiOptions = apiOptions
-    this._getAccessToken = Db.getAccessToken
     this._oldInstance = _oldInstance
   }
 
