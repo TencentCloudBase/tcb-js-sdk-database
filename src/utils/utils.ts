@@ -77,6 +77,16 @@ export const preProcess = () => {
       const oldInstance = this._oldInstance
 
       const oldFunc = oldInstance[propertyKey]
+      // 优先检查用户是否有主动设置使用新特性
+      if (this._db && this._db.config) {
+        const { _useFeature } = this._db.config
+        if (_useFeature === true) {
+          // 主动设置走新逻辑
+          return newFunc.apply(this, arguments)
+        }
+      }
+
+      // 其次走环境变量控制
       try {
         if (process.env.TCB_CONTEXT_CNFG) {
           // 检查约定环境变量字段是否存在
