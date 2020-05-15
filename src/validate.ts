@@ -12,7 +12,7 @@ import { ERRORS } from './const/code'
 import { E } from './utils/utils'
 import { getType } from './utils/type'
 
-const validOptionsKeys = ['limit', 'offset', 'projection', 'order', 'multi', 'timeout']
+const validOptionsKeys = ['limit', 'offset', 'projection', 'order', 'multiple', 'timeout']
 
 /**
  * 校验模块
@@ -202,7 +202,7 @@ export class Validate {
     }
 
     const { limit, offset, projection, order } = options as QueryOption
-    const { multi } = options as UpdateOption
+    const { multiple } = options as UpdateOption
     if (limit !== undefined) {
       Validate.isInteger('limit', limit)
     }
@@ -215,8 +215,8 @@ export class Validate {
     if (order !== undefined) {
       Validate.isOrder('order', order)
     }
-    if (multi !== undefined) {
-      Validate.mustBeBoolean('multi', multi)
+    if (multiple !== undefined) {
+      Validate.mustBeBoolean('multiple', multiple)
     }
     if (options.timeout !== undefined) {
       Validate.isInteger('timeout', options.timeout)

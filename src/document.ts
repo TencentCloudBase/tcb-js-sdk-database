@@ -380,6 +380,10 @@ export class DocumentReference {
         transformProjection[k] = projection[k] === true ? 1 : 0
       }
 
+      if (typeof projection[k] === 'number') {
+        transformProjection[k] = projection[k] > 0 ? 1 : 0
+      }
+
       if (typeof projection[k] === 'object') {
         transformProjection[k] = projection[k]
       }

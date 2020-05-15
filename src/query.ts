@@ -53,7 +53,7 @@ export interface QueryOption extends BaseOption {
 
 export interface UpdateOption extends BaseOption {
   // 是否只影响单条doc
-  multi?: boolean
+  multiple?: boolean
   // // 是否插入
   // upsert?: boolean
   // // 是否replace
@@ -447,18 +447,22 @@ export class Query {
       })
     }
 
-    let { multi } = this._apiOptions as UpdateOption
-    multi = multi === undefined ? true : multi // where update 不传multi默认为true
+    let { multiple } = this._apiOptions as UpdateOption
+    const multi = multiple === undefined ? true : multiple // where update 不传multi默认为true
 
-    let param = {
+    let param: any = {
       collectionName: this._coll,
-      query: this._fieldFilters,
+      // query: this._fieldFilters,
       queryType: QueryType.WHERE,
       // query: QuerySerializer.encode(this._fieldFilters),
       multi,
       merge: true,
       upsert: false,
       data: UpdateSerializer.encodeEJSON(data)
+    }
+
+    if (this._fieldFilters) {
+      param.query = this._fieldFilters
     }
 
     const res = await this._request.send(
@@ -496,9 +500,13 @@ export class Query {
   public field(projection: any): Query {
     let transformProjection = {}
     for (let k in projection) {
-      // 区分bool类型 和 Object类型
+      // 区分bool类型，number类型 和 Object类型
       if (typeof projection[k] === 'boolean') {
         transformProjection[k] = projection[k] === true ? 1 : 0
+      }
+
+      if (typeof projection[k] === 'number') {
+        transformProjection[k] = projection[k] > 0 ? 1 : 0
       }
 
       if (typeof projection[k] === 'object') {
@@ -542,8 +550,8 @@ export class Query {
       )
     }
 
-    let { multi } = this._apiOptions as UpdateOption
-    multi = multi === undefined ? true : multi // where remove 不传multi默认为true
+    let { multiple } = this._apiOptions as UpdateOption
+    const multi = multiple === undefined ? true : multiple // where remove 不传multi默认为true
 
     const param = {
       collectionName: this._coll,
