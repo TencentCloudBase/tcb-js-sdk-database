@@ -72,8 +72,6 @@ export class Db {
    */
   config: ICloudBaseConfig
 
-  _oldDbInstance: any
-
   static ws: any
 
   static reqClass: any
@@ -93,7 +91,6 @@ export class Db {
 
   constructor(config?: any) {
     this.config = config
-    this._oldDbInstance = config._oldDbInstance
     this.Geo = Geo
     this.serverDate = ServerDateConstructor
     this.command = Command
