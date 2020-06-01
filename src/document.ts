@@ -6,7 +6,7 @@ import { UpdateCommand } from './commands/update'
 import { IWatchOptions, DBRealtimeListener } from './typings/index'
 import { RealtimeWebSocketClient } from './realtime/websocket-client'
 import { QueryType } from './constant'
-import { getReqOpts, stringifyByEJSON, preProcess, processReturn } from './utils/utils'
+import { getReqOpts, stringifyByEJSON, processReturn } from './utils/utils'
 import { ERRORS } from './const/code'
 import { EJSON } from 'bson'
 import { QueryOption, UpdateOption } from './query'
@@ -52,8 +52,6 @@ export class DocumentReference {
 
   private _apiOptions: QueryOption | UpdateOption
 
-  _oldInstance: any
-
   /**
    * 初始化
    *
@@ -68,8 +66,7 @@ export class DocumentReference {
     coll: string,
     apiOptions: QueryOption | UpdateOption,
     docID: string | number,
-    transactionId: string,
-    _oldInstance: any
+    transactionId: string
   ) {
     this._db = db
     this._coll = coll
@@ -78,7 +75,6 @@ export class DocumentReference {
     /* eslint-disable new-cap*/
     this.request = new Db.reqClass(this._db.config)
     this._apiOptions = apiOptions
-    this._oldInstance = _oldInstance
   }
 
   /**
@@ -87,7 +83,6 @@ export class DocumentReference {
    * @param data - 文档数据
    * @internal
    */
-  @preProcess()
   async create(data: any): Promise<any> {
     // 存在docid 则放入data
     if (this.id) {
@@ -137,7 +132,6 @@ export class DocumentReference {
    * @param data - 文档数据
    * @param opts - 可选项
    */
-  @preProcess()
   async set(data: Object): Promise<any> {
     if (!this.id) {
       return processReturn(this._db.config.throwOnCode, {
@@ -232,7 +226,6 @@ export class DocumentReference {
    * @param data - 文档数据
    * @param opts - 可选项
    */
-  @preProcess()
   async update(data: Object): Promise<any> {
     if (!data || typeof data !== 'object') {
       return processReturn(this._db.config.throwOnCode, {
@@ -284,7 +277,6 @@ export class DocumentReference {
   /**
    * 删除文档（事务兼容delete接口）
    */
-  @preProcess()
   async delete(): Promise<any> {
     return this.remove()
   }
@@ -292,7 +284,6 @@ export class DocumentReference {
   /**
    * 删除文档
    */
-  @preProcess()
   async remove(): Promise<any> {
     const query = stringifyByEJSON({ _id: this.id })
     const param = {
@@ -326,7 +317,6 @@ export class DocumentReference {
   /**
    * 返回选中的文档（_id）
    */
-  @preProcess()
   async get(): Promise<any> {
     const query = stringifyByEJSON({ _id: this.id })
     const { projection } = this._apiOptions as QueryOption
@@ -392,14 +382,7 @@ export class DocumentReference {
     let newApiOption: QueryOption = { ...this._apiOptions }
     newApiOption.projection = transformProjection
 
-    return new DocumentReference(
-      this._db,
-      this._coll,
-      newApiOption,
-      this.id,
-      this._transactionId,
-      this._oldInstance.field(projection)
-    )
+    return new DocumentReference(this._db, this._coll, newApiOption, this.id, this._transactionId)
   }
 
   /**

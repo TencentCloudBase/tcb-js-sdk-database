@@ -1,12 +1,10 @@
 import { Db } from '../index'
-import { CollectionReference as newCollectionReference } from '../collection'
-import { CollectionReference as oldCollectionReference } from './collection'
+import { CollectionReference } from '../collection'
 import { ERRORS } from '../const/code'
 
 const START = 'database.startTransaction'
 const COMMIT = 'database.commitTransaction'
 const ABORT = 'database.abortTransaction'
-const GRAY_ENV_KEY = 'TCB_SDK_GRAY_0'
 
 interface TransactionAPI {
   send(interfaceName: string, param?: any)
@@ -49,25 +47,12 @@ export class Transaction {
    *
    * @param collName - 集合名称
    */
-  public collection(collName: string): oldCollectionReference | newCollectionReference {
+  public collection(collName: string): CollectionReference {
     if (!collName) {
       throw new Error('Collection name is required')
     }
 
-    // 根据环境变量区分 是走新的事务接口还是旧的事务接口
-    try {
-      if (process.env.TCB_CONTEXT_CNFG) {
-        // 检查约定环境变量字段是否存在
-        const grayEnvKey = JSON.parse(process.env.TCB_CONTEXT_CNFG)
-        if (grayEnvKey[GRAY_ENV_KEY] === true) {
-          return new newCollectionReference(this._db, collName, {}, this._id)
-        }
-      }
-    } catch (e) {
-      console.log('parse context error...')
-    }
-
-    return new oldCollectionReference(this, collName)
+    return new CollectionReference(this._db, collName, {}, this._id)
   }
 
   public getTransactionId(): string {

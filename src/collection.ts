@@ -3,7 +3,7 @@ import { DocumentReference } from './document'
 import { Query, QueryOption, UpdateOption } from './query'
 import Aggregation from './aggregate'
 import { serialize } from './serializer/datatype'
-import { getReqOpts, stringifyByEJSON, preProcess } from './utils/utils'
+import { getReqOpts, stringifyByEJSON } from './utils/utils'
 import { Validate } from './validate'
 import { isArray } from './utils/type'
 
@@ -32,7 +32,7 @@ export class CollectionReference extends Query {
     apiOptions?: QueryOption | UpdateOption,
     transactionId?: string
   ) {
-    super(db, coll, '', apiOptions, db._oldDbInstance.collection(coll))
+    super(db, coll, '', apiOptions)
     if (transactionId) {
       this._transactionId = transactionId
     }
@@ -54,14 +54,7 @@ export class CollectionReference extends Query {
     if (typeof docID !== 'string' && typeof docID !== 'number') {
       throw new Error('docId必须为字符串或数字')
     }
-    return new DocumentReference(
-      this._db,
-      this._coll,
-      this._apiOptions,
-      docID,
-      this._transactionId,
-      this._db._oldDbInstance.collection(this._coll).doc(docID)
-    )
+    return new DocumentReference(this._db, this._coll, this._apiOptions, docID, this._transactionId)
   }
 
   /**
@@ -70,7 +63,6 @@ export class CollectionReference extends Query {
    * @param data  - 数据
    * @param opts  - 可选配置项
    */
-  @preProcess()
   async add(
     data: any
   ): Promise<{
