@@ -81,9 +81,13 @@ export class CollectionReference extends Query {
     transformData = transformData.map(item => {
       return stringifyByEJSON(serialize(item))
     })
-    let params = {
+    let params: any = {
       collectionName: this._coll,
       data: transformData
+    }
+
+    if (this._transactionId) {
+      params.transactionId = this._transactionId
     }
 
     const res = await this._request.send(
