@@ -1,25 +1,6 @@
 import { QueryOption, UpdateOption } from '../query'
 import { EJSON } from 'bson'
-// import { isObject, isArray, isInternalObject } from './type'
-// import { ServerDate } from '../serverDate'
-// import { RegExp } from '../regexp'
-// import * as Geo from '../geo'
-// import { QueryCommand } from '../commands/query'
-// import { LogicCommand } from '../commands/logic'
-// import { UpdateCommand } from '../commands/update'
-// import {
-//   SYMBOL_GEO_POINT,
-//   SYMBOL_GEO_LINE_STRING,
-//   SYMBOL_GEO_POLYGON,
-//   SYMBOL_GEO_MULTI_POINT,
-//   SYMBOL_GEO_MULTI_LINE_STRING,
-//   SYMBOL_GEO_MULTI_POLYGON,
-//   SYMBOL_UPDATE_COMMAND,
-//   SYMBOL_QUERY_COMMAND,
-//   SYMBOL_LOGIC_COMMAND,
-//   SYMBOL_SERVER_DATE,
-//   SYMBOL_REGEXP
-// } from '../helper/symbol'
+import { isObject } from './type'
 
 export const sleep = (ms: number = 0) => new Promise(r => setTimeout(r, ms))
 
@@ -43,7 +24,28 @@ export const getReqOpts = (apiOptions: QueryOption | UpdateOption): any => {
   return {}
 }
 
+// 递归过滤对象中的undefiend字段
+export const filterUndefined = o => {
+  // 如果不是对象类型，直接返回
+  if (!isObject(o)) {
+    return o
+  }
+
+  for (let key in o) {
+    if (o[key] === undefined) {
+      delete o[key]
+    } else if (isObject(o[key])) {
+      o[key] = filterUndefined(o[key])
+    }
+  }
+
+  return o
+}
+
 export const stringifyByEJSON = params => {
+  // params中删除undefined的key
+  params = filterUndefined(params)
+
   return EJSON.stringify(params, { relaxed: false })
 }
 
