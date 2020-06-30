@@ -23,13 +23,6 @@ interface GetRes {
   offset: number
 }
 
-// interface QueryOrder {
-//   // field?: string
-//   // direction?: 'asc' | 'desc'
-//   key?: string
-//   direction?: -1 | 1
-// }
-
 interface BaseOption {
   timeout?: number // 接口调用超时设置
 }
@@ -73,6 +66,14 @@ export class Query {
    * @internal
    */
   protected _coll: string
+
+  /**
+   *
+   * @protected
+   * @type {string}
+   * @memberof Query
+   */
+  protected _transactionId: string
 
   /**
    * 过滤条件
@@ -146,20 +147,16 @@ export class Query {
     db: Db,
     coll: string,
     fieldFilters?: string,
-    // fieldOrders?: QueryOrder[],
-    // queryOptions?: QueryOption,
-    apiOptions?: QueryOption | UpdateOption
-    // rawWhereParams?: Object
+    apiOptions?: QueryOption | UpdateOption,
+    transactionId?: string
   ) {
     this._db = db
     this._coll = coll
     this._fieldFilters = fieldFilters
-    // this._fieldOrders = fieldOrders || []
-    // this._queryOptions = queryOptions || {}
     this._apiOptions = apiOptions || {}
     /* eslint-disable new-cap */
     this._request = new Db.reqClass(this._db.config)
-    // this._getAccessToken = Db.getAccessToken
+    this._transactionId = transactionId
   }
 
   /**
@@ -170,23 +167,12 @@ export class Query {
    */
   public async get(): Promise<GetRes> {
     /* eslint-disable no-param-reassign */
-    // let newOrder = {}
-    // if (this._fieldOrders) {
-    //   this._fieldOrders.forEach(order => {
-    //     newOder.push(order)
-    //   })
-    // }
 
     const order = (this._apiOptions as QueryOption).order
 
-    // if (order) {
-    //   order.forEach(item => {
-    //     newOrder.push(item)
-    //   })
-    // }
-
     interface Param {
       collectionName: string
+      transactionId?: string
       query?: Object
       queryType: QueryType
       order?: string[]
@@ -196,7 +182,8 @@ export class Query {
     }
     let param: Param = {
       collectionName: this._coll,
-      queryType: QueryType.WHERE
+      queryType: QueryType.WHERE,
+      transactionId: this._transactionId
     }
     if (this._fieldFilters) {
       param.query = this._fieldFilters
@@ -321,7 +308,8 @@ export class Query {
       this._db,
       this._coll,
       QuerySerializer.encodeEJSON(query),
-      this._apiOptions
+      this._apiOptions,
+      this._transactionId
       // this._fieldOrders,
       // this._queryOptions
     )
@@ -336,7 +324,7 @@ export class Query {
   public options(apiOptions: QueryOption | UpdateOption) {
     // 校验字段是否合规
     Validate.isValidOptions(apiOptions)
-    return new Query(this._db, this._coll, this._fieldFilters, apiOptions)
+    return new Query(this._db, this._coll, this._fieldFilters, apiOptions, this._transactionId)
   }
 
   /**
@@ -362,7 +350,7 @@ export class Query {
       order: Object.assign({}, order, newOrder)
     })
 
-    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
+    return new Query(this._db, this._coll, this._fieldFilters, newApiOption, this._transactionId)
   }
 
   /**
@@ -376,7 +364,7 @@ export class Query {
     let newApiOption: QueryOption = { ...this._apiOptions }
     newApiOption.limit = limit
 
-    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
+    return new Query(this._db, this._coll, this._fieldFilters, newApiOption, this._transactionId)
   }
 
   /**
@@ -392,7 +380,7 @@ export class Query {
 
     newApiOption.offset = offset
 
-    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
+    return new Query(this._db, this._coll, this._fieldFilters, newApiOption, this._transactionId)
   }
 
   /**
@@ -485,7 +473,7 @@ export class Query {
     let newApiOption: QueryOption = { ...this._apiOptions }
     newApiOption.projection = transformProjection
 
-    return new Query(this._db, this._coll, this._fieldFilters, newApiOption)
+    return new Query(this._db, this._coll, this._fieldFilters, newApiOption, this._transactionId)
   }
 
   /**
