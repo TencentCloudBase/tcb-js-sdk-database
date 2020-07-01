@@ -16,7 +16,7 @@ import { isArray } from './utils/type'
  * @author haroldhu
  */
 export class CollectionReference extends Query {
-  private _transactionId: string
+  protected _transactionId: string
   /**
    * 初始化
    *
@@ -32,7 +32,7 @@ export class CollectionReference extends Query {
     apiOptions?: QueryOption | UpdateOption,
     transactionId?: string
   ) {
-    super(db, coll, '', apiOptions)
+    super(db, coll, '', apiOptions, transactionId)
     if (transactionId) {
       this._transactionId = transactionId
     }
