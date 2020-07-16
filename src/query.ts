@@ -235,16 +235,21 @@ export class Query {
     if (this._fieldFilters) {
       param.query = this._fieldFilters
     }
-    this._request.send('database.countDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          requestId: res.requestId,
-          total: res.data.total
-        })
-      }
-    })
+    this._request
+      .send('database.countDocument', param)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          callback(0, {
+            requestId: res.requestId,
+            total: res.data.total
+          })
+        }
+      })
+      .catch(e => {
+        callback(e)
+      })
 
     return callback.promise
   }
@@ -361,17 +366,22 @@ export class Query {
       // data: this.convertParams(data)
     }
 
-    this._request.send('database.updateDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          requestId: res.requestId,
-          updated: res.data.updated,
-          upsertId: res.data.upsert_id
-        })
-      }
-    })
+    this._request
+      .send('database.updateDocument', param)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          callback(0, {
+            requestId: res.requestId,
+            updated: res.data.updated,
+            upsertId: res.data.upsert_id
+          })
+        }
+      })
+      .catch(e => {
+        callback(e)
+      })
 
     return callback.promise
   }
@@ -416,16 +426,21 @@ export class Query {
       queryType: QueryType.WHERE,
       multi: true
     }
-    this._request.send('database.deleteDocument', param).then(res => {
-      if (res.code) {
-        callback(0, res)
-      } else {
-        callback(0, {
-          requestId: res.requestId,
-          deleted: res.data.deleted
-        })
-      }
-    })
+    this._request
+      .send('database.deleteDocument', param)
+      .then(res => {
+        if (res.code) {
+          callback(0, res)
+        } else {
+          callback(0, {
+            requestId: res.requestId,
+            deleted: res.data.deleted
+          })
+        }
+      })
+      .catch(e => {
+        callback(e)
+      })
 
     return callback.promise
   }
