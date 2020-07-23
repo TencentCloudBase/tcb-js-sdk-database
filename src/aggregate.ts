@@ -52,18 +52,15 @@ export default class Aggregation {
 
   _pipe(stage, param) {
     // 区分param是否为字符串
-    // const transformParam = isBson === true ? param : JSON.stringify(param)
     let transformParam = ''
     if (getType(param) === 'object') {
       transformParam = stringifyByEJSON(param)
     } else {
-      // 检查是否已经过EJSON序列化
       transformParam = JSON.stringify(param)
     }
 
     this._stages.push({
       stageKey: `$${stage}`,
-      // stageValue: JSON.stringify(param)
       stageValue: transformParam
     })
     return this
@@ -102,7 +99,6 @@ export default class Aggregation {
 
   match(param) {
     return this._pipe('match', QuerySerializer.encode(param))
-    // return this._pipe('match', param)
   }
 
   project(param) {

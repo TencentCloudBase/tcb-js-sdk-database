@@ -527,7 +527,7 @@ export class Query {
     // }
   }
 
-  public async modifyAndReturn(data: Object): Promise<any> {
+  public async updateAndReturn(data: Object): Promise<any> {
     if (!data || typeof data !== 'object') {
       return processReturn(this._db.config.throwOnCode, {
         ...ERRORS.INVALID_PARAM,
