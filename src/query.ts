@@ -527,6 +527,52 @@ export class Query {
     // }
   }
 
+  public async modifyAndReturn(data: Object): Promise<any> {
+    if (!data || typeof data !== 'object') {
+      return processReturn(this._db.config.throwOnCode, {
+        ...ERRORS.INVALID_PARAM,
+        message: '参数必需是非空对象'
+      })
+    }
+
+    if (data.hasOwnProperty('_id')) {
+      return processReturn(this._db.config.throwOnCode, {
+        ...ERRORS.INVALID_PARAM,
+        message: '不能更新_id的值'
+      })
+    }
+
+    let param: any = {
+      collectionName: this._coll,
+      queryType: QueryType.WHERE,
+      data: UpdateSerializer.encodeEJSON(data)
+    }
+
+    if (this._transactionId) {
+      param.transactionId = this._transactionId
+    }
+
+    if (this._fieldFilters) {
+      param.query = this._fieldFilters
+    }
+
+    const res = await this._request.send(
+      'database.modifyAndReturnDoc',
+      param,
+      getReqOpts(this._apiOptions)
+    )
+
+    if (res.code) {
+      return res
+    }
+
+    return {
+      requestId: res.requestId,
+      updated: res.data.updated,
+      doc: res.data.doc && EJSON.parse(res.data.doc)
+    }
+  }
+
   /**
    * 监听query对应的doc变化
    */
