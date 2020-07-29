@@ -16,7 +16,8 @@ enum ErrorCode {
   BooleanError = 'must be boolean',
   ArrayError = 'must be array',
   QueryParamTypeError = '查询参数必须为对象',
-  QueryParamValueError = '查询参数对象值不能均为undefined'
+  QueryParamValueError = '查询参数对象值不能均为undefined',
+  CentersPhereError = 'centersPhere结构不合法'
 }
 
 /**

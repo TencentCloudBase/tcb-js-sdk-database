@@ -11,6 +11,7 @@ import { operatorToString } from '../operator-map'
 import { flattenQueryObject, isConversionRequired, encodeInternalDataType } from './common'
 import { IGeoNearOptions, IGeoWithinOptions, IGeoIntersectsOptions } from '../commands/query'
 import { stringifyByEJSON } from '../utils/utils'
+import { Validate } from '../validate'
 
 export type IQueryCondition = Record<string, any> | LogicCommand
 
@@ -166,6 +167,19 @@ class QueryEncoder {
       }
       case QUERY_COMMANDS_LITERAL.GEO_WITHIN: {
         const options: IGeoWithinOptions = query.operands[0]
+
+        if (options.centerSphere) {
+          // 校验centerSphere结构
+          Validate.isCentersPhere(options.centerSphere)
+          return {
+            [query.fieldName as string]: {
+              $geoWithin: {
+                $centerSphere: options.centerSphere
+              }
+            }
+          }
+        }
+
         return {
           [query.fieldName as string]: {
             $geoWithin: {

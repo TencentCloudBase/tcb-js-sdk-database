@@ -2,6 +2,7 @@ import { LogicCommand } from './logic'
 import { InternalSymbol, SYMBOL_QUERY_COMMAND } from '../helper/symbol'
 import { Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon } from '../geo/index'
 import { isNumber } from '../utils/type'
+import { Validate } from '../validate'
 
 export const EQ = 'eq'
 export const NEQ = 'neq'
@@ -131,7 +132,11 @@ export class QueryCommand extends LogicCommand {
   }
 
   geoWithin(val: IGeoWithinOptions) {
-    if (!(val.geometry instanceof MultiPolygon) && !(val.geometry instanceof Polygon)) {
+    if (
+      !(val.geometry instanceof MultiPolygon) &&
+      !(val.geometry instanceof Polygon) &&
+      !Validate.isCentersPhere(val.centerSphere)
+    ) {
       throw new TypeError(
         `"geometry" must be of type Polygon or MultiPolygon. Received type ${typeof val.geometry}`
       )
@@ -179,7 +184,8 @@ export interface IGeoNearOptions {
 }
 
 export interface IGeoWithinOptions {
-  geometry: Polygon | MultiPolygon
+  geometry?: Polygon | MultiPolygon
+  centerSphere?: [[number, number], number]
 }
 
 export interface IGeoIntersectsOptions {

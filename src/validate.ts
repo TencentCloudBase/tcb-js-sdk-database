@@ -223,4 +223,29 @@ export class Validate {
     }
     return true
   }
+
+  /**
+   *
+   * @static
+   * @param {[[number, number], number]} param
+   * @returns {Boolean}
+   * @memberof Validate
+   */
+  static isCentersPhere(param: [[number, number], number]): Boolean {
+    if (Array.isArray(param) && param.length === 2) {
+      // 校验第一项是否为数组
+      if (Array.isArray(param[0]) && param[0].length === 2) {
+        // 校验经纬度和半径
+        const longitude = param[0][0]
+        const latitude = param[0][1]
+        Validate.isGeopoint('longitude', longitude)
+        Validate.isGeopoint('latitude', latitude)
+        if (typeof param[1] === 'number') {
+          return true
+        }
+      }
+    }
+
+    throw new Error(param + ErrorCode.CentersPhereError)
+  }
 }
