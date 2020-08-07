@@ -1,6 +1,9 @@
 import { Db } from './index'
 import { EJSON } from 'bson'
 import { QuerySerializer } from './serializer/query'
+import { stringifyByEJSON } from './utils/utils'
+import { getType } from './utils/type'
+
 export default class Aggregation {
   _db: any
   _request: any
@@ -21,7 +24,7 @@ export default class Aggregation {
       throw new Error('Aggregation pipeline cannot send request')
     }
 
-    const result = await this._request.send('database.aggregate', {
+    const result = await this._request.send('database.aggregateDocuments', {
       collectionName: this._collectionName,
       stages: this._stages
     })
@@ -29,7 +32,7 @@ export default class Aggregation {
     if (result && result.data && result.data.list) {
       return {
         requestId: result.requestId,
-        data: JSON.parse(result.data.list).map(EJSON.parse)
+        data: result.data.list.map(EJSON.parse)
       }
     }
     return result
@@ -47,13 +50,17 @@ export default class Aggregation {
     })
   }
 
-  _pipe(stage, param, isBson?: boolean) {
+  _pipe(stage, param) {
     // 区分param是否为字符串
-    const transformParam = isBson === true ? param : JSON.stringify(param)
+    let transformParam = ''
+    if (getType(param) === 'object') {
+      transformParam = stringifyByEJSON(param)
+    } else {
+      transformParam = JSON.stringify(param)
+    }
 
     this._stages.push({
       stageKey: `$${stage}`,
-      // stageValue: JSON.stringify(param)
       stageValue: transformParam
     })
     return this
@@ -76,6 +83,9 @@ export default class Aggregation {
   }
 
   geoNear(param) {
+    if (param.query) {
+      param.query = QuerySerializer.encode(param.query)
+    }
     return this._pipe('geoNear', param)
   }
 
@@ -88,7 +98,7 @@ export default class Aggregation {
   }
 
   match(param) {
-    return this._pipe('match', QuerySerializer.encodeEJSON(param), true)
+    return this._pipe('match', QuerySerializer.encode(param))
   }
 
   project(param) {
