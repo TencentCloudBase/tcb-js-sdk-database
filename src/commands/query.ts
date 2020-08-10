@@ -185,7 +185,7 @@ export interface IGeoNearOptions {
 
 export interface IGeoWithinOptions {
   geometry?: Polygon | MultiPolygon
-  centerSphere?: [[number, number], number]
+  centerSphere?: [Point, number]
 }
 
 export interface IGeoIntersectsOptions {

@@ -70,7 +70,7 @@ class QueryEncoder {
       case LOGIC_COMMANDS_LITERAL.AND:
       case LOGIC_COMMANDS_LITERAL.OR: {
         const $op = operatorToString(query.operator)
-        const subqueries = query.operands.map(oprand => this.encodeQuery(oprand, query.fieldName))
+        const subqueries = query.operands.map((oprand) => this.encodeQuery(oprand, query.fieldName))
         return {
           [$op]: subqueries
         }
@@ -171,10 +171,11 @@ class QueryEncoder {
         if (options.centerSphere) {
           // 校验centerSphere结构
           Validate.isCentersPhere(options.centerSphere)
+          const centerSphere = options.centerSphere
           return {
             [query.fieldName as string]: {
               $geoWithin: {
-                $centerSphere: options.centerSphere
+                $centerSphere: [centerSphere[0].toJSON().coordinates, centerSphere[1]]
               }
             }
           }
