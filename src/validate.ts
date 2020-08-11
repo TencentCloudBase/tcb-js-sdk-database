@@ -11,6 +11,8 @@ import { QueryOption, UpdateOption } from './query'
 import { ERRORS } from './const/code'
 import { E } from './utils/utils'
 import { getType } from './utils/type'
+import { Point } from './geo'
+import { SYMBOL_GEO_POINT } from './helper/symbol'
 
 const validOptionsKeys = ['limit', 'offset', 'projection', 'order', 'multiple', 'timeout']
 
@@ -222,5 +224,27 @@ export class Validate {
       Validate.isInteger('timeout', options.timeout)
     }
     return true
+  }
+
+  /**
+   *
+   * @static
+   * @param {[Point, number]} param
+   * @returns {Boolean}
+   * @memberof Validate
+   */
+  static isCentersPhere(param: [Point, number]): Boolean {
+    if (Array.isArray(param) && param.length === 2) {
+      // 校验第一项是否为Point, 第二项半径是否为数字
+      if (
+        getType(param[0]) === 'object' &&
+        param[0]._internalType === SYMBOL_GEO_POINT &&
+        typeof param[1] === 'number'
+      ) {
+        return true
+      }
+    }
+
+    throw new Error(`${ErrorCode.CentersPhereError}`)
   }
 }
