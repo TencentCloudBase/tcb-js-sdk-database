@@ -993,3 +993,27 @@ export class RealtimeWebSocketClient {
     return virtualClient.listener
   }
 }
+
+
+/**
+ * 工厂模式创建 ws 实例
+ */
+const wsList = {}
+export function getWsInstance(db: Db) {
+  const { env } = db.config
+
+  if (!wsList[env]) {
+    wsList[env] = new RealtimeWebSocketClient({
+      context: {
+        appConfig: {
+          docSizeLimit: 1000,
+          realtimePingInterval: 10000,
+          realtimePongWaitTimeout: 5000,
+          request: new Db.reqClass(db.config)
+        }
+      }
+    })
+  }
+
+  return wsList[env]
+}

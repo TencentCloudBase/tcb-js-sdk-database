@@ -5,7 +5,7 @@ import { UpdateSerializer } from './serializer/update'
 import { serialize } from './serializer/datatype'
 import { UpdateCommand } from './commands/update'
 import { IWatchOptions, DBRealtimeListener } from './typings/index'
-import { RealtimeWebSocketClient } from './realtime/websocket-client'
+import { RealtimeWebSocketClient, getWsInstance } from './realtime/websocket-client'
 import { QueryType } from './constant'
 
 /**
@@ -333,20 +333,9 @@ export class DocumentReference {
    * 监听单个文档
    */
   watch = (options: IWatchOptions): DBRealtimeListener => {
-    if (!Db.ws) {
-      Db.ws = new RealtimeWebSocketClient({
-        context: {
-          appConfig: {
-            docSizeLimit: 1000,
-            realtimePingInterval: 10000,
-            realtimePongWaitTimeout: 5000,
-            request: this.request
-          }
-        }
-      })
-    }
+    const ws = getWsInstance(this._db)
 
-    return (Db.ws as RealtimeWebSocketClient).watch({
+    return (ws as RealtimeWebSocketClient).watch({
       ...options,
       envId: this._db.config.env,
       collectionName: this._coll,
@@ -354,6 +343,5 @@ export class DocumentReference {
         _id: this.id
       })
     })
-    // })
   }
 }

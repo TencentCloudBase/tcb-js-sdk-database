@@ -10,7 +10,7 @@ import { QuerySerializer } from './serializer/query'
 import { UpdateSerializer } from './serializer/update'
 // import { WSClient } from "./websocket/wsclient"
 import { IWatchOptions, DBRealtimeListener } from './typings/index'
-import { RealtimeWebSocketClient } from './realtime/websocket-client'
+import { RealtimeWebSocketClient, getWsInstance } from './realtime/websocket-client'
 import { ErrorCode } from './constant'
 
 interface GetRes {
@@ -449,24 +449,13 @@ export class Query {
    * 监听query对应的doc变化
    */
   watch = (options: IWatchOptions): DBRealtimeListener => {
-    if (!Db.ws) {
-      Db.ws = new RealtimeWebSocketClient({
-        context: {
-          appConfig: {
-            docSizeLimit: 1000,
-            realtimePingInterval: 10000,
-            realtimePongWaitTimeout: 5000,
-            request: this._request
-          }
-        }
-      })
-    }
+    const ws = getWsInstance(this._db)
 
-    return (Db.ws as RealtimeWebSocketClient).watch({
+    return (ws as RealtimeWebSocketClient).watch({
       ...options,
       envId: this._db.config.env,
       collectionName: this._coll,
-      query: JSON.stringify(this._fieldFilters),
+      query: JSON.stringify(this._fieldFilters || {}),
       limit: this._queryOptions.limit,
       orderBy: this._fieldOrders
         ? this._fieldOrders.reduce<Record<string, string>>((acc, cur) => {
@@ -475,7 +464,6 @@ export class Query {
           }, {})
         : undefined
     })
-    // })
   }
 
   /*
