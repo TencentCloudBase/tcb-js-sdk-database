@@ -1,6 +1,6 @@
 {
   "name": "@cloudbase/database",
-  "version": "0.9.17-beta",
+  "version": "0.9.18-beta",
   "description": "database for (node.)js sdk ",
   "main": "dist/commonjs/index.js",
   "module": "dist/esm/index.js",
