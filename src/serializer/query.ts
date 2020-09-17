@@ -5,13 +5,14 @@ import {
   QueryCommand
 } from '../commands/query'
 import { isLogicCommand, LOGIC_COMMANDS_LITERAL, LogicCommand } from '../commands/logic'
-import { SYMBOL_UNSET_FIELD_NAME } from '../helper/symbol'
+import { SYMBOL_UNSET_FIELD_NAME, SYMBOL_GEO_POINT } from '../helper/symbol'
 import { getType, isObject, isArray, isRegExp, isDate } from '../utils/type'
 import { operatorToString } from '../operator-map'
 import { flattenQueryObject, isConversionRequired, encodeInternalDataType } from './common'
 import { IGeoNearOptions, IGeoWithinOptions, IGeoIntersectsOptions } from '../commands/query'
 import { stringifyByEJSON } from '../utils/utils'
 import { Validate } from '../validate'
+import { Point } from '../geo'
 
 export type IQueryCondition = Record<string, any> | LogicCommand
 
@@ -172,10 +173,22 @@ class QueryEncoder {
           // 校验centerSphere结构
           Validate.isCentersPhere(options.centerSphere)
           const centerSphere = options.centerSphere
+
+          // 判断是point 形式 or 二维数组形式
+          if ((centerSphere[0] as Point)._internalType === SYMBOL_GEO_POINT) {
+            return {
+              [query.fieldName as string]: {
+                $geoWithin: {
+                  $centerSphere: [(centerSphere[0] as Point).toJSON().coordinates, centerSphere[1]]
+                }
+              }
+            }
+          }
+
           return {
             [query.fieldName as string]: {
               $geoWithin: {
-                $centerSphere: [centerSphere[0].toJSON().coordinates, centerSphere[1]]
+                $centerSphere: options.centerSphere
               }
             }
           }

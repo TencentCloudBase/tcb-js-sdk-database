@@ -5,6 +5,7 @@
 /**
  * Database Watch
  */
+import { Point } from '../geo/index'
 
 export type DataType = 'init' | 'update' | 'add' | 'remove' | 'replace' | 'limit'
 export type QueueType = 'init' | 'enqueue' | 'dequeue' | 'update'
@@ -68,3 +69,5 @@ export interface IServiceContext {
 export interface IReqOpts {
   timeout: number
 }
+
+export type CenterSphere = [Point, number] | [[number, number], number]
