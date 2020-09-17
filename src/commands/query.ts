@@ -3,6 +3,7 @@ import { InternalSymbol, SYMBOL_QUERY_COMMAND } from '../helper/symbol'
 import { Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon } from '../geo/index'
 import { isNumber } from '../utils/type'
 import { Validate } from '../validate'
+import { CenterSphere } from '../typings'
 
 export const EQ = 'eq'
 export const NEQ = 'neq'
@@ -185,7 +186,7 @@ export interface IGeoNearOptions {
 
 export interface IGeoWithinOptions {
   geometry?: Polygon | MultiPolygon
-  centerSphere?: [Point, number]
+  centerSphere?: CenterSphere
 }
 
 export interface IGeoIntersectsOptions {
