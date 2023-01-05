@@ -205,12 +205,18 @@ class QueryEncoder {
 
   encodeQueryObject(query: IQueryCondition): IQueryCondition {
     const flattened = flattenQueryObject(query)
+    let queryObject = null
     for (const key in flattened) {
       const val = flattened[key]
       if (isLogicCommand(val)) {
-        flattened[key] = val._setFieldName(key)
-        const condition = this.encodeLogicCommand(flattened[key])
-        this.mergeConditionAfterEncode(flattened, condition, key)
+        const condition = this.encodeLogicCommand(val._setFieldName(key))
+        queryObject = queryObject || {
+          $and: [
+            flattened
+          ]
+        }
+        queryObject.$and.push(condition)
+        delete flattened[key]
       } else if (isComparisonCommand(val)) {
         flattened[key] = val._setFieldName(key)
         const condition = this.encodeComparisonCommand(flattened[key])
@@ -219,7 +225,7 @@ class QueryEncoder {
         flattened[key] = encodeInternalDataType(val)
       }
     }
-    return flattened
+    return queryObject || flattened
   }
 
   /**
